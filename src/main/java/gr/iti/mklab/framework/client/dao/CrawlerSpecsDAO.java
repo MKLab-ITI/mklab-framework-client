@@ -1,10 +1,10 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.Keyword;
-import eu.socialsensor.framework.common.domain.Location;
-import eu.socialsensor.framework.common.domain.Source;
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.Keyword;
+import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.Source;
+import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import java.util.List;
 
 /**

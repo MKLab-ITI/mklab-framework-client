@@ -1,14 +1,11 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 import java.util.Iterator;
 import java.util.List;
-
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 /**
  * Data Access Object for Item
@@ -44,10 +41,6 @@ public interface ItemDAO {
     public void setIndexedStatusTrue(String itemId);
 
     public List<Item> getUnindexedItems(int max);
-    
-    public List<Item> getItems(DBObject query);
-    
-    public ItemIterator getIterator(DBObject query);
 
     public class ItemIterator implements Iterator<Item> {
 
@@ -59,7 +52,7 @@ public interface ItemDAO {
 		
     	public Item next() {
     		String json = it.next();
-    		return ItemFactory.create(json);
+    		return ObjectFactory.create(json);
     	}
     	
     	public boolean hasNext() {

@@ -1,7 +1,6 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.Query;
@@ -186,9 +185,9 @@ public class SolrMediaItemHandler {
 		}
     }
     
-    public MediaItem findLatestItem(){
+    public MediaItem findLatestItem() {
     	SolrQuery solrQuery = new SolrQuery("*:*");
-    	solrQuery.addSortField("publicationTime", SolrQuery.ORDER.desc);
+    	solrQuery.addSort("publicationTime", SolrQuery.ORDER.desc);
     	solrQuery.setRows(1);
     	
     	 SearchEngineResponse<MediaItem> response = search(solrQuery);
@@ -204,7 +203,7 @@ public class SolrMediaItemHandler {
 
     public List<MediaItem> findLatestItems(String query, int n) {
     	SolrQuery solrQuery = new SolrQuery(query);
-    	solrQuery.addSortField("publicationTime", SolrQuery.ORDER.desc);
+    	solrQuery.addSort("publicationTime", SolrQuery.ORDER.desc);
     	solrQuery.setRows(n);
     	
     	 SearchEngineResponse<MediaItem> response = search(solrQuery);
@@ -227,7 +226,7 @@ public class SolrMediaItemHandler {
     	
     	SolrQuery solrQuery = new SolrQuery(query);
     	solrQuery.setFields("id","title","description","publicationTime","score");
-		solrQuery.addSortField("score", ORDER.desc);
+		solrQuery.addSort("score", ORDER.desc);
 		
         QueryResponse rsp = null;
        
@@ -476,7 +475,7 @@ public class SolrMediaItemHandler {
     public SearchEngineResponse<MediaItem> findAllDyscoItemsLightByTime(
             String dyscoId) {
         SolrQuery solrQuery = new SolrQuery("dyscoId:" + dyscoId);
-        solrQuery.addSortField("publicationTime", SolrQuery.ORDER.asc);
+        solrQuery.addSort("publicationTime", SolrQuery.ORDER.asc);
         solrQuery.setRows(200);
         return search(solrQuery);
     }

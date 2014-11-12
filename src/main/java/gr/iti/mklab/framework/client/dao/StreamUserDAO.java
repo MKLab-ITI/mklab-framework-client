@@ -4,13 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.mongodb.DBObject;
-
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.StreamUser;
-import eu.socialsensor.framework.common.domain.StreamUser.Category;
-import eu.socialsensor.framework.common.factories.ItemFactory;
-import gr.iti.mklab.framework.client.dao.ItemDAO.ItemIterator;
+import gr.iti.mklab.framework.common.domain.StreamUser;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 /**
@@ -43,10 +38,6 @@ public interface StreamUserDAO {
     public StreamUser getStreamUserByName(String username);
     
     public boolean exists(String id);
-    
-    public List<StreamUser> getStreamUsers(DBObject query);
-    
-    public StreamUserIterator getIterator(DBObject query);
 
     public class StreamUserIterator implements Iterator<StreamUser> {
 
@@ -58,7 +49,7 @@ public interface StreamUserDAO {
 		
     	public StreamUser next() {
     		String json = it.next();
-    		return ItemFactory.createUser(json);
+    		return ObjectFactory.createUser(json);
     	}
     	
     	public boolean hasNext() {

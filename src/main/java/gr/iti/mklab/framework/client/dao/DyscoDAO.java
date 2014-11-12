@@ -1,18 +1,15 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.MediaItem;
-import eu.socialsensor.framework.common.domain.RankingValue;
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
-import eu.socialsensor.framework.common.domain.WebPage;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
-import eu.socialsensor.framework.common.domain.dimension.Dimension;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dimension.Dimension;
 import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 
@@ -113,9 +110,9 @@ public interface DyscoDAO {
     List<Item> findSortedDyscoItems(String id, String fieldToSort, ORDER order,
             int rows, boolean original);
 
-    SearchEngineResponse findNDyscoItems(String id, int size);
+    SearchEngineResponse<Item> findNDyscoItems(String id, int size);
 
-    SearchEngineResponse findNDyscoItems(String id, int size, boolean original);
+    SearchEngineResponse<Item> findNDyscoItems(String id, int size, boolean original);
 
     public List<Item> findSortedDyscoItemsByQuery(Query query, String fieldToSort,
             ORDER order, int rows, boolean original);

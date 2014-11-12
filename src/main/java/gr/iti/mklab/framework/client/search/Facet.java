@@ -1,4 +1,3 @@
-
 package gr.iti.mklab.framework.client.search;
 
 import java.io.Serializable;
@@ -10,9 +9,14 @@ import java.util.List;
  * @author etzoannos - e.tzoannos@atc.gr
  */
 
-public class Facet implements Serializable{
+public class Facet implements Serializable {
 
-    String name;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7222978342717761726L;
+	
+	String name;
     List<Bucket> buckets = new ArrayList<Bucket>();
 
     public List<Bucket> getBuckets() {

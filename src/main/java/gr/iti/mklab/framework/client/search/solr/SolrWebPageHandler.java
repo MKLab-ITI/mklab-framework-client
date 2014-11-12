@@ -1,7 +1,7 @@
 package gr.iti.mklab.framework.client.search.solr;
 
 
-import eu.socialsensor.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.client.dao.WebPageDAO;
 import gr.iti.mklab.framework.client.dao.impl.WebPageDAOImpl;
 import gr.iti.mklab.framework.client.mongo.Selector;

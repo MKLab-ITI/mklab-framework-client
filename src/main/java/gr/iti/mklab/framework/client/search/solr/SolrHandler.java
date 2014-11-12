@@ -1,8 +1,8 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco.DyscoType;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineHandler;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;

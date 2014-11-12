@@ -4,8 +4,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.socialsensor.framework.common.domain.Expert;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.Expert;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.ExpertDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 import gr.iti.mklab.framework.client.mongo.Selector;
@@ -51,7 +51,7 @@ public class ExpertDAOImpl implements ExpertDAO {
 		List<Expert> experts = new ArrayList<Expert>();
 		List<String> res = mongoHandler.findMany(-1);
 		for(String json : res) {
-			experts.add(ItemFactory.createExpert(json));
+			experts.add(ObjectFactory.createExpert(json));
 		}
 		return experts;
 	}
@@ -61,7 +61,7 @@ public class ExpertDAOImpl implements ExpertDAO {
 		Selector query = new Selector();
 		query.select("id", id);
 		String json = mongoHandler.findOne(query);
-		return ItemFactory.createExpert(json);
+		return ObjectFactory.createExpert(json);
 	}
 
 	public static void main(String...args) {

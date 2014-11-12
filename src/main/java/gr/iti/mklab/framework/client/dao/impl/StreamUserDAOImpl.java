@@ -10,13 +10,12 @@ import org.apache.log4j.Logger;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import eu.socialsensor.framework.common.domain.StreamUser;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.StreamUser;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.StreamUserDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 import gr.iti.mklab.framework.client.mongo.Selector;
 import gr.iti.mklab.framework.client.mongo.UpdateItem;
-import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -120,7 +119,7 @@ public class StreamUserDAOImpl implements StreamUserDAO {
     @Override
     public StreamUser getStreamUser(String id) {
         String json = mongoHandler.findOne("id", id);
-        StreamUser user = ItemFactory.createUser(json);
+        StreamUser user = ObjectFactory.createUser(json);
         return user;
     }
 
@@ -133,7 +132,7 @@ public class StreamUserDAOImpl implements StreamUserDAO {
 
         String json = mongoHandler.findOne(query);
 
-        StreamUser user = ItemFactory.createUser(json);
+        StreamUser user = ObjectFactory.createUser(json);
         return user;
     }
 
@@ -157,44 +156,11 @@ public class StreamUserDAOImpl implements StreamUserDAO {
 
         List<String> response = mongoHandler.findMany(query, ids.size());
         for (String json : response) {
-            StreamUser user = ItemFactory.createUser(json);
+            StreamUser user = ObjectFactory.createUser(json);
             users.put(user.getId(), user);
         }
 
         return users;
     }
-
-    public static void main(String... args) {
-
-        StreamUserDAO dao = null;
-		try {
-			dao = new StreamUserDAOImpl("xxx.xxx.xxx.xxx", "Streams", "StreamUsers");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        StreamUser user = dao.getStreamUserByName("SethMacFarlane");
-        System.out.println("done");
-
-
-    }
-
-	@Override
-	public StreamUserIterator getIterator(DBObject query) {
-		MongoIterator it = mongoHandler.getIterator(query);
-		return new StreamUserIterator(it);
-	}
-
-	@Override
-	public List<StreamUser> getStreamUsers(DBObject query) {
-		List<StreamUser> streamUsers = new ArrayList<StreamUser>();
-		List<String> results = mongoHandler.findMany(query, -1);
-		
-		for(String json : results) {
-			StreamUser streamUser = ItemFactory.createUser(json);
-			streamUsers.add(streamUser);
-		}
-		return streamUsers;
-	}
 	
 }

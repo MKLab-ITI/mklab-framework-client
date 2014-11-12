@@ -1,15 +1,15 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.MediaItem;
-import eu.socialsensor.framework.common.domain.WebPage;
-import eu.socialsensor.framework.common.domain.dimension.Dimension;
-import eu.socialsensor.framework.common.domain.dysco.CustomDysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco.DyscoType;
-import eu.socialsensor.framework.common.domain.dysco.Entity;
-import eu.socialsensor.framework.common.domain.dysco.Entity.Type;
-import eu.socialsensor.framework.common.util.Util;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.domain.dimension.Dimension;
+import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
+import gr.iti.mklab.framework.common.domain.Entity;
+import gr.iti.mklab.framework.common.domain.Entity.Type;
+import gr.iti.mklab.framework.common.util.Util;
 import gr.iti.mklab.framework.client.dao.DyscoDAO;
 import gr.iti.mklab.framework.client.dao.MediaItemDAO;
 import gr.iti.mklab.framework.client.dao.WebPageDAO;
@@ -320,18 +320,18 @@ public class DyscoDAOImpl implements DyscoDAO {
 
         if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
         	postProcess(dysco);
-    		List<eu.socialsensor.framework.common.domain.Query> queries = dysco.getSolrQueries();
+    		List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
 
     		return collectItemsByQueries(queries, filters, facets, orderBy, params, size);
         } else {
 
             CustomDysco customDysco = (CustomDysco) dysco;
-            List<eu.socialsensor.framework.common.domain.Query> queries = customDysco.getSolrQueries();
+            List<gr.iti.mklab.framework.common.domain.Query> queries = customDysco.getSolrQueries();
 
             Map<String, Double> hashtags = dysco.getHashtags();
             if(hashtags != null) {
             	for(Entry<String, Double> hashtag : hashtags.entrySet()) {
-            		eu.socialsensor.framework.common.domain.Query q = new eu.socialsensor.framework.common.domain.Query();
+            		gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
             		q.setName(hashtag.getKey());
             		q.setScore(hashtag.getValue());
             	
@@ -376,12 +376,12 @@ public class DyscoDAOImpl implements DyscoDAO {
 
         if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
         	postProcess(dysco);
-        	List<eu.socialsensor.framework.common.domain.Query> queries = dysco.getSolrQueries();
+        	List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
 
             return collectMediaItemsByQueries(queries, "video", filters, facets, orderBy, size);
         } else {
             CustomDysco customDysco = (CustomDysco) dysco;
-            List<eu.socialsensor.framework.common.domain.Query> queries = customDysco.getSolrQueries();
+            List<gr.iti.mklab.framework.common.domain.Query> queries = customDysco.getSolrQueries();
 
             List<String> twitterMentions = customDysco.getMentionedUsers();
             List<String> twitterUsers = customDysco.getTwitterUsers();
@@ -390,7 +390,7 @@ public class DyscoDAOImpl implements DyscoDAO {
             Map<String, Double> hashtags = dysco.getHashtags();
             if(hashtags != null) {
             	for(Entry<String, Double> hashtag : hashtags.entrySet()) {
-            		eu.socialsensor.framework.common.domain.Query q = new eu.socialsensor.framework.common.domain.Query();
+            		gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
             		q.setName(hashtag.getKey());
             		q.setScore(hashtag.getValue());
             	
@@ -430,12 +430,12 @@ public class DyscoDAOImpl implements DyscoDAO {
     	SearchEngineResponse<MediaItem> mediaItems;
         if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
         	postProcess(dysco);
-        	List<eu.socialsensor.framework.common.domain.Query> queries = dysco.getSolrQueries();
+        	List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
             
         	mediaItems = collectMediaItemsByQueries(queries, "image", filters, facets, orderBy, size);
         } else {
             CustomDysco customDysco = (CustomDysco) dysco;
-            List<eu.socialsensor.framework.common.domain.Query> queries = customDysco.getSolrQueries();
+            List<gr.iti.mklab.framework.common.domain.Query> queries = customDysco.getSolrQueries();
 
             List<String> twitterMentions = customDysco.getMentionedUsers();
             List<String> twitterUsers = customDysco.getTwitterUsers();
@@ -444,7 +444,7 @@ public class DyscoDAOImpl implements DyscoDAO {
             Map<String, Double> hashtags = dysco.getHashtags();
             if(hashtags != null) {
             	for(Entry<String, Double> hashtag : hashtags.entrySet()) {
-            		eu.socialsensor.framework.common.domain.Query q = new eu.socialsensor.framework.common.domain.Query();
+            		gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
             		q.setName(hashtag.getKey());
             		q.setScore(hashtag.getValue());
             	
@@ -484,7 +484,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         List<WebPage> webPages = new ArrayList<WebPage>();
         
         postProcess(dysco);
-        List<eu.socialsensor.framework.common.domain.Query> queries = dysco.getSolrQueries();
+        List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
         if (queries == null || queries.isEmpty()) {
             return webPages;
         }
@@ -727,7 +727,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         return response;
     }
 
-    private SearchEngineResponse<Item> collectItemsByQueries(List<eu.socialsensor.framework.common.domain.Query> queries, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+    private SearchEngineResponse<Item> collectItemsByQueries(List<gr.iti.mklab.framework.common.domain.Query> queries, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
 
         List<Item> items = new ArrayList<Item>();
         SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
@@ -783,7 +783,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         return response;
     }
 
-    private SearchEngineResponse<Item> collectItems(List<eu.socialsensor.framework.common.domain.Query> queries, Map<String, Double> hashtags, List<String> mentions,
+    private SearchEngineResponse<Item> collectItems(List<gr.iti.mklab.framework.common.domain.Query> queries, Map<String, Double> hashtags, List<String> mentions,
             List<String> users, List<String> wordsToExclude, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
 
     	List<Item> items = new ArrayList<Item>();
@@ -962,7 +962,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         return response;
     }
 
-    private SearchEngineResponse<MediaItem> collectMediaItemsByQueries(List<eu.socialsensor.framework.common.domain.Query> queries, 
+    private SearchEngineResponse<MediaItem> collectMediaItemsByQueries(List<gr.iti.mklab.framework.common.domain.Query> queries, 
     		String type, List<String> filters, List<String> facets, String orderBy, int size) {
 
         List<MediaItem> mediaItems = new ArrayList<MediaItem>();
@@ -1032,7 +1032,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         return response;
     }
 
-    private SearchEngineResponse<MediaItem> collectMediaItems(List<eu.socialsensor.framework.common.domain.Query> queries, List<String> mentions,
+    private SearchEngineResponse<MediaItem> collectMediaItems(List<gr.iti.mklab.framework.common.domain.Query> queries, List<String> mentions,
             List<String> users, List<String> wordsToExclude, String type, List<String> filters, List<String> facets, String orderBy, int size) {
 
         List<MediaItem> mediaItems = new ArrayList<MediaItem>();
@@ -1142,14 +1142,14 @@ public class DyscoDAOImpl implements DyscoDAO {
         return response;
     }
 
-    public String buildKeywordSolrQuery(List<eu.socialsensor.framework.common.domain.Query> queries, String liaison) {
+    public String buildKeywordSolrQuery(List<gr.iti.mklab.framework.common.domain.Query> queries, String liaison) {
         
     	Map<String, List<String>> linkedWords = new HashMap<String, List<String>>();
-        List<eu.socialsensor.framework.common.domain.Query> swingQueries = new ArrayList<eu.socialsensor.framework.common.domain.Query>();
+        List<gr.iti.mklab.framework.common.domain.Query> swingQueries = new ArrayList<gr.iti.mklab.framework.common.domain.Query>();
 
         String solrQuery = null;
 
-        for (eu.socialsensor.framework.common.domain.Query query : queries) {
+        for (gr.iti.mklab.framework.common.domain.Query query : queries) {
         	
             //store these queries for later
             if (query.getName().startsWith("\"") && (query.getName().endsWith("\"") || query.getName().endsWith("\" "))) {
@@ -1163,7 +1163,7 @@ public class DyscoDAOImpl implements DyscoDAO {
                 if(queryParts != null) {
                 	String name = StringUtils.join(queryParts, "\" AND \"");
                 	//System.out.println("name : " + name);
-                	swingQueries.add(new eu.socialsensor.framework.common.domain.Query(name, query.getScore()));
+                	swingQueries.add(new gr.iti.mklab.framework.common.domain.Query(name, query.getScore()));
                 }
             } 
             else {
@@ -1282,7 +1282,7 @@ public class DyscoDAOImpl implements DyscoDAO {
             }
         }
 
-        for (eu.socialsensor.framework.common.domain.Query sQuery : swingQueries) {
+        for (gr.iti.mklab.framework.common.domain.Query sQuery : swingQueries) {
             if (solrQuery == null) {
                 if (sQuery.getScore() != null) {
                     solrQuery = "(" + sQuery.getName() + ")^" + sQuery.getScore();
@@ -1315,7 +1315,7 @@ public class DyscoDAOImpl implements DyscoDAO {
     }
     
     public void postProcess(Dysco dysco) {
-    	List<eu.socialsensor.framework.common.domain.Query> queries = dysco.getSolrQueries();
+    	List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
     	
     	Map<String, Double> keywords = dysco.getKeywords();
     	
@@ -1331,7 +1331,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         			if(e1.getType().equals(Type.LOCATION) && e2.getType().equals(Type.LOCATION)) {
         				if(keywords.size() > 0) {
         					for(String k : keywords.keySet()) {
-        						eu.socialsensor.framework.common.domain.Query q = new eu.socialsensor.framework.common.domain.Query();
+        						gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
                 				q.setName(qStr.trim() + " " + k.trim());
                 				q.setScore(2 * dysco.getScore());
                 			
@@ -1341,7 +1341,7 @@ public class DyscoDAOImpl implements DyscoDAO {
         				continue;
         			}
         			
-        			eu.socialsensor.framework.common.domain.Query q = new eu.socialsensor.framework.common.domain.Query();
+        			gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
         			q.setName(qStr.trim());
         			q.setScore(2 * dysco.getScore());
         			
@@ -1350,10 +1350,10 @@ public class DyscoDAOImpl implements DyscoDAO {
     		}
     	}
     	
-    	List<eu.socialsensor.framework.common.domain.Query> tbRemoved = new ArrayList<eu.socialsensor.framework.common.domain.Query>();
+    	List<gr.iti.mklab.framework.common.domain.Query> tbRemoved = new ArrayList<gr.iti.mklab.framework.common.domain.Query>();
     	
     	// Remove Single Keywords
-    	for(eu.socialsensor.framework.common.domain.Query query : queries) {
+    	for(gr.iti.mklab.framework.common.domain.Query query : queries) {
     		if(tbRemoved.contains(query))
     			continue;
     		
@@ -1368,14 +1368,14 @@ public class DyscoDAOImpl implements DyscoDAO {
     		}
     	}
     	
-    	for(eu.socialsensor.framework.common.domain.Query query : tbRemoved) {
+    	for(gr.iti.mklab.framework.common.domain.Query query : tbRemoved) {
     		queries.remove(query);
     	}
     	
     	// Remove Single Hashtags / Location Entities
     	Map<String, Double> hashtags = dysco.getHashtags();
     	tbRemoved.clear();
-    	for(eu.socialsensor.framework.common.domain.Query query : queries) {
+    	for(gr.iti.mklab.framework.common.domain.Query query : queries) {
     		for(String hashtag : hashtags.keySet()) {
     			String name = query.getName();
     			if(name.equalsIgnoreCase(hashtag.replace("#", ""))) {
@@ -1397,7 +1397,7 @@ public class DyscoDAOImpl implements DyscoDAO {
     		}
     	}
     	
-    	for(eu.socialsensor.framework.common.domain.Query query : tbRemoved) {
+    	for(gr.iti.mklab.framework.common.domain.Query query : tbRemoved) {
     		queries.remove(query);
     	}
 		
@@ -1409,10 +1409,10 @@ public class DyscoDAOImpl implements DyscoDAO {
     		else {
     			for(int i=0; i<tbRemoved.size(); i++) {
     				for(int j=i+1; j<tbRemoved.size(); j++) {
-    					eu.socialsensor.framework.common.domain.Query q1 = tbRemoved.get(i);
-    					eu.socialsensor.framework.common.domain.Query q2 = tbRemoved.get(j);
+    					gr.iti.mklab.framework.common.domain.Query q1 = tbRemoved.get(i);
+    					gr.iti.mklab.framework.common.domain.Query q2 = tbRemoved.get(j);
     					
-    					eu.socialsensor.framework.common.domain.Query q = new eu.socialsensor.framework.common.domain.Query();
+    					gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
     					q.setName(q1.getName() + " " + q2.getName());
     					q.setScore(q1.getScore() + q2.getScore());
     					q.setType(q1.getType());
@@ -1425,8 +1425,8 @@ public class DyscoDAOImpl implements DyscoDAO {
     	
     	/* */
     	tbRemoved.clear();
-    	for(eu.socialsensor.framework.common.domain.Query q1 : queries) {
-    		for(eu.socialsensor.framework.common.domain.Query q2 : queries) {
+    	for(gr.iti.mklab.framework.common.domain.Query q1 : queries) {
+    		for(gr.iti.mklab.framework.common.domain.Query q2 : queries) {
     			if(q1.equals(q2))
     				continue;
     			
@@ -1438,7 +1438,7 @@ public class DyscoDAOImpl implements DyscoDAO {
     			}
     		}
     	}
-    	for(eu.socialsensor.framework.common.domain.Query query : tbRemoved) {
+    	for(gr.iti.mklab.framework.common.domain.Query query : tbRemoved) {
     		System.out.println("Remove: " + query.getName());
     		queries.remove(query);
     	}

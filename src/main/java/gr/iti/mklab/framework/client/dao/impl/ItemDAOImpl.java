@@ -3,15 +3,13 @@ package gr.iti.mklab.framework.client.dao.impl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.ItemDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 import gr.iti.mklab.framework.client.mongo.Selector;
 import gr.iti.mklab.framework.client.mongo.UpdateItem;
-import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +83,7 @@ public class ItemDAOImpl implements ItemDAO {
         List<String> jsonItems = mongoHandler.findManySortedByPublicationTime(new Selector(), n);
         List<Item> results = new ArrayList<Item>();
         for (String json : jsonItems) {
-            results.add(ItemFactory.create(json));
+            results.add(ObjectFactory.create(json));
         }
         return results;
     }
@@ -117,7 +115,7 @@ public class ItemDAOImpl implements ItemDAO {
 
         List<Item> results = new ArrayList<Item>();
         for (String json : jsonItems) {
-            results.add(ItemFactory.create(json));
+            results.add(ObjectFactory.create(json));
         }
         l = System.currentTimeMillis() - l;
         System.out.println("List time: " + l + " msecs");
@@ -137,7 +135,7 @@ public class ItemDAOImpl implements ItemDAO {
         l = System.currentTimeMillis() - l;
         List<Item> results = new ArrayList<Item>();
         for (String json : jsonItems) {
-            results.add(ItemFactory.create(json));
+            results.add(ObjectFactory.create(json));
         }
         l = System.currentTimeMillis() - l;
         System.out.println("List time: " + l + " msecs");
@@ -147,7 +145,7 @@ public class ItemDAOImpl implements ItemDAO {
     @Override
     public Item getItem(String id) {
         String json = mongoHandler.findOne("id", id);
-        Item item = ItemFactory.create(json);
+        Item item = ObjectFactory.create(json);
         return item;
     }
 
@@ -169,7 +167,7 @@ public class ItemDAOImpl implements ItemDAO {
         System.out.println("DAO: find " + jsonItems.size() + " results");
 
         for (String json : jsonItems) {
-            results.add(ItemFactory.create(json));
+            results.add(ObjectFactory.create(json));
         }
 
         l = System.currentTimeMillis() - l;
@@ -207,7 +205,7 @@ public class ItemDAOImpl implements ItemDAO {
 
         for (String json : jsonItems) {
 
-            Item item = ItemFactory.create(json);
+            Item item = ObjectFactory.create(json);
 
             items.add(item);
 
@@ -315,24 +313,5 @@ public class ItemDAOImpl implements ItemDAO {
 //        System.out.println("Fetch users and MediaItems in " + t + " msecs");
     }
 
-    @Override
-    public ItemIterator getIterator(DBObject query
-    ) {
-        MongoIterator it = mongoHandler.getIterator(query);
-        return new ItemIterator(it);
-    }
-
-    @Override
-    public List<Item> getItems(DBObject query
-    ) {
-        List<Item> items = new ArrayList<Item>();
-        List<String> results = mongoHandler.findMany(query, -1);
-
-        for (String json : results) {
-            Item item = ItemFactory.create(json);
-            items.add(item);
-        }
-        return items;
-    }
 
 }

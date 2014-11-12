@@ -2,25 +2,18 @@ package gr.iti.mklab.framework.client.dao.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.MediaItem;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.MediaItemDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 import gr.iti.mklab.framework.client.mongo.Selector;
 import gr.iti.mklab.framework.client.mongo.UpdateItem;
-import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 public class MediaItemDAOImpl implements MediaItemDAO {
 
@@ -92,7 +85,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
     @Override
     public MediaItem getMediaItem(String mediaItemId) {
         String json = mongoHandler.findOne("id", mediaItemId);
-        return ItemFactory.createMediaItem(json);
+        return ObjectFactory.createMediaItem(json);
     }
 
     @Override
@@ -101,7 +94,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, n);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
         return mediaItems;
     }
@@ -113,7 +106,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, 0);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
         return mediaItems;
     }
@@ -172,7 +165,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, size);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
         return mediaItems;
     }
@@ -185,7 +178,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, 0);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
         return mediaItems;
     }
@@ -197,7 +190,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, size);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
         return mediaItems;
     }
@@ -210,7 +203,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, 0);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
         return mediaItems;
     }
@@ -226,7 +219,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findMany(query, size);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
 
         return mediaItems;
@@ -238,7 +231,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findManyWithOr("type", mediaType, "dyscoId", dyscoIds, size);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
 
         return mediaItems;
@@ -255,7 +248,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<String> results = mongoHandler.findManyWithOr(fieldName, fieldValue, orField, values, size);
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         for (String json : results) {
-            mediaItems.add(ItemFactory.createMediaItem(json));
+            mediaItems.add(ObjectFactory.createMediaItem(json));
         }
 
         return mediaItems;
@@ -273,7 +266,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         Set<String> uniqueUrls = new HashSet<String>();
         for (String json : results) {
-            MediaItem mediaItem = ItemFactory.createMediaItem(json);
+            MediaItem mediaItem = ObjectFactory.createMediaItem(json);
             if (!uniqueUrls.contains(mediaItem.getUrl())) {
                 uniqueUrls.add(mediaItem.getUrl());
                 mediaItems.add(mediaItem);
@@ -296,7 +289,7 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         List<MediaItem> mediaItems = new ArrayList<MediaItem>(results.size());
         Set<String> uniqueUrls = new HashSet<String>();
         for (String json : results) {
-            MediaItem mediaItem = ItemFactory.createMediaItem(json);
+            MediaItem mediaItem = ObjectFactory.createMediaItem(json);
             if (!uniqueUrls.contains(mediaItem.getUrl())) {
                 uniqueUrls.add(mediaItem.getUrl());
                 mediaItems.add(mediaItem);
@@ -326,9 +319,4 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         return mediaItems;
     }
 
-	@Override
-	public MediaItemIterator getIterator(DBObject query) {
-		MongoIterator it = mongoHandler.getIterator(query);
-		return new MediaItemIterator(it);
-	}
 }

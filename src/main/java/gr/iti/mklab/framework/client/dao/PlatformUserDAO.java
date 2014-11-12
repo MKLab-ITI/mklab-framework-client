@@ -1,13 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.PlatformUser;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
-import eu.socialsensor.framework.common.influencers.Influencer;
-import java.util.List;
+import gr.iti.mklab.framework.common.domain.PlatformUser;
 
 /**
  *

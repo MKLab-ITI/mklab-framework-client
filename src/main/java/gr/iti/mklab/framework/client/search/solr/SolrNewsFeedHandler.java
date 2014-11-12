@@ -18,7 +18,7 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 
-import eu.socialsensor.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.Query;
@@ -98,21 +98,15 @@ public class SolrNewsFeedHandler {
 	            SolrNewsFeed solrNewsFeed = new SolrNewsFeed(item);
 
 	            server.addBean(solrNewsFeed, commitPeriod);
-	            //UpdateResponse response = server.commit();
-	            //int statusId = response.getStatus();
-	            //if (statusId == 0) {
-	            //    status = true;
-	            //}
 
 	        } catch (SolrServerException ex) {
 	            logger.error(ex.getMessage());
 	            status = false;
 	        } catch (Exception ex) {
-	            ex.printStackTrace();
 	            status = false;
-	        } finally {
-	            return status;
 	        }
+	        
+	        return status;
 	    }
 
 	    public boolean insertItems(List<Item> items) {
@@ -139,9 +133,8 @@ public class SolrNewsFeedHandler {
 	        } catch (IOException ex) {
 	            logger.error(ex.getMessage());
 	            status = false;
-	        } finally {
-	            return status;
-	        }
+	        } 
+	        return status;
 
 	    }
 
@@ -183,9 +176,9 @@ public class SolrNewsFeedHandler {
 	            logger.error(ex.getMessage());
 	        } catch (IOException ex) {
 	            logger.error(ex.getMessage());
-	        } finally {
-	            return status;
-	        }
+	        } 
+	        
+	        return status;
 	    }
 
 	    public boolean deleteItems(Query query) {
@@ -202,9 +195,10 @@ public class SolrNewsFeedHandler {
 	            logger.error(ex.getMessage());
 	        } catch (IOException ex) {
 	            logger.error(ex.getMessage());
-	        } finally {
-	            return status;
-	        }
+	        } 
+	        
+	        return status;
+	    
 	    }
 	    
 	    public boolean deleteItemsOlderThan(long dateTime) {

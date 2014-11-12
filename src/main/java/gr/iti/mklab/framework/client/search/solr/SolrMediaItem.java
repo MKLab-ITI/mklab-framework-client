@@ -1,8 +1,8 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import eu.socialsensor.framework.common.domain.Concept;
-import eu.socialsensor.framework.common.domain.Location;
-import eu.socialsensor.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.Concept;
+import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.MediaItem;
 
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -1,11 +1,10 @@
 package gr.iti.mklab.framework.client.search;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrServerException;
 
 /**
  *

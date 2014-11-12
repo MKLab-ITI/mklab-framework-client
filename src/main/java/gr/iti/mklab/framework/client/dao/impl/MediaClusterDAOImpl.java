@@ -6,8 +6,8 @@ import java.util.List;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import eu.socialsensor.framework.common.domain.MediaCluster;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.MediaCluster;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.MediaClusterDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -35,7 +35,7 @@ public class MediaClusterDAOImpl implements MediaClusterDAO {
 	@Override
 	public MediaCluster getMediaCluster(String clusterId) {
 		String json = mongoHandler.findOne("id", clusterId);
-		MediaCluster mediaCluster = ItemFactory.createMediaCluster(json);
+		MediaCluster mediaCluster = ObjectFactory.createMediaCluster(json);
 		return mediaCluster;
 	}
 	

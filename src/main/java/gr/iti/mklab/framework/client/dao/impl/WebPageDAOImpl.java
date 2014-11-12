@@ -1,8 +1,8 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.domain.JSONable;
-import eu.socialsensor.framework.common.domain.WebPage;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.JSONable;
+import gr.iti.mklab.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.WebPageDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 import gr.iti.mklab.framework.client.mongo.Selector;
@@ -45,7 +45,7 @@ public class WebPageDAOImpl implements WebPageDAO {
     @Override
     public WebPage getWebPage(String webPageURL) {
         String resultString = mongoHandler.findOne("url", webPageURL);
-        WebPage result = ItemFactory.createWebPage(resultString);
+        WebPage result = ObjectFactory.createWebPage(resultString);
         return result;
     }
 
@@ -63,7 +63,7 @@ public class WebPageDAOImpl implements WebPageDAO {
         List<String> jsonWebPages = mongoHandler.findMany(new Selector(), size);
         List<WebPage> results = new ArrayList<WebPage>();
         for (String json : jsonWebPages) {
-            results.add(ItemFactory.createWebPage(json));
+            results.add(ObjectFactory.createWebPage(json));
         }
         return results;
     }
@@ -75,7 +75,7 @@ public class WebPageDAOImpl implements WebPageDAO {
 
         List<WebPage> results = new ArrayList<WebPage>();
         for (String json : jsonWebPages) {
-            results.add(ItemFactory.createWebPage(json));
+            results.add(ObjectFactory.createWebPage(json));
         }
         return results;
     }
@@ -87,7 +87,7 @@ public class WebPageDAOImpl implements WebPageDAO {
 
         List<WebPage> results = new ArrayList<WebPage>();
         for (String json : jsonWebPages) {
-            results.add(ItemFactory.createWebPage(json));
+            results.add(ObjectFactory.createWebPage(json));
         }
         
         // remove duplicates from pages
@@ -150,7 +150,7 @@ public class WebPageDAOImpl implements WebPageDAO {
 		
 		List<WebPage> results = new ArrayList<WebPage>();
         for (String json : jsonWebPages) {
-            results.add(ItemFactory.createWebPage(json));
+            results.add(ObjectFactory.createWebPage(json));
         }
         
         return results;

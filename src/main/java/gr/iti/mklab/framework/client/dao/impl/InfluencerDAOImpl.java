@@ -4,9 +4,9 @@
  */
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.factories.KeywordInfluencersPairFactory;
-import eu.socialsensor.framework.common.influencers.Influencer;
-import eu.socialsensor.framework.common.influencers.KeywordInfluencersPair;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
+import gr.iti.mklab.framework.common.influencers.Influencer;
+import gr.iti.mklab.framework.common.influencers.KeywordInfluencersPair;
 import gr.iti.mklab.framework.client.dao.InfluencerDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -79,7 +79,7 @@ public class InfluencerDAOImpl implements InfluencerDAO {
     @Override
     public List<Influencer> getInfluencersForKeyword(String keyword) {
         String json = mongoHandler.findOne("keyword", keyword);
-        KeywordInfluencersPair pair = KeywordInfluencersPairFactory.create(json);
+        KeywordInfluencersPair pair = ObjectFactory.createKeywordInfluencersPair(json);
         if (pair != null) {
             List<Influencer> influencers = pair.getInfluencers();
             for (Influencer influencer : influencers) {
@@ -96,12 +96,11 @@ public class InfluencerDAOImpl implements InfluencerDAO {
     public List<Influencer> getInfluencersForKeywords(List<String> keywords) {
 
         List<String> results = mongoHandler.findManyWithOr("keyword", keywords, 100);
-        List<KeywordInfluencersPair> pairs = new ArrayList<KeywordInfluencersPair>();
         Set<Influencer> influencers = new HashSet<Influencer>();
 
         for (String json : results) {
 
-            KeywordInfluencersPair pair = KeywordInfluencersPairFactory.create(json);
+            KeywordInfluencersPair pair = ObjectFactory.createKeywordInfluencersPair(json);
             if (pair != null) {
                 influencers.addAll(pair.getInfluencers());
             }

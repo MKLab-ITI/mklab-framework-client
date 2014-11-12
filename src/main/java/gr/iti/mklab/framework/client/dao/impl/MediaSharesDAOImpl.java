@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import eu.socialsensor.framework.common.domain.MediaShare;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.MediaShare;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.MediaSharesDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -58,7 +58,7 @@ public class MediaSharesDAOImpl implements MediaSharesDAO {
 		
 		List<MediaShare> mediaShares = new ArrayList<MediaShare>();
 		for(String json : response) {
-			MediaShare ms = ItemFactory.createMediaShare(json);
+			MediaShare ms = ObjectFactory.createMediaShare(json);
 			mediaShares.add(ms);
 		}
 		return mediaShares;

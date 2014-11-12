@@ -10,7 +10,12 @@ import java.io.Serializable;
  */
 
 public class Bucket implements Serializable{
-    @Expose
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9024691192712839896L;
+	
+	@Expose
     @SerializedName(value = "name")
     String name;
     @Expose

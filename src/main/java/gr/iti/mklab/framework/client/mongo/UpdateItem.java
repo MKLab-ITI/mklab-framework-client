@@ -4,11 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import eu.socialsensor.framework.common.domain.JSONable;
+import gr.iti.mklab.framework.common.domain.JSONable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +15,11 @@ import java.util.Map;
 
 public class UpdateItem implements JSONable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6908109283063654566L;
+
 	Gson gson = new GsonBuilder()
     	.excludeFieldsWithoutExposeAnnotation()
     	.create();

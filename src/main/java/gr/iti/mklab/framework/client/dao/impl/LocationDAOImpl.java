@@ -1,13 +1,12 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.socialsensor.framework.common.domain.Location;
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
 import gr.iti.mklab.framework.client.dao.LocationDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -35,9 +34,8 @@ public class LocationDAOImpl implements LocationDAO {
     
 	@Override
 	public void insertLocation(String name, double latitude, double longitude) {
-		Location location = new Location(latitude, longitude, name);
 		
-		Map<String, Object> map = location.toJSONMap();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("_id", name);
 		map.put("timestamp", System.currentTimeMillis());
 		
@@ -47,7 +45,7 @@ public class LocationDAOImpl implements LocationDAO {
 	@Override
 	public void insertLocation(Location location, SocialNetworkSource sourceType) {
 		String id = sourceType+"::"+location.getName();
-		Map<String, Object> map = location.toJSONMap();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("_id", id);
 		map.put("timestamp", System.currentTimeMillis());
 		map.put("source", sourceType);

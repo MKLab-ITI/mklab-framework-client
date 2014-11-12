@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import eu.socialsensor.framework.common.domain.DyscoRequest;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.DyscoRequest;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.DyscoRequestDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 import gr.iti.mklab.framework.client.mongo.Selector;
@@ -41,7 +41,6 @@ public class DyscoRequestDAOImpl implements DyscoRequestDAO {
 
     @Override
     public void insertDyscoRequest(DyscoRequest request) {
-        String id = request.getId();
         mongoHandler.insert(request);
     }
 
@@ -53,7 +52,7 @@ public class DyscoRequestDAOImpl implements DyscoRequestDAO {
     @Override
     public DyscoRequest getDyscoRequest(String id) {
         String json = mongoHandler.findOne("id", id);
-        DyscoRequest request = ItemFactory.createDyscoRequest(json);
+        DyscoRequest request = ObjectFactory.createDyscoRequest(json);
         return request;
     }
 
@@ -129,7 +128,7 @@ public class DyscoRequestDAOImpl implements DyscoRequestDAO {
 
         for (String dyscoId : dyscoIds) {
             String json = mongoHandler.findOne("id", dyscoId);
-            DyscoRequest request = ItemFactory.createDyscoRequest(json);
+            DyscoRequest request = ObjectFactory.createDyscoRequest(json);
             if (request != null) {
                 if (request.getKeywords() != null) {
                     for (String key : request.getKeywords()) {

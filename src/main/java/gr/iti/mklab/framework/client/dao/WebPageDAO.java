@@ -1,7 +1,7 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.JSONable;
-import eu.socialsensor.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.domain.JSONable;
+import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.client.mongo.Selector;
 
 import java.util.List;

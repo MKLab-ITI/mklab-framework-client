@@ -13,7 +13,7 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
-import eu.socialsensor.framework.common.domain.JSONable;
+import gr.iti.mklab.framework.common.domain.JSONable;
 
 import java.util.ArrayList;
 import java.util.HashMap;

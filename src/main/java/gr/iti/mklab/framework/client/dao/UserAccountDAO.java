@@ -1,6 +1,6 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.Contributor;
+import gr.iti.mklab.framework.common.domain.Contributor;
 import java.util.List;
 
 /**

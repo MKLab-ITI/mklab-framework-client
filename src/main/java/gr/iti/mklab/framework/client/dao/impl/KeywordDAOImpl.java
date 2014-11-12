@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.domain.Keyword;
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.Keyword;
+import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.KeywordDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -123,7 +119,7 @@ public class KeywordDAOImpl implements KeywordDAO {
 		
 		List<String> res = mongoHandler.findMany(n);
 		for(String json : res) {
-			keywords.add(ItemFactory.createKeyword(json));
+			keywords.add(ObjectFactory.createKeyword(json));
 		}
 		return keywords;
 	}
@@ -136,7 +132,7 @@ public class KeywordDAOImpl implements KeywordDAO {
 		
 		List<String> res = mongoHandler.findMany(query, -1);
 		for(String json : res) {
-			Keyword keyword = ItemFactory.createKeyword(json);
+			Keyword keyword = ObjectFactory.createKeyword(json);
 			keywords.add(keyword);
 		}
 		return keywords;

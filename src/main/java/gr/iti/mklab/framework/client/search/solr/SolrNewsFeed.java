@@ -2,7 +2,7 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import eu.socialsensor.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.Item;
 
 public class SolrNewsFeed {
 	

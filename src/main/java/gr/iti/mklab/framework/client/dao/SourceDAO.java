@@ -2,8 +2,8 @@ package gr.iti.mklab.framework.client.dao;
 
 import java.util.List;
 
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
-import eu.socialsensor.framework.common.domain.Source;
+import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.Source;
 
 public interface SourceDAO {
 	

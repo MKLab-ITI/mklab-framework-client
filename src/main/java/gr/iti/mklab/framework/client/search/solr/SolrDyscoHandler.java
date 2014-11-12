@@ -2,9 +2,9 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import com.google.gson.Gson;
 
-import eu.socialsensor.framework.common.domain.dysco.CustomDysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco.DyscoType;
+import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,9 +88,9 @@ public class SolrDyscoHandler {
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getRootLogger().error(ex.getMessage());
-        } finally {
-            return status;
         }
+        return status;
+        
     }
 
     public boolean insertDyscos(List<Dysco> dyscos) {
@@ -127,9 +126,9 @@ public class SolrDyscoHandler {
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getRootLogger().error(ex.getMessage());
-        } finally {
-            return status;
         }
+            
+        return status;
     }
 
     public boolean removeDysco(String dyscoId) {
@@ -148,9 +147,8 @@ public class SolrDyscoHandler {
             Logger.getRootLogger().error(ex.getMessage());
         } catch (IOException ex) {
             Logger.getRootLogger().error(ex.getMessage());
-        } finally {
-            return status;
         }
+        return status;
     }
 
     public SolrDysco findSolrDyscoLight(String dyscoId) {
@@ -189,7 +187,7 @@ public class SolrDyscoHandler {
         SolrQuery query = new SolrQuery(entity + ":" + entityValue);
         query.setFields("creationDate", "id");
 
-        query.addSortField("creationDate", SolrQuery.ORDER.asc);
+        query.addSort("creationDate", SolrQuery.ORDER.asc);
 
         QueryResponse rsp;
         System.out.println("searching: " + query.toString());
@@ -256,7 +254,7 @@ public class SolrDyscoHandler {
         System.out.println("Query : " + dateQuery);
 
         SolrQuery query = new SolrQuery(dateQuery);
-        query.setSortField("creationDate", ORDER.asc);
+        query.setSort("creationDate", ORDER.asc);
         query.setRows(200);
         try {
             rsp = server.query(query);
@@ -288,7 +286,7 @@ public class SolrDyscoHandler {
     	System.out.println("Query : "+dateQuery);
     	
     	SolrQuery query = new SolrQuery(dateQuery);
-    	query.setSortField("creationDate", ORDER.asc);
+    	query.setSort("creationDate", ORDER.asc);
     	query.setRows(200);
     	 try {
              rsp = server.query(query);

@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 
 import com.google.gson.*;
 
-import eu.socialsensor.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.client.dao.MediaItemDAO;
 import gr.iti.mklab.framework.client.dao.impl.MediaItemDAOImpl;
 import gr.iti.mklab.framework.client.search.visual.JsonResultSet.JsonResult;

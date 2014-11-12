@@ -1,6 +1,6 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import eu.socialsensor.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.domain.WebPage;
 
 import java.net.MalformedURLException;
 import java.util.Date;

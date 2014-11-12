@@ -2,7 +2,7 @@ package gr.iti.mklab.framework.client.dao;
 
 import java.util.List;
 
-import eu.socialsensor.framework.common.domain.MediaShare;
+import gr.iti.mklab.framework.common.domain.MediaShare;
 
 public interface MediaSharesDAO {
 

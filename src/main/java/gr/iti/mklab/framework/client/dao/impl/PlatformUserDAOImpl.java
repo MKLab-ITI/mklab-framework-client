@@ -1,16 +1,13 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.PlatformUser;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.PlatformUser;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.PlatformUserDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
 import java.io.Serializable;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -20,7 +17,12 @@ import org.apache.log4j.Logger;
  */
 public class PlatformUserDAOImpl implements PlatformUserDAO, Serializable {
 
-    List<String> indexes = new ArrayList<String>();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -972157425643431691L;
+	
+	List<String> indexes = new ArrayList<String>();
     private static String db = "Streams";
     private static String collection = "PlatformUsers";
     private MongoHandler mongoHandler;
@@ -39,7 +41,7 @@ public class PlatformUserDAOImpl implements PlatformUserDAO, Serializable {
     public PlatformUser getPlatformUser(String name) {
 
         String json = mongoHandler.findOne("name", name);
-        PlatformUser user = ItemFactory.createPlatformUser(json);
+        PlatformUser user = ObjectFactory.createPlatformUser(json);
         return user;
     }
 

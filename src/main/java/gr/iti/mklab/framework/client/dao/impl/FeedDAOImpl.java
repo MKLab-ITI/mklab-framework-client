@@ -6,9 +6,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import eu.socialsensor.framework.common.domain.Feed;
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.Feed;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.FeedDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -28,7 +27,6 @@ public class FeedDAOImpl implements FeedDAO{
 	 
 	 @Override
 	 public void insertFeed(Feed feed){
-		 String id = feed.getId();
 		 mongoHandler.insert(feed);
 	 }
 	 
@@ -40,7 +38,7 @@ public class FeedDAOImpl implements FeedDAO{
 	 @Override
 	 public Feed getFeed(String id){
 		 String json = mongoHandler.findOne("id", id);
-		 Feed feed = ItemFactory.createFeed(json);
+		 Feed feed = ObjectFactory.createFeed(json);
 		 return feed;
 	 }
 	 

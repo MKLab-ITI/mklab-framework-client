@@ -1,17 +1,14 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.domain.Keyword;
-import eu.socialsensor.framework.common.domain.Location;
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
-import eu.socialsensor.framework.common.domain.Source;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.Keyword;
+import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.Source;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.dao.CrawlerSpecsDAO;
 import gr.iti.mklab.framework.client.dao.KeywordDAO;
 import gr.iti.mklab.framework.client.dao.LocationDAO;
 import gr.iti.mklab.framework.client.dao.SourceDAO;
-import gr.iti.mklab.framework.client.search.SearchEngineHandler;
-import gr.iti.mklab.framework.client.search.SearchEngineResponse;
-import gr.iti.mklab.framework.client.search.solr.SolrHandler;
 
 import java.util.ArrayList;
 import java.util.List;

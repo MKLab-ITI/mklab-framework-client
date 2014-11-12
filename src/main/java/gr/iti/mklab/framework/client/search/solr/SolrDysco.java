@@ -2,13 +2,15 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import eu.socialsensor.framework.common.domain.Location;
-import eu.socialsensor.framework.common.domain.Query;
-import eu.socialsensor.framework.common.domain.dysco.CustomDysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco;
-import eu.socialsensor.framework.common.domain.dysco.Dysco.DyscoType;
-import eu.socialsensor.framework.common.domain.dysco.Entity;
-import eu.socialsensor.framework.common.domain.dysco.Entity.Type;
+
+import gr.iti.mklab.framework.common.domain.Entity;
+import gr.iti.mklab.framework.common.domain.Entity.Type;
+import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.Query;
+import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -82,7 +85,6 @@ public class SolrDysco implements Serializable {
     @Field(value = "updateDate")
     private Date updateDate;
 
-    //TODO:  are we using it?
     @Field(value = "listId")
     private String listId;
 
@@ -391,7 +393,6 @@ public class SolrDysco implements Serializable {
         for (int i = 0; i < solrQueriesString.size(); i++) {
             Query query = new Query();
             query.setName(solrQueriesString.get(i));
-            //TODO this is temporary - remove this check when NaN issue is fixed
             if (solrQueriesScore.get(i).equals("NaN")) {
                 query.setScore(Double.parseDouble(solrQueriesScore.get(i)));
             } else {

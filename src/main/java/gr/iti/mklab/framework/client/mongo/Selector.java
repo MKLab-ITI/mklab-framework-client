@@ -11,9 +11,14 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import eu.socialsensor.framework.common.domain.JSONable;
+import gr.iti.mklab.framework.common.domain.JSONable;
 
 public class Selector implements JSONable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2435416323282426981L;
 	
 	Map<Object, Object> and = null;
 	

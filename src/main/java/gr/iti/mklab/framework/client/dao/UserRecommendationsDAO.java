@@ -1,8 +1,8 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.profile.Profile;
-import eu.socialsensor.framework.common.profile.ScoredItem;
-import eu.socialsensor.framework.common.profile.User;
+import gr.iti.mklab.framework.common.profile.Profile;
+import gr.iti.mklab.framework.common.profile.ScoredItem;
+import gr.iti.mklab.framework.common.profile.User;
 import java.util.List;
 
 /**

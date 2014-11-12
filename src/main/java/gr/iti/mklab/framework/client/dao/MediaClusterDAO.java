@@ -1,6 +1,6 @@
 package gr.iti.mklab.framework.client.dao;
 
-import eu.socialsensor.framework.common.domain.MediaCluster;
+import gr.iti.mklab.framework.common.domain.MediaCluster;
 
 public interface MediaClusterDAO {
 

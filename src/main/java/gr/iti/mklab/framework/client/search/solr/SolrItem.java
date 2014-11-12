@@ -2,20 +2,18 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import com.google.gson.Gson;
 
-import eu.socialsensor.framework.common.domain.Item;
-import eu.socialsensor.framework.common.domain.Location;
-import eu.socialsensor.framework.common.domain.MediaItem;
-import eu.socialsensor.framework.common.domain.StreamUser;
-import eu.socialsensor.framework.common.domain.StreamUser.Category;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.StreamUser;
+import gr.iti.mklab.framework.common.domain.StreamUser.Category;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -154,7 +152,7 @@ public class SolrItem {
         item.setShares(popularityShares);
 
         item.setValidityScore(validityScore);
-        item.setVotes(ItemFactory.createVoteList(validityVotes));
+        item.setVotes(ObjectFactory.createVoteList(validityVotes));
         item.setPositiveVotes(positiveVotes);
         item.setNegativeVotes(negativeVotes);
 
@@ -633,40 +631,4 @@ public class SolrItem {
         this.lists = lists;
     }
 
-    private List<String> extractPeople(String input) {
-
-        // String to be scanned to find the pattern.
-        String pattern = "(?:\\s|\\A)[@]+([A-Za-z0-9-_]+)";
-
-        // Create a Pattern object
-        Pattern r = Pattern.compile(pattern);
-
-        // Now create matcher object.
-        Matcher m = r.matcher(input);
-
-        List<String> out = new ArrayList<String>();
-        while (m.find()) {
-            out.add(m.group());
-        }
-        return out;
-    }
-
-    public static void main(String args[]) {
-
-        // String to be scanned to find the pattern.
-        String line = "@user user 1, asdfasf ,  @safas ,saf asdf@ sfdasf@asdfas  asfasf asfas asfsd";
-        String pattern = "(?:\\s|\\A)[@]+([A-Za-z0-9-_]+)";
-
-        // Create a Pattern object
-        Pattern r = Pattern.compile(pattern);
-
-        // Now create matcher object.
-        Matcher m = r.matcher(line);
-
-        while (m.find()) {
-
-            System.out.println("Found value: " + m.group());
-
-        }
-    }
 }

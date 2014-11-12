@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package gr.iti.mklab.framework.client.dao.impl;
 
-import eu.socialsensor.framework.common.domain.SocialNetworkSource;
-import eu.socialsensor.framework.common.domain.Source;
-import eu.socialsensor.framework.common.factories.ItemFactory;
+import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.Source;
+import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.SourceDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -141,7 +137,7 @@ public class SourceDAOImpl implements SourceDAO {
 		
 		List<String> res = mongoHandler.findMany(n);
 		for(String json : res) {
-			sources.add(ItemFactory.createSource(json));
+			sources.add(ObjectFactory.createSource(json));
 		}
 		return sources;
 	}
@@ -152,7 +148,7 @@ public class SourceDAOImpl implements SourceDAO {
 		
 		List<String> res = mongoHandler.findMany("network", sourceType.toString(), n);
 		for(String json : res) {
-			sources.add(ItemFactory.createSource(json));
+			sources.add(ObjectFactory.createSource(json));
 		}
 		return sources;
 	}
@@ -168,7 +164,7 @@ public class SourceDAOImpl implements SourceDAO {
 		
 		List<String> res = mongoHandler.findMany("list", listId, -1);
 		for(String json : res) {
-			sources.add(ItemFactory.createSource(json));
+			sources.add(ObjectFactory.createSource(json));
 		}
 		return sources;
 	}

@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.socialsensor</groupId>
-    <artifactId>socialsensor-framework-client</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <groupId>gr.iti.mklab</groupId>
+    <artifactId>mklab-framework-client</artifactId>
+    <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>socialsensor-framework-client</name>
-    <url>https://github.com/socialsensor/socialsensor-framework-client</url>
+    <name>mklab-framework-client</name>
+    <url>https://github.com/MKLab-ITI/mklab-framework-client</url>
     <description>The project contains a set of convenience methods on top of common data repositories.</description>
 
 
@@ -16,22 +16,16 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git@github.com:socialsensor/socialsensor-framework-client.git</connection>
-        <developerConnection>scm:git:git@github.com:socialsensor/socialsensor-framework-client.git</developerConnection>
-        <url>git@github.com:socialsensor/socialsensor-framework-client.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <connection>scm:git:git@github.com:MKLab-ITI/mklab-framework-client.git</connection>
+        <developerConnection>scm:git:git@github.com:MKLab-ITI/mklab-framework-client.git</developerConnection>
+        <url>git@github.com:MKLab-ITI/mklab-framework-client.git</url>
+  	</scm>
     
     <developers>
         <developer>
             <id>manosetro</id>
             <name>Manos Schinas</name>
             <email>manosetro</email>
-        </developer>
-        <developer>
-            <id>ailiakop</id>
-            <name>Aikaterini Iliakopoulou</name>
-            <email>ailiakop@iti.gr</email>
         </developer>
     </developers>
     
@@ -50,11 +44,11 @@
     </parent>
     
     <dependencies>
-        <!-- Social Sensor -->
+        <!-- MKLab Dependencies -->
         <dependency>
-            <groupId>eu.socialsensor</groupId>
-            <artifactId>socialsensor-framework-common</artifactId>
-            <version>0.2.2</version>
+            <groupId>gr.iti.mklab</groupId>
+            <artifactId>mklab-framework-common</artifactId>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
         
         <dependency>
@@ -74,11 +68,46 @@
             <artifactId>jedis</artifactId>
             <version>2.4.2</version>
         </dependency>
+        <dependency>
+        	<groupId>org.apache.solr</groupId>
+        	<artifactId>solr-solrj</artifactId>
+        	<version>4.10.2</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.mongodb</groupId>
+        	<artifactId>mongo-java-driver</artifactId>
+        	<version>2.12.4</version>
+        </dependency>
     </dependencies>
            
     <build>
+      	<pluginManagement>
+        	<plugins>
+           		<plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-release-plugin</artifactId>
+                     <version>2.5</version>
+                     <configuration>
+                          <useReleaseProfile>false</useReleaseProfile>
+                          <releaseProfiles>release</releaseProfiles>
+                          <goals>deploy</goals>
+                     </configuration>
+                </plugin>
+          	</plugins>
+		</pluginManagement>
+		
         <plugins>
-			
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>sonatype-nexus-staging</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -88,7 +117,6 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -128,25 +156,21 @@
                     </execution>
                 </executions>
             </plugin>
-            
+           	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
-        
-        <pluginManagement>
-       		<plugins>
-        		<plugin>
-  					<groupId>org.apache.maven.plugins</groupId>
-  					<artifactId>maven-release-plugin</artifactId>
-  					<version>2.5</version>
-  					<configuration>
-    					<autoVersionSubmodules>true</autoVersionSubmodules>
-    					<useReleaseProfile>false</useReleaseProfile>
-    					<releaseProfiles>release</releaseProfiles>
-    					<goals>deploy</goals>
-  					</configuration>
-				</plugin>
-			</plugins>
-        </pluginManagement>
-        
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
