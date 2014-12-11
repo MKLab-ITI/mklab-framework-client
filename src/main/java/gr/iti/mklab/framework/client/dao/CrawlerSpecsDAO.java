@@ -1,10 +1,11 @@
 package gr.iti.mklab.framework.client.dao;
 
+import gr.iti.mklab.framework.common.domain.Account;
 import gr.iti.mklab.framework.common.domain.Keyword;
 import gr.iti.mklab.framework.common.domain.Location;
-import gr.iti.mklab.framework.common.domain.Source;
-import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.SocialNetwork;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+
 import java.util.List;
 
 /**
@@ -13,25 +14,25 @@ import java.util.List;
  */
 public interface CrawlerSpecsDAO {
 
-    public List<SocialNetworkSource> getSources();
+    public List<SocialNetwork> getSources();
 
-    public List<Keyword> getTopKeywords(int count, SocialNetworkSource sourceType);
+    public List<Keyword> getTopKeywords(int count, SocialNetwork sourceType);
 
-    public List<Source> getTopSources(int count);
+    public List<Account> getTopAccounts(int count);
     
-    public List<Source> getTopSources(int count, SocialNetworkSource sourceType);
+    public List<Account> getTopAccounts(int count, SocialNetwork sourceType);
     
     public List<Dysco> getTopDyscos(int count);
     
-    public void setKeywords(List<Keyword> keywords, SocialNetworkSource sourceType);
+    public void setKeywords(List<Keyword> keywords, SocialNetwork sourceType);
     
-    public void setSources(List<Source> sources, SocialNetworkSource sourceType);
+    public void setAccounts(List<Account> accounts, SocialNetwork sourceType);
     
-    public void setLocations(List<Location> locations, SocialNetworkSource sourceType);
+    public void setLocations(List<Location> locations, SocialNetwork sourceType);
     
-    public void removeKeywords(List<Keyword> keywords,SocialNetworkSource sourceType);
+    public void removeKeywords(List<Keyword> keywords,SocialNetwork sourceType);
     
-    public void removeSources(List<Source> sources, SocialNetworkSource sourceType);
+    public void removeAccounts(List<Account> accounts, SocialNetwork sourceType);
     
-    public void removeLocations(List<Location> locations, SocialNetworkSource sourceType);
+    public void removeLocations(List<Location> locations, SocialNetwork sourceType);
 }

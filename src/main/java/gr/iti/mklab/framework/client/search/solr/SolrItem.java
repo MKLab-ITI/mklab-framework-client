@@ -6,7 +6,6 @@ import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.Location;
 import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.common.domain.StreamUser;
-import gr.iti.mklab.framework.common.domain.StreamUser.Category;
 import gr.iti.mklab.framework.common.factories.ObjectFactory;
 
 import java.net.MalformedURLException;
@@ -91,10 +90,7 @@ public class SolrItem {
         alethiometerUserStatus = item.getAlethiometerUserStatus();
         userRole = item.getUserRole();
         original = item.isOriginal();
-        
-        Category cat = item.getCategory();
-        if(cat != null)
-        	category = cat.name();
+
         
         StreamUser user = item.getStreamUser();
         if (user != null) {
@@ -199,18 +195,6 @@ public class SolrItem {
         item.setAuthorScreenName(authorScreenName);
         item.setLang(language);
 
-        if (category != null) {
-            if (category.equals("politician")) {
-                item.setCategory(Category.politician);
-            } else if (category.equals("footballer")) {
-                item.setCategory(Category.footballer);
-            } else if (category.equals("official")) {
-                item.setCategory(Category.official);
-            } else if (category.equals("journalist")) {
-                item.setCategory(Category.journalist);
-            }
-        }
-
         item.setAlethiometerUserStatus(alethiometerUserStatus);
         item.setShares(new Long(retweetsCount));
 
@@ -275,8 +259,6 @@ public class SolrItem {
     private String authorScreenName;
     @Field(value = "language")
     private String language;
-    @Field(value = "category")
-    private String category;
     @Field(value = "original")
     private boolean original;
     @Field(value = "alethiometerUserStatus")
@@ -375,14 +357,6 @@ public class SolrItem {
 
     public void setOriginal(boolean original) {
         this.original = original;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 
     public String getLanguage() {

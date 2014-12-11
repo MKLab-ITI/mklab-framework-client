@@ -18,12 +18,15 @@ public class Bucket implements Serializable{
 	@Expose
     @SerializedName(value = "name")
     String name;
+	
     @Expose
     @SerializedName(value = "count")
     long count;
+    
     @Expose
     @SerializedName(value = "query")
     String query;
+    
     @Expose
     @SerializedName(value = "facet")
     String facet;

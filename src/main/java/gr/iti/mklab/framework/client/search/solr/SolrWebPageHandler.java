@@ -2,6 +2,7 @@ package gr.iti.mklab.framework.client.search.solr;
 
 
 import gr.iti.mklab.framework.common.domain.WebPage;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.dao.WebPageDAO;
 import gr.iti.mklab.framework.client.dao.impl.WebPageDAOImpl;
 import gr.iti.mklab.framework.client.mongo.Selector;
@@ -10,15 +11,23 @@ import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -369,6 +378,78 @@ public class SolrWebPageHandler {
         response.setResults(webPages);
          
         return response;
+    }
+    
+    public List<WebPage> findHealines(Dysco dysco, int size) {
+
+        Logger.getRootLogger().info("============ Web Pages Retrieval =============");
+        
+        List<WebPage> webPages = new ArrayList<WebPage>();
+        
+        List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
+        if (queries == null || queries.isEmpty()) {
+            return webPages;
+        }
+
+        // Retrieve web pages from solr index
+        Set<String> uniqueUrls = new HashSet<String>();
+        Set<String> expandedUrls = new HashSet<String>();
+        Set<String> titles = new HashSet<String>();
+
+        String allQueriesToOne = Utils.buildKeywordSolrQuery(queries, "OR");
+
+        String sinceDateStr = "*";
+        try {
+        	Date sinceDate = new Date(System.currentTimeMillis() - 24 * 3600 * 1000);
+        	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        	sinceDateStr = df.format(sinceDate);
+        }
+        catch(Exception e) {
+        	Logger.getRootLogger().error(e);
+        }
+        String queryForRequest = "((title : (" + allQueriesToOne + ")) OR (text:(" + allQueriesToOne + ")) AND (date : [" + sinceDateStr + " TO * ]) )";
+      
+        SolrQuery solrQuery = new SolrQuery(queryForRequest);
+        solrQuery.setRows(size);
+        solrQuery.addSortField("score", ORDER.desc);
+        solrQuery.addSortField("date", ORDER.desc);
+
+        Logger.getRootLogger().info("Query : " + queryForRequest);
+        SearchEngineResponse<WebPage> response = findItems(solrQuery);
+        if (response != null) {
+            List<WebPage> results = response.getResults();
+            for (WebPage webPage : results) {
+                String url = webPage.getUrl();
+                String expandedUrl = webPage.getExpandedUrl();
+                String title = webPage.getTitle();
+                if (!expandedUrls.contains(expandedUrl) && !uniqueUrls.contains(url)
+                        && !titles.contains(title)) {
+                    //int shares = getWebPageShares(url);
+                   // webPage.setShares(shares);
+
+                    webPages.add(webPage);
+                    uniqueUrls.add(url);
+                    expandedUrls.add(expandedUrl);
+                    titles.add(title);
+                }
+            }
+        }
+        Logger.getRootLogger().info(webPages.size() + " web pages retrieved. Re-rank by popularity (#shares)");
+        Collections.sort(webPages, new Comparator<WebPage>() {
+            public int compare(WebPage wp1, WebPage wp2) {
+                if (wp1.getShares() == wp2.getShares()) {
+                    if (wp1.getDate().before(wp2.getDate())) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } else {
+                    return wp1.getShares() < wp2.getShares() ? 1 : -1;
+                }
+            }
+        });
+
+        return webPages.subList(0, Math.min(webPages.size(), size));
     }
     
     public static void main(String...args) {

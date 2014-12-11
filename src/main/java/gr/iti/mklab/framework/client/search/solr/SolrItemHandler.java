@@ -8,7 +8,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -21,6 +23,9 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 
 import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.Query;
@@ -620,6 +625,257 @@ public class SolrItemHandler {
         return response;
     }
 
+    public SearchEngineResponse<Item> findItems(String query, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+        return collectItemsByQuery(query, filters, facets, orderBy, params, size);
+    }
+
+    public SearchEngineResponse<Item> findItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+
+        if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
+    		List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
+
+    		return collectItemsByQueries(queries, filters, facets, orderBy, params, size);
+        } else {
+
+            CustomDysco customDysco = (CustomDysco) dysco;
+            List<gr.iti.mklab.framework.common.domain.Query> queries = customDysco.getSolrQueries();
+
+            Map<String, Double> hashtags = dysco.getHashtags();
+            if(hashtags != null) {
+            	for(Entry<String, Double> hashtag : hashtags.entrySet()) {
+            		gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
+            		q.setName(hashtag.getKey());
+            		q.setScore(hashtag.getValue());
+            	
+            		queries.add(q);
+            	}
+            }
+            
+            List<String> twitterMentions = customDysco.getMentionedUsers();
+            List<String> twitterUsers = customDysco.getTwitterUsers();
+            List<String> wordsToExclude = customDysco.getWordsToAvoid();
+
+            return collectItems(queries, hashtags, twitterMentions, twitterUsers, wordsToExclude, filters, facets, orderBy, params, size);
+        }
+
+    }
+    
+    private SearchEngineResponse<Item> collectItemsByQuery(String query, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+
+        List<Item> items = new ArrayList<Item>();
+        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
+
+        if (query == null || query.isEmpty() || query.equals("")) {
+            return response;
+        }
+
+        query = query.replaceAll("[\"()]", " ");
+        query = query.trim();
+        
+        // Join query parts with AND 
+        String[] queryParts = query.split("\\s+");
+        query = StringUtils.join(queryParts, " AND ");
+        
+        //Retrieve multimedia content that is stored in solr
+        if (!query.contains("title") && !query.contains("description")) {
+            query = "((title : " + query + ") OR (description:" + query + "))";
+        }
+
+        //Set source filters in case they exist exist
+        for (String filter : filters) {
+            query += " AND " + filter;
+        }
+
+        SolrQuery solrQuery = new SolrQuery(query);
+        solrQuery.setRows(size);
+
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            solrQuery.add(param.getKey(), param.getValue());
+        }
+
+        //Set facets if necessary
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+
+        }
+
+        if (orderBy != null) {
+            solrQuery.setSortField(orderBy, ORDER.desc);
+        } else {
+            solrQuery.setSortField("score", ORDER.desc);
+        }
+
+        Logger.getRootLogger().info("Solr Query : " + query);
+
+        response = findItems(solrQuery);
+        if (response != null) {
+            List<Item> results = response.getResults();
+
+            for (Item it : results) {
+                items.add(it);
+                if ((items.size() >= size)) {
+                    break;
+                }
+            }
+        }
+
+        response.setResults(items);
+        return response;
+    }
+
+    private SearchEngineResponse<Item> collectItemsByQueries(List<gr.iti.mklab.framework.common.domain.Query> queries, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+
+        List<Item> items = new ArrayList<Item>();
+        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
+
+        if (queries.isEmpty()) {
+            return response;
+        }
+
+        //Retrieve multimedia content that is stored in solr
+        String allQueriesToOne = Utils.buildKeywordSolrQuery(queries, "OR");
+        String queryForRequest = "(title : (" + allQueriesToOne + ") OR description:(" + allQueriesToOne + "))";
+        
+        //Set source filters in case they exist exist
+        for (String filter : filters) {
+            queryForRequest += " AND " + filter;
+        }
+
+        SolrQuery solrQuery = new SolrQuery(queryForRequest);
+        solrQuery.setRows(size);
+
+
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            solrQuery.add(param.getKey(), param.getValue());
+        }
+
+        //Set facets if necessary
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+
+        }
+
+        if (orderBy != null) {
+            solrQuery.setSortField(orderBy, ORDER.desc);
+        } else {
+            solrQuery.setSortField("score", ORDER.desc);
+        }
+        
+        Logger.getRootLogger().info("Solr Query: " + queryForRequest);
+
+        response = findItems(solrQuery);
+        if (response != null) {
+            List<Item> results = response.getResults();
+            for (Item it : results) {
+                items.add(it);
+                if (items.size() >= size) {
+                    break;
+                }
+            }
+        }
+
+        response.setResults(items);
+        return response;
+    }
+
+    private SearchEngineResponse<Item> collectItems(List<gr.iti.mklab.framework.common.domain.Query> queries, Map<String, Double> hashtags, List<String> mentions,
+            List<String> users, List<String> wordsToExclude, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+
+    	List<Item> items = new ArrayList<Item>();
+        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();    	 
+    	 
+        if (queries == null && mentions == null && users == null) {
+            return response;
+        }
+        
+        String query = "";
+
+        // Create a Solr Query
+
+        String textQuery = Utils.buildKeywordSolrQuery(queries, "OR");
+        
+        //set Twitter mentions
+        if (mentions != null && !mentions.isEmpty()) {
+        	String mentionsQuery = StringUtils.join(mentions, " OR ");
+        	if (textQuery.isEmpty()) {
+        		textQuery = mentionsQuery;
+            } else {
+            	textQuery += " OR " + mentionsQuery;
+            }
+        }
+        
+        if (textQuery != null && !textQuery.isEmpty()) {
+        	query += "(title : (" + textQuery + ") OR description:(" + textQuery + "))";
+        }
+
+        //set Twitter users
+        if (users != null && !users.isEmpty()) {
+            String usersQuery = StringUtils.join(users, " OR ");
+            if (query.isEmpty()) {
+            	query = "author : (" + usersQuery + ")";
+            } else {
+            	query += " OR (author : (" + usersQuery + "))";
+            }
+        }
+        
+        if (query.isEmpty()) {
+            return response;
+        }
+        
+        //add words to exclude in query
+        if (wordsToExclude != null && !wordsToExclude.isEmpty()) {
+        	String exclude = StringUtils.join(wordsToExclude, " OR ");
+        	query += " NOT (title : (" + exclude + ") OR description:(" + exclude + "))";
+        }
+        
+        //Set source filters in case they exist exist
+        if(filters!=null && !filters.isEmpty()) {
+        	String filtersQuery = StringUtils.join(filters, " AND ");
+        	 if (query.isEmpty()) {
+             	query = filtersQuery;
+             } else {
+             	query = "(" + query + ") AND " + filtersQuery;
+             }
+        }
+        
+        SolrQuery solrQuery = new SolrQuery(query);
+        solrQuery.setRows(size);
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            solrQuery.add(param.getKey(), param.getValue());
+        }
+
+        //Set facets if necessary
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+        }
+
+        if (orderBy != null) {
+            solrQuery.setSortField(orderBy, ORDER.desc);
+        } else {
+            solrQuery.setSortField("score", ORDER.desc);
+        }
+
+        Logger.getRootLogger().info("Solr Query: " + query);
+
+        response = findItems(solrQuery);
+        if (response != null) {
+            List<Item> results = response.getResults();
+
+            for (Item it : results) {
+                items.add(it);
+                if (items.size() >= size) {
+                    break;
+                }
+            }
+        }
+
+        response.setResults(items);
+        return response;
+    }
+    
     public static void main(String... args) throws Exception {
 
         SolrItemHandler handler =  SolrItemHandler.getInstance("http://socialsensor.atc.gr/solr/items");

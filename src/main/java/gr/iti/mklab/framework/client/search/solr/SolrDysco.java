@@ -114,9 +114,6 @@ public class SolrDysco implements Serializable {
     @Field(value = "listsOfUsers")
     private List<String> listsOfUsers;
 
-    @Field(value = "otherSocialNetworks")
-    private List<String> otherSocialNetworks;
-
     @Field(value = "nearLocations")
     private List<String> nearLocations;
 
@@ -245,8 +242,6 @@ public class SolrDysco implements Serializable {
         this.twitterUsers = customDysco.getTwitterUsers();
         this.mentionedUsers = customDysco.getMentionedUsers();
         this.listsOfUsers = customDysco.getListsOfUsers();
-
-        otherSocialNetworks = customDysco.getOtherSocialNetworks();
 
         if (customDysco.getNearLocations() != null) {
             nearLocations = new ArrayList<String>();
@@ -410,8 +405,6 @@ public class SolrDysco implements Serializable {
         dysco.setTwitterUsers(twitterUsers);
         dysco.setMentionedUsers(mentionedUsers);
         dysco.setListsOfUsers(listsOfUsers);
-
-        dysco.setOtherSocialNetworks(otherSocialNetworks);
 
         if (nearLocations != null) {
             List<Location> _nearLocations = new ArrayList<Location>();
@@ -812,14 +805,6 @@ public class SolrDysco implements Serializable {
 
     public void setListsOfUsers(List<String> listsOfUsers) {
         this.listsOfUsers = listsOfUsers;
-    }
-
-    public List<String> getOtherSocialNetworks() {
-        return otherSocialNetworks;
-    }
-
-    public void setOtherSocialNetworks(List<String> otherSocialNetworks) {
-        this.otherSocialNetworks = otherSocialNetworks;
     }
 
     public List<String> getNearLocations() {

@@ -3,7 +3,7 @@ package gr.iti.mklab.framework.client.dao;
 import java.util.List;
 
 import gr.iti.mklab.framework.common.domain.Keyword;
-import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.SocialNetwork;
 
 /**
  *
@@ -13,18 +13,18 @@ public interface KeywordDAO {
 
     public void insertKeyword(String keyword, double score);
 
-    public void insertKeyword(String keyword, double score, SocialNetworkSource sourceType);
+    public void insertKeyword(String keyword, double score, SocialNetwork sourceType);
     
-    public void insertKeyword(Keyword keyword, SocialNetworkSource sourceType);
+    public void insertKeyword(Keyword keyword, SocialNetwork sourceType);
     
     public void removeKeyword(String keyword);
 
-    public void removeKeyword(String keyword, SocialNetworkSource sourceType);
+    public void removeKeyword(String keyword, SocialNetwork sourceType);
     
     public void instertDyscoKeyword(String dyscoId, String keyword, float score);
 
 	public List<Keyword> findTopKeywords(int n);
 	
-	public List<Keyword> findKeywords(SocialNetworkSource sourceType);
+	public List<Keyword> findKeywords(SocialNetwork sourceType);
     
 }

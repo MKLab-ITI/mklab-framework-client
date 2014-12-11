@@ -1,7 +1,7 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
 import gr.iti.mklab.framework.common.domain.Keyword;
-import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.SocialNetwork;
 import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.KeywordDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
@@ -50,10 +50,10 @@ public class KeywordDAOImpl implements KeywordDAO {
     }
 
     @Override
-	public void removeKeyword(String keyword, SocialNetworkSource sourceType) {
+	public void removeKeyword(String keyword, SocialNetwork sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
         map.put("keyword", keyword);
-        if(sourceType != SocialNetworkSource.All) {
+        if(sourceType != SocialNetwork.All) {
         	map.put("network", sourceType);
         }
         mongoHandler.delete(map);
@@ -62,7 +62,7 @@ public class KeywordDAOImpl implements KeywordDAO {
     @Override
     public void insertKeyword(String keyword, double score) {
         Map<String, Object> map = new HashMap<String, Object>();
-        String id = SocialNetworkSource.All+"::"+keyword;
+        String id = SocialNetwork.All+"::"+keyword;
         map.put("_id", id);
         map.put("keyword", keyword);
         map.put("score", score);
@@ -74,7 +74,7 @@ public class KeywordDAOImpl implements KeywordDAO {
     }
 
     @Override
-	public void insertKeyword(String keyword, double score, SocialNetworkSource sourceType) {
+	public void insertKeyword(String keyword, double score, SocialNetwork sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
     	String id = sourceType+"::"+keyword;
         map.put("_id", id);
@@ -89,12 +89,12 @@ public class KeywordDAOImpl implements KeywordDAO {
 	}
 
     @Override
-	public void insertKeyword(Keyword keyword, SocialNetworkSource sourceType) {
+	public void insertKeyword(Keyword keyword, SocialNetwork sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
     	String id = sourceType.toString()+"::"+keyword.getName();
         map.put("_id", id);
         map.put("keyword", keyword.getName());
-        map.put("score", keyword.getScore());
+        map.put("score", 0);
         map.put("network", sourceType.toString());
         map.put("label", keyword.getLabel());
         map.put("timestamp", System.currentTimeMillis());
@@ -125,7 +125,7 @@ public class KeywordDAOImpl implements KeywordDAO {
 	}
 
 	@Override
-	public List<Keyword> findKeywords(SocialNetworkSource sourceType) {
+	public List<Keyword> findKeywords(SocialNetwork sourceType) {
 		List<Keyword> keywords = new ArrayList<Keyword>();
 		
 		DBObject query = new BasicDBObject("network", sourceType.toString());

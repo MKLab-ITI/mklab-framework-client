@@ -1,9 +1,9 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
-import gr.iti.mklab.framework.common.domain.Source;
+import gr.iti.mklab.framework.common.domain.SocialNetwork;
+import gr.iti.mklab.framework.common.domain.Account;
 import gr.iti.mklab.framework.common.factories.ObjectFactory;
-import gr.iti.mklab.framework.client.dao.SourceDAO;
+import gr.iti.mklab.framework.client.dao.AccountDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * @author etzoannos
  */
-public class SourceDAOImpl implements SourceDAO {
+public class AccountDAOImpl implements AccountDAO {
 
     List<String> indexes = new ArrayList<String>();
 
@@ -24,11 +24,11 @@ public class SourceDAOImpl implements SourceDAO {
     private MongoHandler mongoHandler;
 
     
-    public SourceDAOImpl(String host) {
+    public AccountDAOImpl(String host) {
     	this(host, db, collection);
     }
 
-    public SourceDAOImpl(String host, String db, String collection) {
+    public AccountDAOImpl(String host, String db, String collection) {
         try {
             indexes.add("score");
             indexes.add("id");
@@ -42,26 +42,26 @@ public class SourceDAOImpl implements SourceDAO {
     }
     
     @Override
-    public void removeSource(Source source) {
+    public void removeAccount(Account source) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("name", source.getName());
         mongoHandler.delete(map);
     }
 
     @Override
-	public void removeSource(Source source, SocialNetworkSource sourceType) {
+	public void removeAccount(Account source, SocialNetwork sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
         map.put("name", source.getName());
-        if(sourceType != SocialNetworkSource.All) {
+        if(sourceType != SocialNetwork.All) {
         	map.put("network", sourceType.name());
         }
         mongoHandler.delete(map);
 	}
     
     @Override
-    public void insertSource(String name, float score) {
+    public void insertAccount(String name, float score) {
         Map<String, Object> map = new HashMap<String, Object>();
-        String id = SocialNetworkSource.All+"::"+name;
+        String id = SocialNetwork.All+"::"+name;
         map.put("_id", id);
         map.put("name", name);
         map.put("score", score);
@@ -74,9 +74,9 @@ public class SourceDAOImpl implements SourceDAO {
     }
 
     @Override
-    public void insertSource(Source source) {
+    public void insertAccount(Account source) {
         Map<String, Object> map = new HashMap<String, Object>();
-        String id = SocialNetworkSource.All+"::"+source.getName();
+        String id = SocialNetwork.All+"::"+source.getName();
         map.put("_id", id);
         map.put("id", source.getId());
         map.put("name", source.getName());
@@ -91,7 +91,7 @@ public class SourceDAOImpl implements SourceDAO {
     }
     
     @Override
-	public void insertSource(String name, float score, SocialNetworkSource snSource) {
+	public void insertAccount(String name, float score, SocialNetwork snSource) {
     	Map<String, Object> map = new HashMap<String, Object>();
     	String id = snSource.toString()+"::"+name;
         map.put("_id", id);
@@ -106,7 +106,7 @@ public class SourceDAOImpl implements SourceDAO {
     }
 
     @Override
-	public void insertSource(Source source, SocialNetworkSource sourceType) {
+	public void insertAccount(Account source, SocialNetwork sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
     	String id = sourceType.toString()+"::"+source.getName();
         map.put("_id", id);
@@ -123,7 +123,7 @@ public class SourceDAOImpl implements SourceDAO {
     }
     
     @Override
-    public void instertDyscoSource(String dyscoId, String name, float score) {
+    public void instertDyscoAccount(String dyscoId, String name, float score) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("name", name);
         map.put("score", score);
@@ -132,39 +132,39 @@ public class SourceDAOImpl implements SourceDAO {
     }
 
 	@Override
-	public List<Source> findTopSources(int n) {
-		List<Source> sources = new ArrayList<Source>();
+	public List<Account> findTopAccounts(int n) {
+		List<Account> sources = new ArrayList<Account>();
 		
 		List<String> res = mongoHandler.findMany(n);
 		for(String json : res) {
-			sources.add(ObjectFactory.createSource(json));
+			sources.add(ObjectFactory.createAccount(json));
 		}
 		return sources;
 	}
 	
 	@Override
-	public List<Source> findTopSources(int n, SocialNetworkSource sourceType) {
-		List<Source> sources = new ArrayList<Source>();
+	public List<Account> findTopAccounts(int n, SocialNetwork sourceType) {
+		List<Account> sources = new ArrayList<Account>();
 		
 		List<String> res = mongoHandler.findMany("network", sourceType.toString(), n);
 		for(String json : res) {
-			sources.add(ObjectFactory.createSource(json));
+			sources.add(ObjectFactory.createAccount(json));
 		}
 		return sources;
 	}
 
 	@Override
-	public List<Source> findAllSources() {
-		return findTopSources(-1);
+	public List<Account> findAllAccounts() {
+		return findTopAccounts(-1);
 	}
 
 	@Override
-	public List<Source> findListSources(String listId) {
-		List<Source> sources = new ArrayList<Source>();
+	public List<Account> findListAccounts(String listId) {
+		List<Account> sources = new ArrayList<Account>();
 		
 		List<String> res = mongoHandler.findMany("list", listId, -1);
 		for(String json : res) {
-			sources.add(ObjectFactory.createSource(json));
+			sources.add(ObjectFactory.createAccount(json));
 		}
 		return sources;
 	}

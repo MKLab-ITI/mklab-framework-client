@@ -1,7 +1,7 @@
 package gr.iti.mklab.framework.client.dao;
 
 import gr.iti.mklab.framework.common.domain.Location;
-import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
+import gr.iti.mklab.framework.common.domain.SocialNetwork;
 
 /**
  *
@@ -10,9 +10,9 @@ import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
 public interface LocationDAO {
 
     public void insertLocation(String name, double latitude, double longitude);
-    public void insertLocation(Location location, SocialNetworkSource sourceType);
+    public void insertLocation(Location location, SocialNetwork sourceType);
     
-    public void removeLocation(Location keyword, SocialNetworkSource sourceType);
+    public void removeLocation(Location keyword, SocialNetwork sourceType);
     public void removeLocation(Location keyword);
 }
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import gr.iti.mklab.framework.common.domain.Feed;
+import gr.iti.mklab.framework.common.domain.feeds.Feed;
 import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.FeedDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;

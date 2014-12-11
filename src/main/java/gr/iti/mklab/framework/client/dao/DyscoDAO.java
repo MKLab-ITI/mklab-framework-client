@@ -4,7 +4,6 @@ import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.common.domain.dimension.Dimension;
 import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
@@ -75,13 +74,6 @@ public interface DyscoDAO {
      * @return Returns a list of DySCO objects containing the given item
      */
     public List<Dysco> findDyscoByContainingItem(Item item);
-
-    /**
-     *
-     * @param dim The dimension to use as search parameter
-     * @return Returns a list of DySCO objects matching the parameter
-     */
-    public List<Dysco> findDyscoByDimension(Dimension dim);
 
     /**
      *

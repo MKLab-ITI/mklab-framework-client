@@ -1,6 +1,6 @@
 package gr.iti.mklab.framework.client.dao;
 
-import gr.iti.mklab.framework.common.domain.Feed;
+import gr.iti.mklab.framework.common.domain.feeds.Feed;
 
 /**
  * Data Access Object for Feed

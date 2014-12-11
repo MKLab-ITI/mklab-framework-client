@@ -1,14 +1,14 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
+import gr.iti.mklab.framework.common.domain.Account;
 import gr.iti.mklab.framework.common.domain.Keyword;
 import gr.iti.mklab.framework.common.domain.Location;
-import gr.iti.mklab.framework.common.domain.SocialNetworkSource;
-import gr.iti.mklab.framework.common.domain.Source;
+import gr.iti.mklab.framework.common.domain.SocialNetwork;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.client.dao.AccountDAO;
 import gr.iti.mklab.framework.client.dao.CrawlerSpecsDAO;
 import gr.iti.mklab.framework.client.dao.KeywordDAO;
 import gr.iti.mklab.framework.client.dao.LocationDAO;
-import gr.iti.mklab.framework.client.dao.SourceDAO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +27,21 @@ public class CrawlerSpecsDAOImpl implements CrawlerSpecsDAO {
 		
 		List<Keyword> keywords = new ArrayList<Keyword>();
 		
-		keywords.add(new Keyword("champions league", 0.79f));
-		dao.setKeywords(keywords, SocialNetworkSource.Twitter);
+		keywords.add(new Keyword("champions league"));
+		dao.setKeywords(keywords, SocialNetwork.Twitter);
 		
 	}
 	
 	KeywordDAO keywordDAO;
 	LocationDAO locationDAO;
-	SourceDAO sourceDAO;
+	AccountDAO sourceDAO;
 
 	
 	public CrawlerSpecsDAOImpl(String host, String db, 
 			String keywords, String users, String locations) {
 		keywordDAO = new KeywordDAOImpl(host, db, keywords);
 		locationDAO = new LocationDAOImpl(host, db, locations);
-		sourceDAO = new SourceDAOImpl(host, db, users);
+		sourceDAO = new AccountDAOImpl(host, db, users);
 	}
 	
 	public CrawlerSpecsDAOImpl(String host, String db) {
@@ -53,18 +53,18 @@ public class CrawlerSpecsDAOImpl implements CrawlerSpecsDAO {
 //	}
 	
     @Override
-    public List<Keyword> getTopKeywords(int count, SocialNetworkSource sourceType) {
+    public List<Keyword> getTopKeywords(int count, SocialNetwork sourceType) {
     	return keywordDAO.findTopKeywords(count);
     }
     
     @Override
-    public List<Source> getTopSources(int count) {
-    	return sourceDAO.findTopSources(count);
+    public List<Account> getTopAccounts(int count) {
+    	return sourceDAO.findTopAccounts(count);
     }
     
     @Override
-    public List<Source> getTopSources(int count, SocialNetworkSource sourceType) {
-    	return sourceDAO.findTopSources(count);
+    public List<Account> getTopAccounts(int count, SocialNetwork sourceType) {
+    	return sourceDAO.findTopAccounts(count);
     }
 
     @Override
@@ -79,48 +79,48 @@ public class CrawlerSpecsDAOImpl implements CrawlerSpecsDAO {
     
 
     @Override
-    public List<SocialNetworkSource> getSources() {
+    public List<SocialNetwork> getSources() {
         return null;
     }
 
 	@Override
-	public void setKeywords(List<Keyword> keywords, SocialNetworkSource sourceType) {
+	public void setKeywords(List<Keyword> keywords, SocialNetwork sourceType) {
 		for(Keyword keyword : keywords) {
-			keywordDAO.insertKeyword(keyword.getName(), keyword.getScore(), sourceType);
+			keywordDAO.insertKeyword(keyword.getName(), 0, sourceType);
 		}
 		
 	}
 
 	@Override
-	public void removeKeywords(List<Keyword> keywords, SocialNetworkSource sourceType) {
+	public void removeKeywords(List<Keyword> keywords, SocialNetwork sourceType) {
 		for(Keyword keyword : keywords) {
 			keywordDAO.removeKeyword(keyword.getName(), sourceType);
 		}
 	}
 	
 	@Override
-	public void setSources(List<Source> sources, SocialNetworkSource sourceType) {
-		for(Source source : sources) {
-			sourceDAO.insertSource(source, sourceType);
+	public void setAccounts(List<Account> accounts, SocialNetwork sourceType) {
+		for(Account account : accounts) {
+			sourceDAO.insertAccount(account, sourceType);
 		}
 	}
 
 	@Override
-	public void removeSources(List<Source> sources, SocialNetworkSource sourceType) {
-		for(Source source : sources) {
-			sourceDAO.removeSource(source, sourceType);
+	public void removeAccounts(List<Account> accounts, SocialNetwork sourceType) {
+		for(Account account : accounts) {
+			sourceDAO.removeAccount(account, sourceType);
 		}
 	}
 	
 	@Override
-	public void setLocations(List<Location> locations, SocialNetworkSource sourceType) {
+	public void setLocations(List<Location> locations, SocialNetwork sourceType) {
 		for(Location location : locations) {
 			locationDAO.insertLocation(location, sourceType);
 		}
 	}
 
 	@Override
-	public void removeLocations(List<Location> locations, SocialNetworkSource sourceType) {
+	public void removeLocations(List<Location> locations, SocialNetwork sourceType) {
 		for(Location location : locations) {
 			locationDAO.removeLocation(location,  sourceType);
 		}

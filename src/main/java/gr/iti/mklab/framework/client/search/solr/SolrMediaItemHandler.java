@@ -1,6 +1,9 @@
 package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.MediaItem;
+import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.Query;
@@ -14,10 +17,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -614,6 +620,307 @@ public class SolrMediaItemHandler {
         return response;
     }
 
+    public SearchEngineResponse<MediaItem> findImages(String query, List<String> filters, List<String> facets, String orderBy, int size) {
+        return collectMediaItemsByQuery(query, "image", filters, facets, orderBy, size);
+    }
+
+
+    public SearchEngineResponse<MediaItem> findImages(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
+
+    	SearchEngineResponse<MediaItem> mediaItems;
+        if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
+
+        	List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
+            
+        	mediaItems = collectMediaItemsByQueries(queries, "image", filters, facets, orderBy, size);
+        } else {
+            CustomDysco customDysco = (CustomDysco) dysco;
+            List<gr.iti.mklab.framework.common.domain.Query> queries = customDysco.getSolrQueries();
+
+            List<String> twitterMentions = customDysco.getMentionedUsers();
+            List<String> twitterUsers = customDysco.getTwitterUsers();
+            List<String> wordsToExclude = customDysco.getWordsToAvoid();
+
+            Map<String, Double> hashtags = dysco.getHashtags();
+            if(hashtags != null) {
+            	for(Entry<String, Double> hashtag : hashtags.entrySet()) {
+            		gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
+            		q.setName(hashtag.getKey());
+            		q.setScore(hashtag.getValue());
+            	
+            		queries.add(q);
+            	}
+            }
+            
+            mediaItems = collectMediaItems(queries, twitterMentions, twitterUsers, wordsToExclude, "image", filters, facets, orderBy, size);
+        }
+
+        return mediaItems;
+    }
+    
+    private SearchEngineResponse<MediaItem> collectMediaItemsByQuery(String query, String type, List<String> filters, List<String> facets, String orderBy, int size) {
+
+        List<MediaItem> mediaItems = new LinkedList<MediaItem>();
+        SearchEngineResponse<MediaItem> response = new SearchEngineResponse<MediaItem>();
+
+        if (query.equals("")) {
+            return response;
+        }
+
+        // TEST CODE FOR MEDIA RETRIEVAL
+        query = query.replaceAll("[\"()]", " ");
+        query = query.trim();
+        
+        // Join query parts with AND 
+        String[] queryParts = query.split("\\s+");
+        query = StringUtils.join(queryParts, " AND ");
+        
+        //Retrieve multimedia content that is stored in solr
+        if (!query.contains("title") && !query.contains("description")) {
+            query = "((title : " + query + ") OR (description:" + query + "))";
+        }
+        // ==============================
+        
+        
+        
+        //Set filters in case they exist exist
+        for (String filter : filters) {
+            query += " AND " + filter;
+        }
+
+        query += " AND (type : " + type + ")";
+
+        SolrQuery solrQuery = new SolrQuery(query);
+
+        solrQuery.setRows(size);
+
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+
+        }
+
+        Logger.getRootLogger().info("orderBy: " + orderBy);
+
+        if (orderBy != null) {
+            solrQuery.setSortField(orderBy, ORDER.desc);
+        } else {
+            solrQuery.setSortField("score", ORDER.desc);
+        }
+
+        Logger.getRootLogger().info("Solr Query : " + query);
+
+        response = findItems(solrQuery);
+        if (response != null) {
+            List<MediaItem> results = response.getResults();
+            Set<String> urls = new HashSet<String>();
+            Set<String> clusterIds = new HashSet<String>();
+            for (MediaItem mi : results) {
+                System.out.println("Fetched media item: " + mi.getId() + " : " + mi.getSolrScore());
+                if (!urls.contains(mi.getUrl())) {
+                	String clusterId = mi.getClusterId();
+                	if(clusterId == null) {
+                		urls.add(mi.getUrl());
+                		mediaItems.add(mi);	
+                	}
+                	else if(!clusterIds.contains(clusterId)) {
+                		clusterIds.add(clusterId);
+                		urls.add(mi.getUrl());
+                		mediaItems.add(mi);	
+                	}
+                }
+
+                if ((mediaItems.size() >= size)) {
+                    break;
+                }
+
+            }
+        }
+
+        response.setResults(mediaItems);
+        return response;
+    }
+
+    private SearchEngineResponse<MediaItem> collectMediaItemsByQueries(List<gr.iti.mklab.framework.common.domain.Query> queries, 
+    		String type, List<String> filters, List<String> facets, String orderBy, int size) {
+
+        List<MediaItem> mediaItems = new ArrayList<MediaItem>();
+
+        SearchEngineResponse<MediaItem> response = new SearchEngineResponse<MediaItem>();
+
+        if (queries.isEmpty()) {
+            return response;
+        }
+
+        //Retrieve multimedia content that is stored in solr
+        String allQueriesToOne = Utils.buildKeywordSolrQuery(queries, "OR");
+        //String queryForRequest = "(title : (" + allQueriesToOne + ") OR description:(" + allQueriesToOne + "))";
+        
+        String queryForRequest = "(title : (" + allQueriesToOne + ") OR description:(" + allQueriesToOne + ")"
+        		+ " OR tags : (" + allQueriesToOne + "))";
+
+        //Set filters in case they exist exist
+        for (String filter : filters) {
+            queryForRequest += " AND " + filter;
+        }
+
+        queryForRequest += " AND (type : " + type + ")";
+
+        SolrQuery solrQuery = new SolrQuery(queryForRequest);
+        Logger.getRootLogger().info("Solr Query: " + queryForRequest);
+
+        solrQuery.setRows(2*size);
+        solrQuery.addSortField("score", ORDER.desc);
+        if (orderBy != null) {
+            solrQuery.addSortField(orderBy, ORDER.desc);
+        }
+
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+
+        }
+
+        response = findItems(solrQuery);
+        if (response != null) {
+            List<MediaItem> results = response.getResults();
+            Set<String> urls = new HashSet<String>();
+            Set<String> clusterIds = new HashSet<String>();
+            
+            for (MediaItem mi : results) {
+                if (!urls.contains(mi.getUrl())) {
+                	String clusterId = mi.getClusterId();
+                	if(clusterId == null) {
+                		urls.add(mi.getUrl());
+                		mediaItems.add(mi);	
+                	}
+                	else if(!clusterIds.contains(clusterId)) {
+                		clusterIds.add(clusterId);
+                		urls.add(mi.getUrl());
+                		mediaItems.add(mi);	
+                	}
+                }
+                
+                if ((mediaItems.size() >= size)) {
+                    break;
+                }
+            }
+        }
+
+        response.setResults(mediaItems);
+        return response;
+    }
+
+    private SearchEngineResponse<MediaItem> collectMediaItems(List<gr.iti.mklab.framework.common.domain.Query> queries, List<String> mentions,
+            List<String> users, List<String> wordsToExclude, String type, List<String> filters, List<String> facets, String orderBy, int size) {
+
+        List<MediaItem> mediaItems = new ArrayList<MediaItem>();
+        SearchEngineResponse<MediaItem> response = new SearchEngineResponse<MediaItem>();
+
+        if (queries == null && mentions == null && users == null) {
+            return response;
+        }
+
+        String query = "";
+        
+        //Retrieve multimedia content that is stored in solr
+        String textQuery = Utils.buildKeywordSolrQuery(queries, "OR");
+
+        //set mentions
+        if (mentions != null && !mentions.isEmpty()) {
+        	String mentionsQuery = StringUtils.join(mentions, " OR ");
+        	 if (textQuery.isEmpty()) {
+        		 textQuery = mentionsQuery;
+             } else {
+            	 textQuery += " OR " + mentionsQuery;
+             }
+        }
+
+        if (textQuery != null && !textQuery.isEmpty()) {
+            query += "(title : (" + textQuery + ") OR description:(" + textQuery + "))";
+        }
+
+
+        //set Twitter users
+        if (users != null && !users.isEmpty()) {
+            String usersQuery = StringUtils.join(users, " OR ");
+                if (query.isEmpty()) {
+                	query = " author: (" + usersQuery + ")";
+                } else {
+                	query += " OR (author: (" + usersQuery + "))";
+                }
+            
+        }
+
+        if (query.isEmpty()) {
+            return response;
+        }
+
+        //add words to exclude in query
+        if (wordsToExclude != null && !wordsToExclude.isEmpty()) {
+        	String exclude = StringUtils.join(wordsToExclude, " OR ");
+        	query += " NOT (title : (" + exclude + ") OR description:(" + exclude + "))";
+        }
+        
+        //Set source filters in case they exist exist
+        if(filters!=null && !filters.isEmpty()) {
+        	String filtersQuery = StringUtils.join(filters, " AND ");
+        	 if (query.isEmpty()) {
+             	query = filtersQuery;
+             } else {
+             	query = "(" + query + ") AND " + filtersQuery;
+             }
+        }
+
+        query += " AND type : " + type;
+
+        SolrQuery solrQuery = new SolrQuery(query);
+        Logger.getRootLogger().info("Solr Query: " + query);
+
+        solrQuery.setRows(size);
+
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+        }
+
+        //solrQuery.addFilterQuery("publicationTime:["+86400000+" TO *]");
+        if (orderBy != null) {
+            solrQuery.setSortField(orderBy, ORDER.desc);
+        } else {
+            solrQuery.setSortField("score", ORDER.desc);
+        }
+
+        response = findItems(solrQuery);
+        if (response != null) {
+            List<MediaItem> results = response.getResults();
+            Set<String> urls = new HashSet<String>();
+            Set<String> clusterIds = new HashSet<String>();
+            for (MediaItem mi : results) {
+
+                if (!urls.contains(mi.getUrl())) {
+                	String clusterId = mi.getClusterId();
+                	if(clusterId == null) {
+                		urls.add(mi.getUrl());
+                		mediaItems.add(mi);	
+                	}
+                	else if(!clusterIds.contains(clusterId)) {
+                		clusterIds.add(clusterId);
+                		urls.add(mi.getUrl());
+                		mediaItems.add(mi);	
+                	}
+                }
+
+                if ((mediaItems.size() >= size)) {
+                    break;
+                }
+            }
+        }
+
+        response.setResults(mediaItems);
+        return response;
+    }
+    
     public void forceCommitPending() {
 
         try {
