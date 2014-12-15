@@ -3,6 +3,7 @@ package gr.iti.mklab.framework.client.search.solr;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
+import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.io.IOException;
@@ -66,28 +67,23 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
             }
 
         } catch (SolrServerException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         } catch (IOException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         }
         return status;
     }
 
     public boolean insert(List<Dysco> dyscos) {
-
         boolean status = false;
-
         try {
             List<SolrDysco> finalDyscos = new ArrayList<SolrDysco>();
-            
             for (Dysco dysco : dyscos) {
                 SolrDysco solrDysco = new SolrDysco(dysco);
                 finalDyscos.add(solrDysco);
             }
-
             server.addBeans(finalDyscos);
 
             UpdateResponse response = server.commit();
@@ -97,12 +93,11 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
             }
 
         } catch (SolrServerException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         } catch (IOException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         }
             
         return status;
@@ -126,6 +121,24 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
         return status;
     }
 
+    public boolean delete(Query query) {
+        boolean status = false;
+        try {
+            server.deleteById(query.getQueryString());
+            UpdateResponse response = server.commit();
+            int statusId = response.getStatus();
+            if (statusId == 0) {
+                status = true;
+            }
+
+        } catch (SolrServerException ex) {
+            logger.error(ex.getMessage());
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        return status;
+    }
+    
     public Dysco get(String id) {
         SolrQuery solrQuery = new SolrQuery("id:" + id);
         SearchEngineResponse<Dysco> response = find(solrQuery);

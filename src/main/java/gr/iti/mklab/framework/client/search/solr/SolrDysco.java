@@ -2,7 +2,6 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.NamedEntity;
 import gr.iti.mklab.framework.common.domain.NamedEntity.Type;
-import gr.iti.mklab.framework.common.domain.Query;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 
 import java.io.Serializable;
@@ -38,15 +37,29 @@ public class SolrDysco implements Serializable {
     @Field(value = "creationDate")
     private Date creationDate;
     
+    //The date that the dysco was last updates
+    @Field(value = "updateDate")
+    private Date updateDate;
+    
     //The title of the dysco
     @Field(value = "title")
     private String title;
     
-    //The score that shows how trending the dysco is
-    @Field(value = "dyscoScore")
-    private Double score = 0d;
+    //The title of the dysco
+    @Field(value = "text")
+    private String text;
     
-    //Fields holding the information about the main context of the items that constitute the dysco
+    
+    //The users that contribute in social networks to dysco's topic
+    private List<String> contributors = new ArrayList<String>();
+    
+    //The extracted keywords from items' content with their assigned weights
+    @Field(value = "keywords")
+    private List<String> keywords = new ArrayList<String>();
+    
+    //The extracted hashtags from items' content with their assigned weights
+    @Field(value = "tags")
+    private List<String> tags = new ArrayList<String>();
     
     //The extracted entities from items' content
     @Field(value = "persons")
@@ -55,36 +68,16 @@ public class SolrDysco implements Serializable {
     private List<String> locations = new ArrayList<String>();
     @Field(value = "organizations")
     private List<String> organizations = new ArrayList<String>();
-    
-    //The users that contribute in social networks to dysco's topic
-    private List<String> contributors = new ArrayList<String>();
-    //The extracted keywords from items' content with their assigned weights
-    @Field(value = "keywords")
-    private List<String> keywords = new ArrayList<String>();
-    //The extracted hashtags from items' content with their assigned weights
-    @Field(value = "hashtags")
-    private List<String> hashtags = new ArrayList<String>();
-    //The query that will be used for retrieving relevant content to the Dysco from Solr
-    @Field(value = "solrQueryString")
-    private String solrQueryString;
-    @Field(value = "solrQueriesString")
-    private List<String> solrQueriesString = new ArrayList<String>();
-    @Field(value = "solrQueriesScore")
-    private List<String> solrQueriesScore = new ArrayList<String>();
-    
-    //The date that the dysco was last updates
-    @Field(value = "updateDate")
-    private Date updateDate;
 
-    //new fields: 6 June 2014
     @Field(value = "links")
     private List<String> links = new ArrayList<String>();
 
+    //The score that shows how trending the dysco is
+    @Field(value = "dyscoScore")
+    private Double score = 0d;
+    
     @Field(value = "itemsCount")
     private int itemsCount = 0;
-
-    @Field(value = "nearLocations")
-    private List<String> nearLocations;
 
     public SolrDysco() {
         id = UUID.randomUUID().toString();
@@ -116,20 +109,8 @@ public class SolrDysco implements Serializable {
             keywords.add(entry.getKey());
         }
 
-        for (Map.Entry<String, Double> entry : dysco.getHashtags().entrySet()) {
-            hashtags.add(entry.getKey());
-        }
-
-        solrQueryString = dysco.getSolrQueryString();
-
-        //logger.info("DYSCO QUERIES : "+dysco.getSolrQueries().size());
-        for (Query query : dysco.getSolrQueries()) {
-            //logger.info("query name: "+query.getName());
-            //logger.info("query score: "+query.getScore().toString());
-            solrQueriesString.add(query.getName());
-            if (query.getScore() != null) {
-                solrQueriesScore.add(query.getScore().toString());
-            }
+        for (Map.Entry<String, Double> entry : dysco.getTags().entrySet()) {
+            tags.add(entry.getKey());
         }
 
         updateDate = dysco.getUpdateDate();
@@ -160,27 +141,12 @@ public class SolrDysco implements Serializable {
             }
         }
 
-        if (hashtags != null) {
-            for (String hashtag : hashtags) {
-                dysco.addHashtag(hashtag, 0.0);
+        if (tags != null) {
+            for (String tag : tags) {
+                dysco.addHashtag(tag, 0.0);
             }
-        }
-
-        dysco.setSolrQueryString(solrQueryString);
-        List<Query> queries = new ArrayList<Query>();
-        for (int i = 0; i < solrQueriesString.size(); i++) {
-            Query query = new Query();
-            query.setName(solrQueriesString.get(i));
-            if (solrQueriesScore != null) {
-                if (i < solrQueriesScore.size()) {
-                    query.setScore(Double.parseDouble(solrQueriesScore.get(i)));
-                }
-            }
-
-            queries.add(query);
         }
         
-        dysco.setSolrQueries(queries);
         dysco.setUpdateDate(updateDate);
 
         if (links != null) {
@@ -397,8 +363,8 @@ public class SolrDysco implements Serializable {
      *
      * @return List of String
      */
-    public List<String> getHashtags() {
-        return hashtags;
+    public List<String> getTags() {
+        return tags;
     }
 
     /**
@@ -406,44 +372,8 @@ public class SolrDysco implements Serializable {
      *
      * @param hashtags
      */
-    public void setHashtags(List<String> hashtags) {
-        this.hashtags = hashtags;
-    }
-
-    /**
-     * Returns the query as a stringfor the retrieval of relevant content to the
-     * dysco from solr
-     *
-     * @return String
-     */
-    public String getSolrQueryString() {
-        return solrQueryString;
-    }
-
-    /**
-     * Sets the solr query as a string for the retrieval of relevant content
-     *
-     * @param solrQuery
-     */
-    public void setSolrQueryString(String solrQueryString) {
-        this.solrQueryString = solrQueryString;
-
-    }
-
-    public List<String> getSolrQueriesString() {
-        return solrQueriesString;
-    }
-
-    public List<String> getSolrQueriesScore() {
-        return solrQueriesScore;
-    }
-
-    public void setSolrQueriesString(List<String> solrQueriesString) {
-        this.solrQueriesString = solrQueriesString;
-    }
-
-    public void setSolrQueriesScore(List<String> solrQueriesScore) {
-        this.solrQueriesScore = solrQueriesScore;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     /**
@@ -480,12 +410,12 @@ public class SolrDysco implements Serializable {
         this.itemsCount = itemsCount;
     }
 
-    public List<String> getNearLocations() {
-        return nearLocations;
+    public String getText() {
+        return text;
     }
 
-    public void setNearLocations(List<String> nearLocations) {
-        this.nearLocations = nearLocations;
+    public void setText(String text) {
+        this.text = text;
     }
 
 }

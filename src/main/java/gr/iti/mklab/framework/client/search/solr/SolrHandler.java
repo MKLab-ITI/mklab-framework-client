@@ -1,5 +1,6 @@
 package gr.iti.mklab.framework.client.search.solr;
 
+import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.util.List;
@@ -15,8 +16,10 @@ public interface SolrHandler<K> {
 	
 	public boolean delete(String id);
 	
+	public boolean delete(Query query);
+	
 	public K get(String id);
 	
 	public SearchEngineResponse<K> find(SolrQuery query);
-
+    
 }

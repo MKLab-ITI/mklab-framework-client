@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -25,15 +26,17 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 
 /**
  *
- * @author etzoannos
+ * @author Manos Schinas
+ * @email  manosetro@iti.gr
+ * 
  */
-public class SolrWebPageHandler {
+public class SolrWebPageHandler implements SolrHandler<WebPage> {
 
-    
+	private static Map<String, SolrWebPageHandler> INSTANCES = new HashMap<String, SolrWebPageHandler>();
+	
     private SolrServer server;
 	private Logger logger;
-    private static Map<String, SolrWebPageHandler> INSTANCES = new HashMap<String, SolrWebPageHandler>();
-
+   
     //private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     
     private static int commitPeriod = 5000;  // 5 SECONDS
@@ -59,8 +62,7 @@ public class SolrWebPageHandler {
         return INSTANCE;
     }
 
-    public boolean insertWebPage(WebPage webPage) {
-
+    public boolean insert(WebPage webPage) {
         boolean status = true;
         try {
             SolrWebPage solrWebPage = new SolrWebPage(webPage);
@@ -69,12 +71,10 @@ public class SolrWebPageHandler {
             logger.error(ex.getMessage());
             status = false;
         }
-        
         return status;
     }
 
-    public boolean insertWebPages(List<WebPage> webPages) {
-
+    public boolean insert(List<WebPage> webPages) {
         boolean status = true;
         try {
             List<SolrWebPage> solrWebPages = new ArrayList<SolrWebPage>();
@@ -82,9 +82,7 @@ public class SolrWebPageHandler {
             	SolrWebPage solrWebPage = new SolrWebPage(webPage);
             	solrWebPages.add(solrWebPage);
             }
-
             server.addBeans(solrWebPages, commitPeriod);
-
         } catch (SolrServerException ex) {
             logger.error(ex.getMessage());
             status = false;
@@ -92,25 +90,12 @@ public class SolrWebPageHandler {
             logger.error(ex.getMessage());
             status = false;
         }
-            
         return status;
     }
 
-    public SearchEngineResponse<WebPage> addFilterAndSearchItems(Query query, String fq) {
-        SolrQuery solrQuery = new SolrQuery(query.getQueryString());
-        solrQuery.addFilterQuery(fq);
-        return search(solrQuery);
-    }
-
-    public SearchEngineResponse<WebPage> removeFilterAndSearchItems(Query query, String fq) {
-        SolrQuery solrQuery = new SolrQuery(query.getQueryString());
-        return removeFilterAndSearch(solrQuery, fq);
-    }
-
-    public boolean deleteWebPage(String url) {
+    public boolean delete(String url) {
         boolean status = false;
         try {
-        
         	String query = "url:" + url;
         	UpdateResponse response = server.deleteByQuery(query, commitPeriod);
             int statusId = response.getStatus();
@@ -126,7 +111,7 @@ public class SolrWebPageHandler {
         return status;
     }
 
-    public boolean deleteWebPages(Query query) {
+    public boolean delete(Query query) {
         boolean status = false;
         try {
         	UpdateResponse response = server.deleteByQuery(query.getQueryString(), commitPeriod);
@@ -142,16 +127,10 @@ public class SolrWebPageHandler {
             
         return status;
     }
-    
-    private SearchEngineResponse<WebPage> removeFilterAndSearch(SolrQuery query, String fq) {
-        query.removeFilterQuery(fq);
-        return search(query);
-    }
 
-    public WebPage getSolrWebPage(String url) {
-
+    public WebPage get(String url) {
         SolrQuery solrQuery = new SolrQuery("url:" + url);
-        SearchEngineResponse<WebPage> response = search(solrQuery);
+        SearchEngineResponse<WebPage> response = find(solrQuery);
         List<WebPage> results = response.getResults();
 
         if (results == null || results.isEmpty()) {
@@ -162,7 +141,7 @@ public class SolrWebPageHandler {
         return webPage;
     }
 
-    private SearchEngineResponse<WebPage> search(SolrQuery query) {
+    public SearchEngineResponse<WebPage> find(SolrQuery query) {
 
         SearchEngineResponse<WebPage> response = new SearchEngineResponse<WebPage>();
         try {
@@ -191,23 +170,33 @@ public class SolrWebPageHandler {
     public List<WebPage> findWebPages(Dysco dysco, List<String> filters, List<String> facets, int size) {
   
         List<WebPage> webPages = new ArrayList<WebPage>();
-        
-        List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
-        if (queries == null || queries.isEmpty()) {
-            return webPages;
-        }
 
         // Retrieve web pages from solr index
         Set<String> uniqueUrls = new HashSet<String>();
         Set<String> expandedUrls = new HashSet<String>();
         Set<String> titles = new HashSet<String>();
 
-        String query = Utils.buildKeywordSolrQuery(queries, "OR");
-        query = "((title : (" + query + ")) OR (text:(" + query + "))";
-      
+        String query = "";
+        List<String> words = dysco.getWords();
+        if(words != null && !words.isEmpty()) {
+        	query = StringUtils.join(words, "OR");
+        	query = "((title : (" + query + ")) OR (text:(" + query + "))";
+        }
+        
         //Set source filters in case they exist exist
-        for (String filter : filters) {
-            query += " AND " + filter;
+        String filterQuery = StringUtils.join(filters, " AND");
+        if(query.isEmpty()) {
+        	query = filterQuery;
+        }
+        else {
+        	query += " AND " + filterQuery;
+        }
+        
+        //add words to exclude in query
+        List<String> wordsToExclude = dysco.getWordsToExclude();
+        if (wordsToExclude != null && !wordsToExclude.isEmpty()) {
+        	String excludeQuery = StringUtils.join(wordsToExclude, " OR ");
+        	query += " NOT (title : (" + excludeQuery + ") OR description:(" + excludeQuery + "))";
         }
         
         SolrQuery solrQuery = new SolrQuery(query);
@@ -222,11 +211,10 @@ public class SolrWebPageHandler {
             solrQuery.addFacetField(facet);
             solrQuery.setFacetLimit(6);
         }
-
         
         logger.info("Query : " + solrQuery);
         
-        SearchEngineResponse<WebPage> response = search(solrQuery);
+        SearchEngineResponse<WebPage> response = find(solrQuery);
         if (response != null) {
             List<WebPage> results = response.getResults();
             for (WebPage webPage : results) {
