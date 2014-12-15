@@ -2,7 +2,6 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.Location;
-import gr.iti.mklab.framework.common.domain.MediaItem;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,9 +39,6 @@ public class SolrItem {
     
     @Field(value = "links")
     private List<String> links;
-    
-    @Field(value = "mediaLinks")
-    private List<String> mediaLinks;
     
     @Field(value = "publicationTime")
     private long publicationTime;
@@ -102,13 +98,6 @@ public class SolrItem {
             }
         }
 
-        mediaLinks = new ArrayList<String>();
-        if (item.getMediaItems() != null) {
-            for (MediaItem mediaItem : item.getMediaItems()) {
-                mediaLinks.add(mediaItem.getUrl() + "%%" + mediaItem.getThumbnail());
-            }
-        }
-
         //this is long
         publicationTime = item.getPublicationTime();
 
@@ -131,7 +120,7 @@ public class SolrItem {
             lists.addAll(Arrays.asList(item.getList()));
         }
 
-        comments = item.getNumOfComments();
+        comments = item.getComments();
         shares = item.getShares();
         likes = item.getLikes();
         
@@ -141,7 +130,7 @@ public class SolrItem {
 
         Item item = new Item();
 
-        item.setNumOfComments(comments);
+        item.setComments(comments);
         item.setLikes(likes);
         item.setShares(shares);
 
@@ -271,14 +260,6 @@ public class SolrItem {
 
     public void setLinks(List<String> links) {
         this.links = links;
-    }
-
-    public List<String> getMediaLinks() {
-        return mediaLinks;
-    }
-
-    public void setMediaLinks(List<String> mediaLinks) {
-        this.mediaLinks = mediaLinks;
     }
 
     public Long getPublicationTime() {

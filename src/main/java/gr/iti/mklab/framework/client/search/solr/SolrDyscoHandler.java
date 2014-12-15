@@ -1,8 +1,6 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
@@ -58,14 +56,7 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
     public boolean insert(Dysco dysco) {
         boolean status = false;
         try {
-            SolrDysco solrDysco = null;
-            if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
-                solrDysco = new SolrDysco(dysco);
-            } else {
-                CustomDysco customDysco = (CustomDysco) dysco;
-                solrDysco = new SolrDysco(customDysco);
-            }
-
+            SolrDysco solrDysco = new SolrDysco(dysco);
             server.addBean(solrDysco);
 
             UpdateResponse response = server.commit();
@@ -93,13 +84,7 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
             List<SolrDysco> finalDyscos = new ArrayList<SolrDysco>();
             
             for (Dysco dysco : dyscos) {
-                SolrDysco solrDysco = null;
-                if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
-                    solrDysco = new SolrDysco(dysco);
-                } else {
-                    CustomDysco customDysco = (CustomDysco) dysco;
-                    solrDysco = new SolrDysco(customDysco);
-                }
+                SolrDysco solrDysco = new SolrDysco(dysco);
                 finalDyscos.add(solrDysco);
             }
 

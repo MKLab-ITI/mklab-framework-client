@@ -2,17 +2,11 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.client.dao.WebPageDAO;
-import gr.iti.mklab.framework.client.dao.impl.WebPageDAOImpl;
-import gr.iti.mklab.framework.client.mongo.Selector;
 import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +34,8 @@ public class SolrWebPageHandler {
 	private Logger logger;
     private static Map<String, SolrWebPageHandler> INSTANCES = new HashMap<String, SolrWebPageHandler>();
 
+    //private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    
     private static int commitPeriod = 5000;  // 5 SECONDS
     
     // Private constructor prevents instantiation from other classes
@@ -192,7 +188,7 @@ public class SolrWebPageHandler {
         return response;
     }
     
-    public List<WebPage> findWebPages(Dysco dysco, int size) {
+    public List<WebPage> findWebPages(Dysco dysco, List<String> filters, List<String> facets, int size) {
   
         List<WebPage> webPages = new ArrayList<WebPage>();
         
@@ -206,26 +202,30 @@ public class SolrWebPageHandler {
         Set<String> expandedUrls = new HashSet<String>();
         Set<String> titles = new HashSet<String>();
 
-        String allQueriesToOne = Utils.buildKeywordSolrQuery(queries, "OR");
-
-        String sinceDateStr = "*";
-        try {
-        	Date sinceDate = new Date(System.currentTimeMillis() - 24 * 3600 * 1000);
-        	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        	sinceDateStr = df.format(sinceDate);
-        }
-        catch(Exception e) {
-        	Logger.getRootLogger().error(e);
-        }
-        String queryForRequest = "((title : (" + allQueriesToOne + ")) OR (text:(" + allQueriesToOne + ")) AND (date : [" + sinceDateStr + " TO * ]) )";
+        String query = Utils.buildKeywordSolrQuery(queries, "OR");
+        query = "((title : (" + query + ")) OR (text:(" + query + "))";
       
-        SolrQuery solrQuery = new SolrQuery(queryForRequest);
+        //Set source filters in case they exist exist
+        for (String filter : filters) {
+            query += " AND " + filter;
+        }
+        
+        SolrQuery solrQuery = new SolrQuery(query);
         solrQuery.setRows(size);
         
         solrQuery.addSort("score", ORDER.desc);
         solrQuery.addSort("date", ORDER.desc);
 
-        Logger.getRootLogger().info("Query : " + queryForRequest);
+        
+      //Set facets if necessary
+        for (String facet : facets) {
+            solrQuery.addFacetField(facet);
+            solrQuery.setFacetLimit(6);
+        }
+
+        
+        logger.info("Query : " + solrQuery);
+        
         SearchEngineResponse<WebPage> response = search(solrQuery);
         if (response != null) {
             List<WebPage> results = response.getResults();
@@ -250,23 +250,6 @@ public class SolrWebPageHandler {
     
     public static void main(String...args) {
     	
-    	SolrWebPageHandler solr = SolrWebPageHandler.getInstance("http://xxx.xxx.xxx.xxx:8080/solr/WebPages");
-    	
-    	WebPageDAO dao = null;
-		try {
-			dao = new WebPageDAOImpl("");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	
-    	Selector query = new Selector();
-    	query.select("status", "proccessed");
-    	
-		List<WebPage> webPages = dao.getWebPages(query , -1);
-    	
-    	for(WebPage webPage : webPages) {
-    		 solr.insertWebPage(webPage);
-    	}
     }
     
 }

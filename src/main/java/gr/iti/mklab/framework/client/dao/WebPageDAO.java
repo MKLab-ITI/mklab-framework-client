@@ -2,7 +2,6 @@ package gr.iti.mklab.framework.client.dao;
 
 import gr.iti.mklab.framework.common.domain.JSONable;
 import gr.iti.mklab.framework.common.domain.WebPage;
-import gr.iti.mklab.framework.client.mongo.Selector;
 
 import java.util.List;
 
@@ -25,8 +24,6 @@ public interface WebPageDAO {
     public boolean exists(String webPageURL);
     
     public List<WebPage> getLastWebPages(int size);
-    
-    public List<WebPage> getWebPages(Selector selector, int size);
 
     public void clearAll();
 

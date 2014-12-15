@@ -1,7 +1,5 @@
 package gr.iti.mklab.framework.client.search;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 /**
@@ -15,23 +13,16 @@ public class Bucket implements Serializable{
 	 */
 	private static final long serialVersionUID = 9024691192712839896L;
 	
-	@Expose
-    @SerializedName(value = "name")
-    String name;
+	private String name;
 	
-    @Expose
-    @SerializedName(value = "count")
-    long count;
+	private long count;
     
-    @Expose
-    @SerializedName(value = "query")
-    String query;
+	private String query;
     
-    @Expose
-    @SerializedName(value = "facet")
-    String facet;
+	private String facet;
 
     public Bucket() {
+    	
     }
         
     public Bucket(String name, long count, String query, String facet) {

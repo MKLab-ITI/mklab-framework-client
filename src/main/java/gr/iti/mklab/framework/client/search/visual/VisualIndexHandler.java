@@ -11,11 +11,12 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import com.google.gson.*;
+import com.mongodb.BasicDBObject;
+import com.mongodb.util.JSON;
 
 import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.client.dao.MediaItemDAO;
-import gr.iti.mklab.framework.client.dao.impl.MediaItemDAOImpl;
+import gr.iti.mklab.framework.client.mongo.DAOFactory;
 import gr.iti.mklab.framework.client.search.visual.JsonResultSet.JsonResult;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -30,6 +31,9 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.dao.BasicDAO;
+import org.mongodb.morphia.query.Query;
 
 /**
  * Client for Visual Indexer.
@@ -373,14 +377,11 @@ public class VisualIndexHandler {
             
             int code = httpClient.executeMethod(indexMethod);
             if (code == 200) {
-                JsonParser parser = new JsonParser();
                 InputStream responseStream = indexMethod.getResponseBodyAsStream();
                 String rawJson = IOUtils.toString(responseStream);
-                JsonObject o = (JsonObject) parser.parse(rawJson);
-                JsonElement e = o.get("success");
-                if (e!=null && !e.isJsonNull()) {
-                    success = e.getAsBoolean();
-                }
+                
+                BasicDBObject object = (BasicDBObject) JSON.parse(rawJson);
+                success = object.getBoolean("success");
                 
                 if(!success) {
                 	_logger.error("Indexing failed: " + rawJson);
@@ -417,11 +418,9 @@ public class VisualIndexHandler {
                 IOUtils.copy(inputStream, writer);
                 response = writer.toString();
 
-                Gson gson = new GsonBuilder()
-                	.excludeFieldsWithoutExposeAnnotation()
-                	.create();
-
-                vector = gson.fromJson(response, Double[].class);
+                Morphia morphia = new Morphia();
+                BasicDBObject object = (BasicDBObject) JSON.parse(response);
+                vector = morphia.fromDBObject(Double[].class, object);
 
             }
             
@@ -478,12 +477,10 @@ public class VisualIndexHandler {
     }
 
     private static JsonResultSet parseResponse(String response) {
-        Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
-
+    	Morphia morphia = new Morphia();
         try {
-        	JsonResultSet indexResults = gson.fromJson(response, JsonResultSet.class);
+        	BasicDBObject object = (BasicDBObject) JSON.parse(response);
+        	JsonResultSet indexResults = morphia.fromDBObject(JsonResultSet.class, object);
         	if (indexResults == null) {
             	return new JsonResultSet();
         	}
@@ -502,13 +499,20 @@ public class VisualIndexHandler {
     	
     	VisualIndexHandler handler = new VisualIndexHandler("http://xxx.xxx.xxx.xxx:8080/VisualIndexService", "Prototype");
     	
-    	MediaItemDAO dao = null;
+		BasicDAO<MediaItem, String> dao;
 		try {
-			dao = new MediaItemDAOImpl("xxx.xxx.xxx.xxx", "Prototype", "MediaItems");
+			dao = new DAOFactory().getDAO("xxx.xxx.xxx.xxx", "Prototype", MediaItem.class);
 		} catch (Exception e1) {
 			e1.printStackTrace();
+			return;
 		}
-    	List<MediaItem> mediaItems = dao.getLastMediaItems(-1);
+		
+		
+    	Query<MediaItem> q = dao.getDatastore().createQuery(MediaItem.class);
+    	q.limit(100);
+    	q.order("publicationTIme");
+    	
+		List<MediaItem> mediaItems = dao.find(q).asList();
     	
     	int k = 0;
     	for(MediaItem mediaItem : mediaItems) {
@@ -519,14 +523,14 @@ public class VisualIndexHandler {
     			JsonResultSet results = handler.getSimilarImages(id, 0.8);
     			List<JsonResult> list = results.results;
     			if(list.size()>0) {
-    				System.out.println(results.toJSON());
+    				System.out.println(results);
     				System.out.println("============================");
     			}
     			
     			results = handler.getSimilarImages(new URL(url));
     			list = results.results;
     			if(list.size()>0) {
-    				System.out.println(results.toJSON());
+    				System.out.println(results);
     				System.out.println("============================");
     			}
 			} catch (Exception e) {

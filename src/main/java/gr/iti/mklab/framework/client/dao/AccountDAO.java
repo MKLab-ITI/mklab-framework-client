@@ -18,8 +18,6 @@ public interface AccountDAO {
     public void removeAccount(Account source);
 
     public void removeAccount(Account source, Source sourceType);
-    
-    public void instertDyscoAccount(String dyscoId, String source, float score);
 
 	public List<Account> findTopAccounts(int n);
 

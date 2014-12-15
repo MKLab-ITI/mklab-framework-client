@@ -1,10 +1,7 @@
 package gr.iti.mklab.framework.client.dao;
 
 import gr.iti.mklab.framework.common.domain.Item;
-import gr.iti.mklab.framework.common.factories.ObjectFactory;
-import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -41,28 +38,5 @@ public interface ItemDAO {
     public void setIndexedStatusTrue(String itemId);
 
     public List<Item> getUnindexedItems(int max);
-
-    public class ItemIterator implements Iterator<Item> {
-
-		private MongoIterator it;
-
-		public ItemIterator (MongoIterator it) {
-    		this.it = it;
-    	}
-		
-    	public Item next() {
-    		String json = it.next();
-    		return ObjectFactory.create(json);
-    	}
-    	
-    	public boolean hasNext() {
-    		return it.hasNext();
-    	}
-
-		@Override
-		public void remove() {
-			it.next();
-		}
-    }
 
 }

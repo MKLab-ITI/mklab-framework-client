@@ -1,15 +1,9 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-import gr.iti.mklab.framework.common.domain.Entity;
-import gr.iti.mklab.framework.common.domain.Entity.Type;
-import gr.iti.mklab.framework.common.domain.Location;
+import gr.iti.mklab.framework.common.domain.NamedEntity;
+import gr.iti.mklab.framework.common.domain.NamedEntity.Type;
 import gr.iti.mklab.framework.common.domain.Query;
-import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,10 +46,6 @@ public class SolrDysco implements Serializable {
     @Field(value = "dyscoScore")
     private Double score = 0d;
     
-    //The type of the dysco (CUSTOM/TRENDING)
-    @Field(value = "dyscoType")
-    private String dyscoType;
-    
     //Fields holding the information about the main context of the items that constitute the dysco
     
     //The extracted entities from items' content
@@ -67,8 +57,6 @@ public class SolrDysco implements Serializable {
     private List<String> organizations = new ArrayList<String>();
     
     //The users that contribute in social networks to dysco's topic
-    @Expose
-    @SerializedName(value = "contributors")
     private List<String> contributors = new ArrayList<String>();
     //The extracted keywords from items' content with their assigned weights
     @Field(value = "keywords")
@@ -88,9 +76,6 @@ public class SolrDysco implements Serializable {
     @Field(value = "updateDate")
     private Date updateDate;
 
-    @Field(value = "listId")
-    private String listId;
-
     //new fields: 6 June 2014
     @Field(value = "links")
     private List<String> links = new ArrayList<String>();
@@ -98,33 +83,8 @@ public class SolrDysco implements Serializable {
     @Field(value = "itemsCount")
     private int itemsCount = 0;
 
-    @Field(value = "rankerScore")
-    private double rankerScore = 0.0d;
-
-    @Field(value = "normalizedRankerScore")
-    private double normalizedRankerScore = 0.0d;
-    
-    @Field(value = "normalizedDyscoScore")
-    private double normalizedDyscoScore = 0.0d;
-    
-    //Custom Dysco fields
-    @Field(value = "twitterUsers")
-    private List<String> twitterUsers;
-
-    @Field(value = "mentionedUsers")
-    private List<String> mentionedUsers;
-
-    @Field(value = "listsOfUsers")
-    private List<String> listsOfUsers;
-
     @Field(value = "nearLocations")
     private List<String> nearLocations;
-
-    @Field(value = "new")
-    private String status;
-
-    @Field(value = "group")
-    private String group;
 
     public SolrDysco() {
         id = UUID.randomUUID().toString();
@@ -136,10 +96,9 @@ public class SolrDysco implements Serializable {
         creationDate = dysco.getCreationDate();
         title = dysco.getTitle();
         score = dysco.getScore();
-        dyscoType = dysco.getDyscoType().toString();
 
-        List<Entity> dyscoEntities = dysco.getEntities();
-        for (Entity entity : dyscoEntities) {
+        List<NamedEntity> dyscoEntities = dysco.getEntities();
+        for (NamedEntity entity : dyscoEntities) {
             if (entity.getType().equals(Type.LOCATION)) {
                 locations.add(entity.getName());
             }
@@ -174,18 +133,8 @@ public class SolrDysco implements Serializable {
         }
 
         updateDate = dysco.getUpdateDate();
-
-        listId = dysco.getListId();
-
+        
         itemsCount = dysco.getItemsCount();
-
-        rankerScore = dysco.getRankerScore();
-
-        normalizedDyscoScore = dysco.getNormalizedDyscoScore();
-        normalizedRankerScore = dysco.getNormalizedRankerScore();
-
-        group = dysco.getGroup();
-        status = dysco.getStatus();
 
         if (dysco.getLinks() != null) {
             links = new ArrayList<String>();
@@ -196,52 +145,9 @@ public class SolrDysco implements Serializable {
 
     }
 
-    public SolrDysco(CustomDysco customDysco) {
-
-        id = customDysco.getId();
-        creationDate = customDysco.getCreationDate();
-        title = customDysco.getTitle();
-        score = customDysco.getScore();
-        dyscoType = customDysco.getDyscoType().toString();
-        group = customDysco.getGroup();
-        status = customDysco.getStatus();
-
-        for (Map.Entry<String, Double> entry : customDysco.getKeywords().entrySet()) {
-            keywords.add(entry.getKey());
-        }
-
-        for (Map.Entry<String, Double> entry : customDysco.getHashtags().entrySet()) {
-            hashtags.add(entry.getKey());
-        }
-
-        for (Query query : customDysco.getSolrQueries()) {
-            solrQueriesString.add(query.getName());
-            if (query.getScore() != null) {
-                Double defaultScore = 10.0;
-                solrQueriesScore.add(defaultScore.toString());
-            }
-
-        }
-
-        this.twitterUsers = customDysco.getTwitterUsers();
-        this.mentionedUsers = customDysco.getMentionedUsers();
-        this.listsOfUsers = customDysco.getListsOfUsers();
-
-        if (customDysco.getNearLocations() != null) {
-            nearLocations = new ArrayList<String>();
-            for (Location l : customDysco.getNearLocations()) {
-                nearLocations.add(l.getLatitude() + "," + l.getLongitude() + "," + l.getRadius());
-            }
-        }
-
-    }
-
     public Dysco toDysco() {
 
         Dysco dysco = new Dysco(id, creationDate);
-
-        dysco.setGroup(group);
-        dysco.setStatus(status);
 
         dysco.setTitle(title);
         dysco.setScore(score);
@@ -290,113 +196,30 @@ public class SolrDysco implements Serializable {
             dysco.setLinks(_links);
         }
 
-        if (dyscoType.equals("CUSTOM")) {
-
-            dysco.setDyscoType(DyscoType.CUSTOM);
-
-            CustomDysco customDysco = new CustomDysco(dysco);
-
-            customDysco.setTwitterUsers(twitterUsers);
-            customDysco.setMentionedUsers(mentionedUsers);
-            customDysco.setListsOfUsers(listsOfUsers);
-
-            //to be rectified
-            //customDysco.setOtherSocialNetworks(otherSocialNetworks);
-            //customDysco.setNearLocations(nearLocations);
-            return customDysco;
-
-        } else {
-            dysco.setDyscoType(DyscoType.TRENDING);
 
             if (persons != null) {
                 for (String person : persons) {
-                    Entity dyscoEntity = new Entity(person, 0.0, Type.PERSON);
+                	NamedEntity dyscoEntity = new NamedEntity(person, 0.0, Type.PERSON);
                     dysco.addEntity(dyscoEntity);
                 }
             }
             if (locations != null) {
                 for (String location : locations) {
-                    Entity dyscoEntity = new Entity(location, 0.0, Type.LOCATION);
+                	NamedEntity dyscoEntity = new NamedEntity(location, 0.0, Type.LOCATION);
                     dysco.addEntity(dyscoEntity);
                 }
             }
             if (organizations != null) {
                 for (String organization : organizations) {
-                    Entity dyscoEntity = new Entity(organization, 0.0, Type.ORGANIZATION);
+                	NamedEntity dyscoEntity = new NamedEntity(organization, 0.0, Type.ORGANIZATION);
                     dysco.addEntity(dyscoEntity);
                 }
             }
 
-            dysco.setListId(listId);
 
             //new fields
-            dysco.setItemsCount(itemsCount);
-            dysco.setRankerScore(rankerScore);
-            
-            dysco.setNormalizedRankerScore(normalizedRankerScore);
-            dysco.setNormalizedDyscoScore(normalizedDyscoScore);
-        }
+           dysco.setItemsCount(itemsCount);
 
-        return dysco;
-
-    }
-
-    public CustomDysco toCustomDysco() {
-
-        CustomDysco dysco = new CustomDysco(id, creationDate, DyscoType.CUSTOM);
-
-        dysco.setTitle(title);
-        dysco.setScore(score);
-
-        dysco.setContributors(contributors);
-
-        if (keywords != null) {
-            for (String keyword : keywords) {
-                dysco.addKeyword(keyword, 0.0);
-            }
-        }
-
-        if (hashtags != null) {
-            for (String hashtag : hashtags) {
-                dysco.addHashtag(hashtag, 0.0);
-            }
-        }
-
-        dysco.setSolrQueryString(solrQueryString);
-        List<Query> queries = new ArrayList<Query>();
-        for (int i = 0; i < solrQueriesString.size(); i++) {
-            Query query = new Query();
-            query.setName(solrQueriesString.get(i));
-            if (solrQueriesScore.get(i).equals("NaN")) {
-                query.setScore(Double.parseDouble(solrQueriesScore.get(i)));
-            } else {
-                query.setScore(0.6);
-            }
-            queries.add(query);
-        }
-        dysco.setSolrQueries(queries);
-
-        dysco.setUpdateDate(updateDate);
-
-        dysco.setListId(listId);
-
-        dysco.setTwitterUsers(twitterUsers);
-        dysco.setMentionedUsers(mentionedUsers);
-        dysco.setListsOfUsers(listsOfUsers);
-
-        if (nearLocations != null) {
-            List<Location> _nearLocations = new ArrayList<Location>();
-            for (String s : nearLocations) {
-                String[] parts = s.split(",");
-                if (parts.length != 3) {
-                    continue;
-                }
-                Location l = new Location(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]),
-                        Double.parseDouble(parts[2]));
-                _nearLocations.add(l);
-            }
-            dysco.setNearLocations(_nearLocations);
-        }
 
         return dysco;
 
@@ -472,24 +295,6 @@ public class SolrDysco implements Serializable {
      */
     public void setScore(Double score) {
         this.score = score;
-    }
-
-    /**
-     * Returns the normalized score of the dysco
-     *
-     * @return Float
-     */
-    public Double getNormalizedDyscoScore() {
-        return normalizedDyscoScore;
-    }
-
-    /**
-     * Sets the score of the dysco
-     *
-     * @param score
-     */
-    public void setNormalizedDyscoScore(Double normalizedDyscoScore) {
-        this.normalizedDyscoScore = normalizedDyscoScore;
     }
     
     /**
@@ -641,22 +446,6 @@ public class SolrDysco implements Serializable {
         this.solrQueriesScore = solrQueriesScore;
     }
 
-    public double getRankerScore() {
-        return rankerScore;
-    }
-
-    public void setRankerScore(double rankerScore) {
-        this.rankerScore = rankerScore;
-    }
-
-    public double getNormalizedRankerScore() {
-        return normalizedRankerScore;
-    }
-
-    public void setNormalizedRankerScore(double normalizedRankerScore) {
-        this.normalizedRankerScore = normalizedRankerScore;
-    }
-
     /**
      * Returns the date that dysco was last updated.
      *
@@ -675,24 +464,6 @@ public class SolrDysco implements Serializable {
         this.updateDate = updateDate;
     }
 
-    /**
-     * Returns the type of the dysco
-     *
-     * @return dyscoType
-     */
-    public String getDyscoType() {
-        return dyscoType;
-    }
-
-    /**
-     * Sets the type of the dysco (CUSTOM/TRENDING)
-     *
-     * @param dyscoType
-     */
-    public void setDyscoType(String dyscoType) {
-        this.dyscoType = dyscoType;
-    }
-
     public List<String> getLinks() {
         return links;
     }
@@ -709,60 +480,12 @@ public class SolrDysco implements Serializable {
         this.itemsCount = itemsCount;
     }
 
-    public String getListId() {
-        return listId;
-    }
-
-    public void setListId(String listId) {
-        this.listId = listId;
-    }
-
-    public List<String> getTwitterUsers() {
-        return twitterUsers;
-    }
-
-    public void setTwitterUsers(List<String> twitterUsers) {
-        this.twitterUsers = twitterUsers;
-    }
-
-    public List<String> getMentionedUsers() {
-        return mentionedUsers;
-    }
-
-    public void setMentionedUsers(List<String> mentionedUsers) {
-        this.mentionedUsers = mentionedUsers;
-    }
-
-    public List<String> getListsOfUsers() {
-        return listsOfUsers;
-    }
-
-    public void setListsOfUsers(List<String> listsOfUsers) {
-        this.listsOfUsers = listsOfUsers;
-    }
-
     public List<String> getNearLocations() {
         return nearLocations;
     }
 
     public void setNearLocations(List<String> nearLocations) {
         this.nearLocations = nearLocations;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
     }
 
 }

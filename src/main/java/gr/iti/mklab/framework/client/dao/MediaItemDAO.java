@@ -1,12 +1,8 @@
 package gr.iti.mklab.framework.client.dao;
 
-import java.util.Iterator;
 import java.util.List;
 
 import gr.iti.mklab.framework.common.domain.MediaItem;
-import gr.iti.mklab.framework.common.factories.ObjectFactory;
-import gr.iti.mklab.framework.client.mongo.UpdateItem;
-import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 /**
  *
@@ -17,8 +13,6 @@ public interface MediaItemDAO {
     public void addMediaItem(MediaItem item);
 
     public void updateMediaItem(String id, String name, Object value);
-
-	public void updateMediaItem(String id, UpdateItem updates);
 	
     public void updateMediaItem(MediaItem item);
     
@@ -58,29 +52,6 @@ public interface MediaItemDAO {
 
     List<MediaItem> getUnindexedItems(int max);
     
-    public class MediaItemIterator implements Iterator<MediaItem> {
-
-		private MongoIterator it;
-
-		public MediaItemIterator (MongoIterator it) {
-    		this.it = it;
-    	}
-		
-    	public MediaItem next() {
-    		String json = it.next();
-    		return ObjectFactory.createMediaItem(json);
-    	}
-    	
-    	public boolean hasNext() {
-    		return it.hasNext();
-    	}
-
-		@Override
-		public void remove() {
-			it.next();
-		}
-    }
-
 	void updateMediaItemShares(String id, int shares);
     	
 }

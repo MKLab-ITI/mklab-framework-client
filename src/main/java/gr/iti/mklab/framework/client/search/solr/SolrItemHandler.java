@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -23,9 +22,7 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 
 import gr.iti.mklab.framework.common.domain.Item;
-import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.Query;
@@ -506,42 +503,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
         return response;
     }
 
-    public SearchEngineResponse<Item> findItems(String query, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
-        return collectItemsByQuery(query, filters, facets, orderBy, params, size);
-    }
-
-    public SearchEngineResponse<Item> findItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
-
-        if (dysco.getDyscoType().equals(DyscoType.TRENDING)) {
-    		List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
-
-    		return collectItemsByQueries(queries, filters, facets, orderBy, params, size);
-        } else {
-
-            CustomDysco customDysco = (CustomDysco) dysco;
-            List<gr.iti.mklab.framework.common.domain.Query> queries = customDysco.getSolrQueries();
-
-            Map<String, Double> hashtags = dysco.getHashtags();
-            if(hashtags != null) {
-            	for(Entry<String, Double> hashtag : hashtags.entrySet()) {
-            		gr.iti.mklab.framework.common.domain.Query q = new gr.iti.mklab.framework.common.domain.Query();
-            		q.setName(hashtag.getKey());
-            		q.setScore(hashtag.getValue());
-            	
-            		queries.add(q);
-            	}
-            }
-            
-            List<String> twitterMentions = customDysco.getMentionedUsers();
-            List<String> twitterUsers = customDysco.getTwitterUsers();
-            List<String> wordsToExclude = customDysco.getWordsToAvoid();
-
-            return collectItems(queries, hashtags, twitterMentions, twitterUsers, wordsToExclude, filters, facets, orderBy, params, size);
-        }
-
-    }
-    
-    private SearchEngineResponse<Item> collectItemsByQuery(String query, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+    public SearchEngineResponse<Item> findItems(String query, List<String> filters, List<String> facets, String orderBy, int size) {
 
         List<Item> items = new ArrayList<Item>();
         SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
@@ -549,18 +511,8 @@ public class SolrItemHandler implements SolrHandler<Item> {
         if (query == null || query.isEmpty() || query.equals("")) {
             return response;
         }
-
-        query = query.replaceAll("[\"()]", " ");
-        query = query.trim();
         
-        // Join query parts with AND 
-        String[] queryParts = query.split("\\s+");
-        query = StringUtils.join(queryParts, " AND ");
-        
-        //Retrieve multimedia content that is stored in solr
-        if (!query.contains("title") && !query.contains("description")) {
-            query = "((title : " + query + ") OR (description:" + query + "))";
-        }
+        query = "title:(" + query + ") OR description:(" + query + ")";
 
         //Set source filters in case they exist exist
         for (String filter : filters) {
@@ -569,10 +521,6 @@ public class SolrItemHandler implements SolrHandler<Item> {
 
         SolrQuery solrQuery = new SolrQuery(query);
         solrQuery.setRows(size);
-
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            solrQuery.add(param.getKey(), param.getValue());
-        }
 
         //Set facets if necessary
         for (String facet : facets) {
@@ -587,8 +535,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
             solrQuery.setSort("score", ORDER.desc);
         }
 
-        Logger.getRootLogger().info("Solr Query : " + query);
-
+        logger.info("Solr Query : " + query);
         response = find(solrQuery);
         if (response != null) {
             List<Item> results = response.getResults();
@@ -600,110 +547,52 @@ public class SolrItemHandler implements SolrHandler<Item> {
                 }
             }
         }
-
         response.setResults(items);
+        
+        
         return response;
     }
 
-    private SearchEngineResponse<Item> collectItemsByQueries(List<gr.iti.mklab.framework.common.domain.Query> queries, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
-
-        List<Item> items = new ArrayList<Item>();
-        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
-
-        if (queries.isEmpty()) {
-            return response;
-        }
-
-        //Retrieve multimedia content that is stored in solr
-        String allQueriesToOne = Utils.buildKeywordSolrQuery(queries, "OR");
-        String queryForRequest = "(title : (" + allQueriesToOne + ") OR description:(" + allQueriesToOne + "))";
-        
-        //Set source filters in case they exist exist
-        for (String filter : filters) {
-            queryForRequest += " AND " + filter;
-        }
-
-        SolrQuery solrQuery = new SolrQuery(queryForRequest);
-        solrQuery.setRows(size);
-
-
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            solrQuery.add(param.getKey(), param.getValue());
-        }
-
-        //Set facets if necessary
-        for (String facet : facets) {
-            solrQuery.addFacetField(facet);
-            solrQuery.setFacetLimit(6);
-
-        }
-
-        if (orderBy != null) {
-            solrQuery.setSort(orderBy, ORDER.desc);
-        } else {
-            solrQuery.setSort("score", ORDER.desc);
-        }
-        
-        Logger.getRootLogger().info("Solr Query: " + queryForRequest);
-
-        response = find(solrQuery);
-        if (response != null) {
-            List<Item> results = response.getResults();
-            for (Item it : results) {
-                items.add(it);
-                if (items.size() >= size) {
-                    break;
-                }
-            }
-        }
-
-        response.setResults(items);
-        return response;
+    public SearchEngineResponse<Item> findItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
+    	List<gr.iti.mklab.framework.common.domain.Query> queries = dysco.getSolrQueries();
+    	String query = Utils.buildKeywordSolrQuery(queries, " OR ");
+    	
+    	return findItems(query, filters, facets, orderBy, size);
     }
 
-    private SearchEngineResponse<Item> collectItems(List<gr.iti.mklab.framework.common.domain.Query> queries, Map<String, Double> hashtags, List<String> mentions,
-            List<String> users, List<String> wordsToExclude, List<String> filters, List<String> facets, String orderBy, Map<String, String> params, int size) {
+    public SearchEngineResponse<Item> findItems(List<gr.iti.mklab.framework.common.domain.Query> queries, Map<String, Double> hashtags, 
+    		List<String> users, List<String> wordsToExclude, List<String> filters, List<String> facets, String orderBy, int size) {
 
     	List<Item> items = new ArrayList<Item>();
         SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();    	 
     	 
-        if (queries == null && mentions == null && users == null) {
+        if (queries == null && users == null) {
             return response;
         }
-        
-        String query = "";
 
         // Create a Solr Query
 
-        String textQuery = Utils.buildKeywordSolrQuery(queries, "OR");
+        List<String> queryParts = new ArrayList<String>();
         
-        //set Twitter mentions
-        if (mentions != null && !mentions.isEmpty()) {
-        	String mentionsQuery = StringUtils.join(mentions, " OR ");
-        	if (textQuery.isEmpty()) {
-        		textQuery = mentionsQuery;
-            } else {
-            	textQuery += " OR " + mentionsQuery;
-            }
-        }
-        
-        if (textQuery != null && !textQuery.isEmpty()) {
-        	query += "(title : (" + textQuery + ") OR description:(" + textQuery + "))";
+        String contentQuery = Utils.buildKeywordSolrQuery(queries, " OR ");
+        if (contentQuery != null && !contentQuery.isEmpty()) {
+        	queryParts.add("(title : (" + contentQuery + ")");
+        	queryParts.add("(description : (" + contentQuery + ")");
         }
 
-        //set Twitter users
+        //set Users Query
         if (users != null && !users.isEmpty()) {
             String usersQuery = StringUtils.join(users, " OR ");
-            if (query.isEmpty()) {
-            	query = "author : (" + usersQuery + ")";
-            } else {
-            	query += " OR (author : (" + usersQuery + "))";
+            if (usersQuery != null && !usersQuery.isEmpty()) {
+            	queryParts.add("uid : (" + usersQuery + ")");
             }
         }
         
-        if (query.isEmpty()) {
+        if (queryParts.isEmpty()) {
             return response;
         }
+        
+        String query = StringUtils.join(queryParts, " OR ");
         
         //add words to exclude in query
         if (wordsToExclude != null && !wordsToExclude.isEmpty()) {
@@ -711,7 +600,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
         	query += " NOT (title : (" + exclude + ") OR description:(" + exclude + "))";
         }
         
-        //Set source filters in case they exist exist
+        //Set filters in case they exist
         if(filters!=null && !filters.isEmpty()) {
         	String filtersQuery = StringUtils.join(filters, " AND ");
         	 if (query.isEmpty()) {
@@ -723,9 +612,6 @@ public class SolrItemHandler implements SolrHandler<Item> {
         
         SolrQuery solrQuery = new SolrQuery(query);
         solrQuery.setRows(size);
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            solrQuery.add(param.getKey(), param.getValue());
-        }
 
         //Set facets if necessary
         for (String facet : facets) {
@@ -759,7 +645,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
     
     public static void main(String... args) throws Exception {
 
-        SolrItemHandler handler =  SolrItemHandler.getInstance("http://socialsensor.atc.gr/solr/items");
+        SolrItemHandler handler =  SolrItemHandler.getInstance("http://xxx.xxx.xxx.xxx/solr/items");
 
         List<String> hashtags = handler.getTopHashtags(100);
         System.out.println("count: " + hashtags.size());

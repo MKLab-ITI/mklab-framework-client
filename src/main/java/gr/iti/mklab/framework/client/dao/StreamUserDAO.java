@@ -1,12 +1,9 @@
 package gr.iti.mklab.framework.client.dao;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import gr.iti.mklab.framework.common.domain.StreamUser;
-import gr.iti.mklab.framework.common.factories.ObjectFactory;
-import gr.iti.mklab.framework.client.mongo.MongoHandler.MongoIterator;
 
 /**
  * Data Access Object for Item
@@ -39,26 +36,4 @@ public interface StreamUserDAO {
     
     public boolean exists(String id);
 
-    public class StreamUserIterator implements Iterator<StreamUser> {
-
-		private MongoIterator it;
-
-		public StreamUserIterator (MongoIterator it) {
-    		this.it = it;
-    	}
-		
-    	public StreamUser next() {
-    		String json = it.next();
-    		return ObjectFactory.createUser(json);
-    	}
-    	
-    	public boolean hasNext() {
-    		return it.hasNext();
-    	}
-
-		@Override
-		public void remove() {
-			it.next();
-		}
-    }
 }
