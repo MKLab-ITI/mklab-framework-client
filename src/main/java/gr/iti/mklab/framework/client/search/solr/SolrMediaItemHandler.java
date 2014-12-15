@@ -12,7 +12,6 @@ import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,18 +41,16 @@ import org.apache.solr.common.SolrDocumentList;
  */
 public class SolrMediaItemHandler {
 
-    SolrServer server;
-    private static Map<String, SolrMediaItemHandler> INSTANCES = new HashMap<String, SolrMediaItemHandler>();
-    private static int commitPeriod = 10000;
+    private SolrServer server;
+	private Logger logger;
+    
+	private static Map<String, SolrMediaItemHandler> INSTANCES = new HashMap<String, SolrMediaItemHandler>();
+    private static int commitPeriod = 5000;
 
     // Private constructor prevents instantiation from other classes
-    private SolrMediaItemHandler(String collection) throws Exception{
-       
-            server = new HttpSolrServer(collection);
-            server.ping();
-            //Logger.getRootLogger().info("going to create SolrServer: " + ConfigReader.getSolrHome() + "/DyscoMediaItems");
-            //server = new HttpSolrServer( ConfigReader.getSolrHome() + "/DyscoMediaItems");
-      
+    private SolrMediaItemHandler(String collection) throws Exception {
+    	server = new HttpSolrServer(collection);
+    	logger = Logger.getLogger(SolrMediaItemHandler.class);
     }
     
     public void checkServerStatus() throws Exception {
@@ -68,35 +65,24 @@ public class SolrMediaItemHandler {
             
             INSTANCES.put(collection, INSTANCE);
         }
+        
         return INSTANCE;
     }
 
-    @SuppressWarnings("finally")
     public boolean insertMediaItem(MediaItem item) {
 
         boolean status = true;
         try {
-
             SolrMediaItem solrItem = new SolrMediaItem(item);
-
             server.addBean(solrItem, commitPeriod);
-
-            //UpdateResponse response = server.commit();
-            //int statusId = response.getStatus();
-            //if (statusId == 0) {
-            //    status = true;
-            //}
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getRootLogger().error(ex.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             status = false;
-        } finally {
-            return status;
-        }
+        } 
+        
+        return status;
     }
 
-    @SuppressWarnings("finally")
     public boolean insertMediaItems(List<MediaItem> mediaItems) {
 
         boolean status = true;
@@ -106,61 +92,52 @@ public class SolrMediaItemHandler {
                 SolrMediaItem solrMediaItem = new SolrMediaItem(mediaItem);
                 solrMediaItems.add(solrMediaItem);
             }
-
             server.addBeans(solrMediaItems, commitPeriod);
-
         } catch (SolrServerException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
             status = false;
         } catch (IOException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
             status = false;
-        } finally {
-            return status;
         }
-
+            
+        return status;
     }
 
-    public SearchEngineResponse<MediaItem> addFilterAndSearchItems(Query query,
-            String fq) {
+    public SearchEngineResponse<MediaItem> addFilterAndSearchItems(Query query, String fq) {
         SolrQuery solrQuery = new SolrQuery(query.getQueryString());
         solrQuery.addFilterQuery(fq);
         return search(solrQuery);
     }
 
-    public SearchEngineResponse<MediaItem> removeFilterAndSearchItems(
-            Query query, String fq) {
+    public SearchEngineResponse<MediaItem> removeFilterAndSearchItems(Query query, String fq) {
         SolrQuery solrQuery = new SolrQuery(query.getQueryString());
         return removeFilterAndSearch(solrQuery, fq);
     }
 
-    @SuppressWarnings("finally")
     public boolean deleteMediaItem(String mediaItemId) {
-        mediaItemId.replaceFirst("::", "%%");
         boolean status = false;
         try {
-            server.deleteByQuery("id:" + mediaItemId);
-            UpdateResponse response = server.commit();
+        	String query = "id:" + mediaItemId;
+        	UpdateResponse response  = server.deleteByQuery(query, commitPeriod);
             int statusId = response.getStatus();
             if (statusId == 0) {
                 status = true;
             }
 
         } catch (SolrServerException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
+            logger.error(ex.getMessage());
         } catch (IOException ex) {
-            Logger.getRootLogger().error(ex.getMessage());
-        } finally {
-            return status;
+            logger.error(ex.getMessage());
         }
+        
+        return status;
     }
 
-    @SuppressWarnings("finally")
     public boolean deleteItems(Query query) {
         boolean status = false;
         try {
-            server.deleteByQuery(query.getQueryString());
-            UpdateResponse response = server.commit();
+        	UpdateResponse response = server.deleteByQuery(query.getQueryString(), commitPeriod);
             int statusId = response.getStatus();
             if (statusId == 0) {
                 status = true;
@@ -170,17 +147,15 @@ public class SolrMediaItemHandler {
             Logger.getRootLogger().error(ex.getMessage());
         } catch (IOException ex) {
             Logger.getRootLogger().error(ex.getMessage());
-        } finally {
-            return status;
         }
+        
+        return status;
     }
 
     public boolean isIndexed(String id) {
-
         SolrQuery solrQuery = new SolrQuery("id:" + id);
-        QueryResponse rsp;
 		try {
-			rsp = server.query(solrQuery);
+			QueryResponse rsp = server.query(solrQuery);
 			long nunFound = rsp.getResults().getNumFound();
 			if (nunFound > 0) {
 				return true;
@@ -189,22 +164,6 @@ public class SolrMediaItemHandler {
 		} catch (Exception e) {
 			return false;
 		}
-    }
-    
-    public MediaItem findLatestItem() {
-    	SolrQuery solrQuery = new SolrQuery("*:*");
-    	solrQuery.addSort("publicationTime", SolrQuery.ORDER.desc);
-    	solrQuery.setRows(1);
-    	
-    	 SearchEngineResponse<MediaItem> response = search(solrQuery);
-    	 
-         List<MediaItem> items = response.getResults();
-         if (!items.isEmpty()) {
-             return items.get(0);
-         } else {
-             Logger.getRootLogger().info("no solr found!!");
-             return null;
-         }
     }
 
     public List<MediaItem> findLatestItems(String query, int n) {
@@ -247,8 +206,7 @@ public class SolrMediaItemHandler {
         System.out.println("Found "+rsp.getResults().getNumFound()+" results");
         List<SolrDocument> retrievedItems = rsp.getResults();
         
-        for(SolrDocument sDoc : retrievedItems){
-        	Collection<String> fieldNames = sDoc.getFieldNames();
+        for(SolrDocument sDoc : retrievedItems) {
         	Float score = (Float) sDoc.getFieldValue("score");
         	String title = (String) sDoc.getFieldValue("title");
         	String description = (String) sDoc.getFieldValue("description");
@@ -703,9 +661,9 @@ public class SolrMediaItemHandler {
         Logger.getRootLogger().info("orderBy: " + orderBy);
 
         if (orderBy != null) {
-            solrQuery.setSortField(orderBy, ORDER.desc);
+            solrQuery.setSort(orderBy, ORDER.desc);
         } else {
-            solrQuery.setSortField("score", ORDER.desc);
+            solrQuery.setSort("score", ORDER.desc);
         }
 
         Logger.getRootLogger().info("Solr Query : " + query);
@@ -770,9 +728,9 @@ public class SolrMediaItemHandler {
         Logger.getRootLogger().info("Solr Query: " + queryForRequest);
 
         solrQuery.setRows(2*size);
-        solrQuery.addSortField("score", ORDER.desc);
+        solrQuery.addSort("score", ORDER.desc);
         if (orderBy != null) {
-            solrQuery.addSortField(orderBy, ORDER.desc);
+            solrQuery.addSort(orderBy, ORDER.desc);
         }
 
         for (String facet : facets) {
@@ -886,9 +844,9 @@ public class SolrMediaItemHandler {
 
         //solrQuery.addFilterQuery("publicationTime:["+86400000+" TO *]");
         if (orderBy != null) {
-            solrQuery.setSortField(orderBy, ORDER.desc);
+            solrQuery.setSort(orderBy, ORDER.desc);
         } else {
-            solrQuery.setSortField("score", ORDER.desc);
+            solrQuery.setSort("score", ORDER.desc);
         }
 
         response = findItems(solrQuery);

@@ -14,19 +14,72 @@ import org.apache.solr.common.SolrDocument;
 
 /**
  *
- * @author etzoannos - e.tzoannos@atc.gr
+ * @author 	Manos Schinas
+ * @email	manosetro@iti.gr
+ * 
  */
 public class SolrMediaItem {
 
+	@Field(value = "id")
+    private String id;
+    
+	@Field(value = "url")
+    private String url;
+    
+	@Field(value = "thumbnail")
+    private String thumbnail;
+    
+	@Field(value = "source")
+    private String source;
+    
+	@Field(value = "title")
+    private String title;
+    
+	@Field(value = "description")
+    private String description;
+    
+	@Field(value = "tags")
+    private String[] tags;
+    
+	@Field(value = "publicationTime")
+    private long publicationTime;
+    
+	@Field(value = "popularity")
+    private long popularity;
+    
+	@Field(value = "latitude")
+    private Double latitude;
+    
+	@Field(value = "longitude")
+    private Double longitude;
+    
+	@Field(value = "location")
+    private String location;
+    
+	@Field(value = "uid")
+    private String uid;
+    
+	@Field(value = "concepts")
+    private String[] concepts;
+    
+	@Field(value = "type")
+    private String type;
+    
+	@Field(value = "clusterId")
+    private String clusterId;
+
+	private Double score;
+	
     public SolrMediaItem() {
+    	
     }
     
-    public SolrMediaItem(SolrDocument solrDocument){
+    public SolrMediaItem(SolrDocument solrDocument) {
 	  
     	id = (String) solrDocument.getFieldValue("id");
     	url = (String) solrDocument.getFieldValue("url");
     	thumbnail = (String) solrDocument.getFieldValue("thumbnail");
-    	streamId = (String) solrDocument.getFieldValue("streamId");
+    	source = (String) solrDocument.getFieldValue("source");
     	title = (String) solrDocument.getFieldValue("title");
     	description = (String) solrDocument.getFieldValue("description");
     	if(solrDocument.getFieldValue("tags") != null){
@@ -38,14 +91,14 @@ public class SolrMediaItem {
     			tags[index++] = tag;
     		}
     	}
-    	author = (String) solrDocument.getFieldValue("author");
+    	
+    	uid = (String) solrDocument.getFieldValue("uid");
     	publicationTime = (Long) solrDocument.getFieldValue("publicationTime");
     	popularity = (Long) solrDocument.getFieldValue("popularity");
     	latitude = (Double) solrDocument.getFieldValue("latitude");
     	longitude = (Double) solrDocument.getFieldValue("longitude");
     	location = (String) solrDocument.getFieldValue("location");
-    	if(solrDocument.getFieldValue("mentions") != null)
-    		mentions = (String[]) solrDocument.getFieldValue("mentions");
+    	
     	if(solrDocument.getFieldValue("concepts") != null){
     		@SuppressWarnings("unchecked")
 			List<String> listOfConcepts = (List<String>) solrDocument.getFieldValue("concepts");
@@ -58,22 +111,19 @@ public class SolrMediaItem {
     	type = (String) solrDocument.getFieldValue("type");
     	clusterId = (String) solrDocument.getFieldValue("clusterId");
     	
-    	solrScore = (Float) solrDocument.getFieldValue("score");
+    	score = (Double) solrDocument.getFieldValue("score");
     }
     
 
     public SolrMediaItem(MediaItem mediaItem) {
 
         id = mediaItem.getId();
-        streamId = mediaItem.getStreamId();
+        source = mediaItem.getSource();
         title = mediaItem.getTitle();
         description = mediaItem.getDescription();
         tags = mediaItem.getTags();
 
-        if (mediaItem.getUser() != null) {
-            author = mediaItem.getUser().getName();
-        }
-        mentions = mediaItem.getMentions();
+        uid = mediaItem.getUserId();
 
         url = mediaItem.getUrl();
         thumbnail = mediaItem.getThumbnail();
@@ -113,7 +163,7 @@ public class SolrMediaItem {
         MediaItem mediaItem = new MediaItem(new URL(url));
 
         mediaItem.setId(id);
-        mediaItem.setStreamId(streamId);
+        mediaItem.setSource(source);
         mediaItem.setThumbnail(thumbnail);
 
         mediaItem.setTitle(title);
@@ -134,8 +184,6 @@ public class SolrMediaItem {
         mediaItem.setType(type);
         mediaItem.setClusterId(clusterId);
         
-        mediaItem.setSolrScore(solrScore);
-        
         List<Concept> conceptsList = new ArrayList<Concept>();
 
         if (concepts != null) {
@@ -153,47 +201,7 @@ public class SolrMediaItem {
         mediaItem.setConcepts(conceptsList);
         
         return mediaItem;
-    }
-    
-    
-    @Field(value = "id")
-    private String id;
-    @Field(value = "url")
-    private String url;
-    @Field(value = "thumbnail")
-    private String thumbnail;
-    @Field(value = "streamId")
-    private String streamId;
-    @Field(value = "title")
-    private String title;
-    @Field(value = "description")
-    private String description;
-    @Field(value = "tags")
-    private String[] tags;
-    @Field(value = "publicationTime")
-    private long publicationTime;
-    @Field(value = "popularity")
-    private long popularity;
-    @Field(value = "latitude")
-    private Double latitude;
-    @Field(value = "longitude")
-    private Double longitude;
-    @Field(value = "location")
-    private String location;
-    @Field(value = "author")
-    private String author;
-    @Field(value = "mentions")
-    private String[] mentions;
-    @Field(value = "concepts")
-    private String[] concepts;
-    @Field(value = "type")
-    private String type;
-    @Field(value = "clusterId")
-    private String clusterId;
-    
-    
-    private float solrScore = 0f;
-    
+    }    
     
     public String getId() {
         return id;
@@ -203,12 +211,12 @@ public class SolrMediaItem {
         this.id = id;
     }
 
-    public String getStreamId() {
-        return streamId;
+    public String getSource() {
+        return source;
     }
 
-    public void setStreamId(String streamId) {
-        this.streamId = streamId;
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public String getUrl() {
@@ -291,20 +299,12 @@ public class SolrMediaItem {
         this.location = location;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getUserId() {
+        return uid;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String[] getMentions() {
-        return mentions;
-    }
-
-    public void setMentions(String[] mentions) {
-        this.mentions = mentions;
+    public void setUserId(String uid) {
+        this.uid = uid;
     }
 
     public String getType() {
@@ -315,19 +315,15 @@ public class SolrMediaItem {
         this.type = type;
     }
     
-    public void setSolrScore(Float solrScore){
-    	this.solrScore = solrScore;
-    }
-    
-    public Float getSolrScore(){
-    	return this.solrScore;
-    }
-    
     public void setClusterId(String clusterId){
     	this.clusterId = clusterId;
     }
     
     public String getClusterId(){
     	return this.clusterId;
+    }
+    
+    public Double getScore() {
+        return score;
     }
 }

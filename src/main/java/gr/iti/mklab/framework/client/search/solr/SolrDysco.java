@@ -39,28 +39,33 @@ public class SolrDysco implements Serializable {
     //The id of the dysco
     @Field(value = "id")
     private String id;
+    
     //The creation date of the dysco
     @Field(value = "creationDate")
     private Date creationDate;
+    
     //The title of the dysco
     @Field(value = "title")
     private String title;
+    
     //The score that shows how trending the dysco is
     @Field(value = "dyscoScore")
     private Double score = 0d;
+    
     //The type of the dysco (CUSTOM/TRENDING)
     @Field(value = "dyscoType")
     private String dyscoType;
-    //Fields holding the information about the main context 
-    //of the items that constitute the dysco
-    //The extracted entities from items' content 
-    //all 6 refer to the 3 types of entities and their weights in the dysco
+    
+    //Fields holding the information about the main context of the items that constitute the dysco
+    
+    //The extracted entities from items' content
     @Field(value = "persons")
     private List<String> persons = new ArrayList<String>();
     @Field(value = "locations")
     private List<String> locations = new ArrayList<String>();
     @Field(value = "organizations")
     private List<String> organizations = new ArrayList<String>();
+    
     //The users that contribute in social networks to dysco's topic
     @Expose
     @SerializedName(value = "contributors")
@@ -78,10 +83,8 @@ public class SolrDysco implements Serializable {
     private List<String> solrQueriesString = new ArrayList<String>();
     @Field(value = "solrQueriesScore")
     private List<String> solrQueriesScore = new ArrayList<String>();
-    //The variable can get values 0,1,2 and shows dysco's trending evolution. 
-    @Field(value = "trending")
-    private int trending;
-    //The date that the dysco was last created (updated because similar dyscos existed in the past)
+    
+    //The date that the dysco was last updates
     @Field(value = "updateDate")
     private Date updateDate;
 
@@ -122,15 +125,6 @@ public class SolrDysco implements Serializable {
 
     @Field(value = "group")
     private String group;
-
-    @Field(value = "storyType")
-    private String storyType;
-
-    @Field(value = "mainMediaUrl")
-    private String mainMediaUrl;
-
-    @Field(value = "author")
-    private String author;
 
     public SolrDysco() {
         id = UUID.randomUUID().toString();
@@ -179,8 +173,6 @@ public class SolrDysco implements Serializable {
             }
         }
 
-        trending = dysco.getTrending();
-
         updateDate = dysco.getUpdateDate();
 
         listId = dysco.getListId();
@@ -191,10 +183,6 @@ public class SolrDysco implements Serializable {
 
         normalizedDyscoScore = dysco.getNormalizedDyscoScore();
         normalizedRankerScore = dysco.getNormalizedRankerScore();
-        
-        mainMediaUrl = dysco.getMainMediaUrl();
-        storyType = dysco.getStoryType();
-        author = dysco.getAuthor();
 
         group = dysco.getGroup();
         status = dysco.getStatus();
@@ -217,10 +205,6 @@ public class SolrDysco implements Serializable {
         dyscoType = customDysco.getDyscoType().toString();
         group = customDysco.getGroup();
         status = customDysco.getStatus();
-
-        mainMediaUrl = customDysco.getMainMediaUrl();
-        storyType = customDysco.getStoryType();
-        author = customDysco.getAuthor();
 
         for (Map.Entry<String, Double> entry : customDysco.getKeywords().entrySet()) {
             keywords.add(entry.getKey());
@@ -263,10 +247,6 @@ public class SolrDysco implements Serializable {
         dysco.setScore(score);
 
         dysco.setContributors(contributors);
-        
-        dysco.setAuthor(author);
-        dysco.setMainMediaUrl(mainMediaUrl);
-        dysco.setStoryType(storyType);
 
         if (keywords != null) {
             for (String keyword : keywords) {
@@ -293,9 +273,8 @@ public class SolrDysco implements Serializable {
 
             queries.add(query);
         }
+        
         dysco.setSolrQueries(queries);
-
-        dysco.setTrending(trending);
         dysco.setUpdateDate(updateDate);
 
         if (links != null) {
@@ -397,7 +376,6 @@ public class SolrDysco implements Serializable {
         }
         dysco.setSolrQueries(queries);
 
-        dysco.setTrending(trending);
         dysco.setUpdateDate(updateDate);
 
         dysco.setListId(listId);
@@ -553,30 +531,6 @@ public class SolrDysco implements Serializable {
         this.locations = locations;
     }
 
-    public String getStoryType() {
-        return storyType;
-    }
-
-    public void setStoryType(String storyType) {
-        this.storyType = storyType;
-    }
-
-    public String getMainMediaUrl() {
-        return mainMediaUrl;
-    }
-
-    public void setMainMediaUrl(String mainMediaUrl) {
-        this.mainMediaUrl = mainMediaUrl;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     /**
      * Returns the list of names of the Entities that are Organizations inside
      * the dysco
@@ -701,26 +655,6 @@ public class SolrDysco implements Serializable {
 
     public void setNormalizedRankerScore(double normalizedRankerScore) {
         this.normalizedRankerScore = normalizedRankerScore;
-    }
-    
-    /**
-     * Returns the trending value that shows dysco's trending evolution (can be
-     * 0,1,2)
-     *
-     * @return
-     */
-    public int getTrending() {
-        return trending;
-    }
-
-    /**
-     * Sets the trending value that shows dysco's trending evolution (can be
-     * 0,1,2)
-     *
-     * @param trending
-     */
-    public void setTrending(int trending) {
-        this.trending = trending;
     }
 
     /**

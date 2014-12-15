@@ -26,7 +26,8 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author etzoannos
+ * @author Manos Schinas
+ * @email  manosetro@iti.gr
  *
  */
 public class MongoHandler {
@@ -53,7 +54,7 @@ public class MongoHandler {
 
         if (indexes != null) {
             for (String index : indexes) {
-                collection.ensureIndex(index);
+                collection.createIndex(new BasicDBObject(index, ASC));
             }
         }
     }
@@ -70,44 +71,6 @@ public class MongoHandler {
             }
             db = mongo.getDB(dbName);
             databases.put(connectionKey, db);
-        }
-    }
-
-    /**
-     * A MongoHandler for a database with enabled authentication
-     *
-     * @param hostname
-     * @param dbName
-     * @param collectionName
-     * @param indexes
-     * @param username
-     * @param password
-     * @throws Exception
-     */
-    public MongoHandler(String hostname, String dbName, String collectionName, List<String> indexes, String username, char[] password) throws Exception {
-        String connectionKey = hostname + "#" + dbName;
-        db = databases.get(connectionKey);
-
-        if (db == null) {
-            MongoClient mongo = connections.get(hostname);
-
-            if (mongo == null) {
-                mongo = new MongoClient(hostname, options);
-                connections.put(hostname, mongo);
-            }
-            db = mongo.getDB(dbName);
-            if (db.authenticate(username, password)) {
-                databases.put(connectionKey, db);
-            } else {
-                throw new RuntimeException("Could not login to " + dbName + " database with user " + username);
-            }
-        }
-        collection = db.getCollection(collectionName);
-
-        if (indexes != null) {
-            for (String index : indexes) {
-                collection.ensureIndex(index);
-            }
         }
     }
 
@@ -148,7 +111,6 @@ public class MongoHandler {
     }
 
     public void insertJson(String json) {
-
         DBObject object = (DBObject) JSON.parse(json);
         collection.insert(object);
     }
@@ -167,9 +129,7 @@ public class MongoHandler {
     }
 
     public String findOne() {
-
         DBObject result = collection.findOne(new BasicDBObject());
-
         return JSON.serialize(result);
     }
 
@@ -197,12 +157,6 @@ public class MongoHandler {
         return JSON.serialize(result);
     }
 
-    public int findCount(Pattern fieldValue) throws MongoException {
-        BasicDBObject query = new BasicDBObject("title", fieldValue);
-        long count = collection.count(query);
-        return (int) count;
-    }
-
     public int findCountWithLimit(Pattern fieldValue, int limit) throws MongoException {
         BasicDBObject query = new BasicDBObject("title", fieldValue);
         long count = (int) collection.getCount(query, null, limit, 0);
@@ -216,41 +170,6 @@ public class MongoHandler {
         if (n > 0) {
             cursor = cursor.limit(n);
         }
-        try {
-            while (cursor.hasNext()) {
-                DBObject current = cursor.next();
-                jsonResults.add(JSON.serialize(current));
-            }
-        } finally {
-            cursor.close();
-        }
-        return jsonResults;
-    }
-
-    public List<String> findManyWithOrDeprecated(String field, List<String> values, int n) throws MongoException {
-        String prefix = "{$or:[";
-
-        String jsonString = "";
-        int count = 1;
-        for (String value : values) {
-
-            jsonString = jsonString + "{\"" + field + "\":\"" + value + "\"}";
-            if (count != values.size()) {
-                jsonString = jsonString + ",";
-            }
-            count++;
-        }
-        String suffix = "]}";
-
-        jsonString = prefix + jsonString + suffix;
-        DBObject object = (DBObject) JSON.parse(jsonString);
-        DBCursor cursor = collection.find(object).sort(sortField);
-
-        if (n > 0) {
-            cursor = cursor.limit(n);
-        }
-
-        List<String> jsonResults = new ArrayList<String>();
         try {
             while (cursor.hasNext()) {
                 DBObject current = cursor.next();
@@ -546,16 +465,6 @@ public class MongoHandler {
         @Override
         public void remove() {
             cursor.next();
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        MongoHandler handler = new MongoHandler("xxx.xxx.xxx", "Streams", "Items", null);
-        MongoIterator it = handler.getIterator(new BasicDBObject());
-
-        while (it.hasNext()) {
-            System.out.println(it.next());
         }
     }
 

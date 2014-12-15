@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import gr.iti.mklab.framework.common.domain.Location;
-import gr.iti.mklab.framework.common.domain.SocialNetwork;
+import gr.iti.mklab.framework.common.domain.Source;
 import gr.iti.mklab.framework.client.dao.LocationDAO;
 import gr.iti.mklab.framework.client.mongo.MongoHandler;
 
@@ -43,7 +43,7 @@ public class LocationDAOImpl implements LocationDAO {
 	}
 
 	@Override
-	public void insertLocation(Location location, SocialNetwork sourceType) {
+	public void insertLocation(Location location, Source sourceType) {
 		String id = sourceType+"::"+location.getName();
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("_id", id);
@@ -61,11 +61,11 @@ public class LocationDAOImpl implements LocationDAO {
 	}
 
 	@Override
-	public void removeLocation(Location location, SocialNetwork sourceType) {
+	public void removeLocation(Location location, Source sourceType) {
 		
 		String name = location.getName();
 		if(name != null) {
-			if(sourceType == SocialNetwork.All) {
+			if(sourceType == Source.All) {
 				 mongoHandler.delete("name", name);
 	        }
 			else {

@@ -31,24 +31,21 @@ import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
-import org.apache.solr.client.solrj.response.RangeFacet;
-
 /**
  *
  * @author etzoannos
  */
-public class SolrItemHandler {
+public class SolrItemHandler implements SolrHandler<Item> {
 
     private Logger logger = Logger.getLogger(SolrItemHandler.class);
 
-    SolrServer server;
+    private SolrServer server;
+    
     private static Map<String, SolrItemHandler> INSTANCES = new HashMap<String, SolrItemHandler>();
     private static int commitPeriod = 10000;
 
-
     private SolrItemHandler(String collection) throws Exception {
         server = new HttpSolrServer(collection);
-        server.ping();
     }
 
     public void checkServerStatus() throws Exception {
@@ -66,8 +63,104 @@ public class SolrItemHandler {
         return INSTANCE;
     }
 
-    public List<String> getTopHashtags(int size) {
+    public boolean insert(Item item) {
+        boolean status = true;
+        try {
+            SolrItem solrItem = new SolrItem(item);
+            server.addBean(solrItem, commitPeriod);
+        } 
+        catch (SolrServerException ex) {
+            logger.error(ex.getMessage());
+            status = false;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            status = false;
+        } 
+       
+        return status;
+    }
 
+    public boolean insert(List<Item> items) {
+
+        boolean status = true;
+        try {
+            List<SolrItem> solrItems = new ArrayList<SolrItem>();
+            for (Item item : items) {
+                SolrItem solrItem = new SolrItem(item);
+                solrItems.add(solrItem);
+            }
+            server.addBeans(solrItems, commitPeriod);
+        } catch (SolrServerException ex) {
+            logger.error(ex.getMessage());
+            status = false;
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+            status = false;
+        }
+        
+        return status;
+    }
+
+    public SearchEngineResponse<Item> addFilterAndSearchItems(Query query, String fq) {
+
+        SolrQuery solrQuery = new SolrQuery(query.getQueryString());
+        solrQuery.addFilterQuery(fq);
+
+        return search(solrQuery);
+    }
+
+    public boolean delete(String itemId) {
+        boolean status = false;
+        try {
+            server.deleteByQuery("id:" + itemId);
+            UpdateResponse response = server.commit();
+            int statusId = response.getStatus();
+            if (statusId == 0) {
+                status = true;
+            }
+
+        } catch (SolrServerException ex) {
+            logger.error(ex.getMessage());
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+        
+        return status;
+    }
+
+    public boolean delete(Query query) {
+        boolean status = false;
+        try {
+            server.deleteByQuery(query.getQueryString());
+            UpdateResponse response = server.commit();
+            int statusId = response.getStatus();
+            if (statusId == 0) {
+                status = true;
+            }
+
+        } catch (SolrServerException ex) {
+            logger.error(ex.getMessage());
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+            
+        return status;
+    }
+
+    public Item get(String itemId) {
+        SolrQuery solrQuery = new SolrQuery("id:" + itemId);
+        solrQuery.setRows(1);
+        SearchEngineResponse<Item> response = search(solrQuery);
+        List<Item> items = response.getResults();
+        if (!items.isEmpty()) {
+            return items.get(0);
+        } else {
+            logger.info("no tweet for this id found!!");
+            return null;
+        }
+    }
+    
+    public List<String> getTopHashtags(int size) {
         List<String> hashtags = new ArrayList<String>();
 
         SolrQuery solrQuery = new SolrQuery("*:*");
@@ -90,139 +183,10 @@ public class SolrItemHandler {
                 }
             }
         }
-
         return hashtags;
     }
-
-    public boolean insertItem(Item item) {
-
-        boolean status = true;
-        try {
-            SolrItem solrItem = new SolrItem(item);
-
-//            server.addBean(solrItem, commitPeriod);
-            server.addBean(solrItem);
-
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-            status = false;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            status = false;
-        } 
-       
-        return status;
-    }
-
-    public boolean insertItems(List<Item> items) {
-
-        boolean status = true;
-        try {
-            List<SolrItem> solrItems = new ArrayList<SolrItem>();
-            for (Item item : items) {
-                SolrItem solrItem = new SolrItem(item);
-                solrItems.add(solrItem);
-            }
-
-            server.addBeans(solrItems, commitPeriod);
-
-//            UpdateResponse response = server.commit();
-//            int statusId = response.getStatus();
-//            if (statusId == 0) {
-//                status = true;
-//            }
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-            status = false;
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-            status = false;
-        }
-        
-        return status;
-    }
-
-    public void forceCommitPending() {
-
-        try {
-
-            server.commit();
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-        }
-    }
-
-    public SearchEngineResponse<Item> addFilterAndSearchItems(Query query, String fq) {
-
-        SolrQuery solrQuery = new SolrQuery(query.getQueryString());
-        solrQuery.addFilterQuery(fq);
-
-        return search(solrQuery);
-    }
-
-    public SearchEngineResponse<Item> removeFilterAndSearchItems(Query query, String fq) {
-        SolrQuery solrQuery = new SolrQuery(query.getQueryString());
-        return removeFilterAndSearch(solrQuery, fq);
-    }
-
-    public boolean deleteItem(String itemId) {
-        boolean status = false;
-        try {
-            server.deleteByQuery("id:" + itemId);
-            UpdateResponse response = server.commit();
-            int statusId = response.getStatus();
-            if (statusId == 0) {
-                status = true;
-            }
-
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-        }
-        
-        return status;
-    }
-
-    public boolean deleteItems(Query query) {
-        boolean status = false;
-        try {
-            server.deleteByQuery(query.getQueryString());
-            UpdateResponse response = server.commit();
-            int statusId = response.getStatus();
-            if (statusId == 0) {
-                status = true;
-            }
-
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-        }
-            
-        return status;
-    }
-
-    public boolean deleteItemsOlderThan(long dateTime) {
-        boolean status = false;
-        try {
-            server.deleteByQuery("publicationTime : [* TO " + dateTime + "]");
-
-            return true;
-
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
-        } 
-        
-        return status;
-    }
-
-    public SearchEngineResponse<Item> findItems(SolrQuery query) {
-
+    
+    public SearchEngineResponse<Item> find(SolrQuery query) {
         return searchWithoutFacet(query);
     }
 
@@ -267,9 +231,9 @@ public class SolrItemHandler {
         return itemsByScore;
     }
 
-    public Item findLatestItemByAuthor(String authorId) {
+    public Item findLatestItemByAuthor(String uid) {
 
-        SolrQuery solrQuery = new SolrQuery("author:" + authorId);
+        SolrQuery solrQuery = new SolrQuery("uid:" + uid);
         solrQuery.addSort("publicationTime", SolrQuery.ORDER.desc);
         solrQuery.setRows(1);
         SearchEngineResponse<Item> response = search(solrQuery);
@@ -323,67 +287,6 @@ public class SolrItemHandler {
             Logger.getRootLogger().info("no tweet for this range of time found!!");
             return null;
         }
-    }
-
-    public Item findItem(String itemId) {
-
-        SolrQuery solrQuery = new SolrQuery("id:\"" + itemId + "\"");
-        solrQuery.setRows(1);
-        SearchEngineResponse<Item> response = search(solrQuery);
-        List<Item> items = response.getResults();
-        if (!items.isEmpty()) {
-            return items.get(0);
-        } else {
-            Logger.getRootLogger().info("no tweet for this id found!!");
-            return null;
-        }
-    }
-
-    public SearchEngineResponse<Item> findAllDyscoItemsLightByTime(String dyscoId) {
-        SolrQuery solrQuery = new SolrQuery("dyscoId:" + dyscoId + " AND original:true");
-        solrQuery.addSort("publicationTime", SolrQuery.ORDER.asc);
-        solrQuery.setRows(250);
-        System.out.println(solrQuery.toString());
-        return search(solrQuery);
-    }
-
-    public SearchEngineResponse<Item> findAllDyscoItems(String dyscoId) {
-        SolrQuery solrQuery = new SolrQuery("dyscoId:" + dyscoId);
-        solrQuery.setRows(1000);
-        return search(solrQuery);
-    }
-
-    public SearchEngineResponse<Item> findNDyscoItems(String dyscoId, int size, boolean original) {
-        SolrQuery solrQuery;
-        if (original) {
-            solrQuery = new SolrQuery("dyscoId:" + dyscoId + " AND " + " original:true");
-        } else {
-            solrQuery = new SolrQuery("dyscoId:" + dyscoId);
-        }
-
-        System.out.println("solrQuery: " + solrQuery.toString());
-        solrQuery.setRows(size);
-
-        return search(solrQuery);
-    }
-
-    public SearchEngineResponse<Item> findNDyscoItems(String dyscoId, int size) {
-
-        SolrQuery solrQuery = new SolrQuery("dyscoId:" + dyscoId);
-        solrQuery.setRows(size);
-
-        return search(solrQuery);
-    }
-
-    private SearchEngineResponse<Item> addFilterAndSearch(SolrQuery query, String fq) {
-        query.addFilterQuery(fq);
-        return search(query);
-    }
-
-    private SearchEngineResponse<Item> removeFilterAndSearch(SolrQuery query, String fq) {
-
-        query.removeFilterQuery(fq);
-        return search(query);
     }
 
     private SearchEngineResponse<Item> search(SolrQuery query) {
@@ -560,15 +463,15 @@ public class SolrItemHandler {
 
                     Bucket bucket = new Bucket();
                     long bucketCount = values.get(j).getCount();
-//                    if ((bucketCount > 0) && (bucketCount != solrItems.size())) { //bucket is neither non-zero length nor the whole set 
+                    
                     validFacet = true; //facet contains at least one non-zero length bucket
                     bucket.setCount(bucketCount);
                     bucket.setName(values.get(j).getName());
                     bucket.setQuery(values.get(j).getAsFilterQuery());
                     bucket.setFacet(solrFacetName);
                     buckets.add(bucket);
-//                    }
                 }
+                
                 if (validFacet) { //add the facet only if it is contains at least one non-zero length - excludes the whole set result
                     facet.setBuckets(buckets);
                     facet.setName(solrFacetName);
@@ -592,28 +495,6 @@ public class SolrItemHandler {
             });
         }
         response.setFacets(facets);
-
-        List<TrendlineSpot> spots = new ArrayList<TrendlineSpot>();
-
-        List<RangeFacet> solrFacetRangesList = rsp.getFacetRanges();
-        RangeFacet solrRangeFacet;
-        if (solrFacetRangesList != null) {
-            for (int i = 0; i < solrFacetRangesList.size(); i++) {
-                solrRangeFacet = solrFacetRangesList.get(i); //get the ones returned from Solr
-                if (solrRangeFacet.getName().equals("publicationTime")) {
-                    List<RangeFacet.Count> counts = solrRangeFacet.getCounts();
-                    for (int j = 0; j < counts.size(); j++) {
-                        TrendlineSpot spot = new TrendlineSpot();
-                        spot.setY(counts.get(j).getCount());
-                        spot.setX(Long.parseLong(counts.get(j).getValue()));
-                        spots.add(spot);
-                    }
-                }
-            }
-
-        }
-
-        response.setSpots(spots);
 
         Long t5 = System.currentTimeMillis();
 
@@ -701,14 +582,14 @@ public class SolrItemHandler {
         }
 
         if (orderBy != null) {
-            solrQuery.setSortField(orderBy, ORDER.desc);
+            solrQuery.setSort(orderBy, ORDER.desc);
         } else {
-            solrQuery.setSortField("score", ORDER.desc);
+            solrQuery.setSort("score", ORDER.desc);
         }
 
         Logger.getRootLogger().info("Solr Query : " + query);
 
-        response = findItems(solrQuery);
+        response = find(solrQuery);
         if (response != null) {
             List<Item> results = response.getResults();
 
@@ -758,14 +639,14 @@ public class SolrItemHandler {
         }
 
         if (orderBy != null) {
-            solrQuery.setSortField(orderBy, ORDER.desc);
+            solrQuery.setSort(orderBy, ORDER.desc);
         } else {
-            solrQuery.setSortField("score", ORDER.desc);
+            solrQuery.setSort("score", ORDER.desc);
         }
         
         Logger.getRootLogger().info("Solr Query: " + queryForRequest);
 
-        response = findItems(solrQuery);
+        response = find(solrQuery);
         if (response != null) {
             List<Item> results = response.getResults();
             for (Item it : results) {
@@ -853,14 +734,14 @@ public class SolrItemHandler {
         }
 
         if (orderBy != null) {
-            solrQuery.setSortField(orderBy, ORDER.desc);
+            solrQuery.setSort(orderBy, ORDER.desc);
         } else {
-            solrQuery.setSortField("score", ORDER.desc);
+            solrQuery.setSort("score", ORDER.desc);
         }
 
         Logger.getRootLogger().info("Solr Query: " + query);
 
-        response = findItems(solrQuery);
+        response = find(solrQuery);
         if (response != null) {
             List<Item> results = response.getResults();
 
@@ -887,4 +768,5 @@ public class SolrItemHandler {
             Logger.getRootLogger().info("hashtag: " + hashtag);
         }
     }
+
 }

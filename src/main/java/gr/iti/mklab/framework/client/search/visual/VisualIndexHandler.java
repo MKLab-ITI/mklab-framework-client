@@ -239,10 +239,7 @@ public class VisualIndexHandler {
                 IOUtils.copy(inputStream, writer);
                 response = writer.toString();
                 queryMethod.releaseConnection();
-                System.out.println(code);
-                System.out.println(response);
-                
-            	//return getSimilarImages(id, threshold);
+                _logger.info("code: " + code + ", " + response);    
             }
             
         } catch (Exception e) {

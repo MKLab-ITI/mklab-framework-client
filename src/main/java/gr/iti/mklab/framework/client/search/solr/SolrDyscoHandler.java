@@ -1,7 +1,5 @@
 package gr.iti.mklab.framework.client.search.solr;
 
-import com.google.gson.Gson;
-
 import gr.iti.mklab.framework.common.domain.dysco.CustomDysco;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco.DyscoType;
@@ -19,7 +17,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -31,27 +28,23 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
  *
  * @author etzoannos - e.tzoannos@atc.gr
  */
-public class SolrDyscoHandler {
+public class SolrDyscoHandler implements SolrHandler<Dysco> {
 
     public final Logger logger = Logger.getLogger(SolrDyscoHandler.class);
 
-    SolrServer server;
+    private SolrServer server;
     private static final Map<String, SolrDyscoHandler> INSTANCES = new HashMap<String, SolrDyscoHandler>();
 
     // Private constructor prevents instantiation from other classes
     private SolrDyscoHandler(String collection) {
         try {
-
-//                Logger.getRootLogger().info("going to create SolrServer: " + ConfigReader.getSolrHome() + "/dyscos");
-            server = new HttpSolrServer(collection);
-
+        	server = new HttpSolrServer(collection);
         } catch (Exception e) {
-
-            Logger.getRootLogger().info(e.getMessage());
+            logger.info(e.getMessage());
         }
     }
+    
     //implementing Singleton pattern
-
     public static SolrDyscoHandler getInstance(String collection) {
         SolrDyscoHandler INSTANCE = INSTANCES.get(collection);
         if (INSTANCE == null) {
@@ -61,8 +54,8 @@ public class SolrDyscoHandler {
         return INSTANCE;
     }
 
-    public boolean insertDysco(Dysco dysco) {
-
+    @Override
+    public boolean insert(Dysco dysco) {
         boolean status = false;
         try {
             SolrDysco solrDysco = null;
@@ -90,10 +83,9 @@ public class SolrDyscoHandler {
             Logger.getRootLogger().error(ex.getMessage());
         }
         return status;
-        
     }
 
-    public boolean insertDyscos(List<Dysco> dyscos) {
+    public boolean insert(List<Dysco> dyscos) {
 
         boolean status = false;
 
@@ -131,12 +123,10 @@ public class SolrDyscoHandler {
         return status;
     }
 
-    public boolean removeDysco(String dyscoId) {
-
+    public boolean delete(String id) {
         boolean status = false;
         try {
-
-            server.deleteById(dyscoId);
+            server.deleteById(id);
             UpdateResponse response = server.commit();
             int statusId = response.getStatus();
             if (statusId == 0) {
@@ -151,25 +141,9 @@ public class SolrDyscoHandler {
         return status;
     }
 
-    public SolrDysco findSolrDyscoLight(String dyscoId) {
-
-        SolrQuery solrQuery = new SolrQuery("id:" + dyscoId);
-        SearchEngineResponse<SolrDysco> response = findSolrDyscosLight(solrQuery);
-
-        List<SolrDysco> dyscos = response.getResults();
-        SolrDysco dysco = null;
-        if (dyscos != null) {
-            if (dyscos.size() > 0) {
-                dysco = dyscos.get(0);
-            }
-        }
-        return dysco;
-    }
-
-    public Dysco findDyscoLight(String dyscoId) {
-
-        SolrQuery solrQuery = new SolrQuery("id:" + dyscoId);
-        SearchEngineResponse<Dysco> response = findDyscosLight(solrQuery);
+    public Dysco get(String id) {
+        SolrQuery solrQuery = new SolrQuery("id:" + id);
+        SearchEngineResponse<Dysco> response = find(solrQuery);
 
         List<Dysco> dyscos = response.getResults();
         Dysco dysco = null;
@@ -180,246 +154,72 @@ public class SolrDyscoHandler {
         }
         return dysco;
     }
-
-    public String findDyscosTrendline(String entity, String entityValue) {
-
-        System.out.println("finding dyscos trendline");
-        SolrQuery query = new SolrQuery(entity + ":" + entityValue);
-        query.setFields("creationDate", "id");
-
-        query.addSort("creationDate", SolrQuery.ORDER.asc);
-
-        QueryResponse rsp;
-        System.out.println("searching: " + query.toString());
-        try {
-            rsp = server.query(query);
-        } catch (SolrServerException e) {
-            Logger.getRootLogger().info(e.getMessage());
-            return null;
-        }
-
-        List<SolrDysco> solrDyscos = rsp.getBeans(SolrDysco.class);
-        if (solrDyscos != null) {
-            Logger.getRootLogger().info("got: " + solrDyscos.size() + " dyscos from Solr");
-        }
-
-        List<Dysco> dyscos = new ArrayList<Dysco>();
-        for (SolrDysco dysco : solrDyscos) {
-            dyscos.add(dysco.toDysco());
-        }
-
-        Gson gson = new Gson();
-        ArrayList<TrendlineSpot> spots = new ArrayList<TrendlineSpot>();
-        for (Dysco dysco : dyscos) {
-            spots.add(new TrendlineSpot(dysco.getCreationDate().getTime(), 30));
-        }
-        return gson.toJson(spots);
-
-    }
-
-    public SearchEngineResponse<SolrDysco> findSolrDyscosLight(SolrQuery query) {
-
-        SearchEngineResponse<SolrDysco> response = new SearchEngineResponse<SolrDysco>();
-
-        QueryResponse rsp;
-        //System.out.println("searching: " + query.toString());
-        try {
-            rsp = server.query(query);
-        } catch (SolrServerException e) {
-            Logger.getRootLogger().info(e.getMessage());
-            return null;
-        }
-
-        List<SolrDysco> resultList = rsp.getBeans(SolrDysco.class);
-        if (resultList != null) {
-            // Logger.getRootLogger().info("got: " + resultList.size() + " dyscos from Solr");
-        }
-
-        List<SolrDysco> dyscos = new ArrayList<SolrDysco>();
-        for (SolrDysco dysco : resultList) {
-            dyscos.add(dysco);
-        }
-
-        response.setResults(dyscos);
-
-        return response;
-    }
-
-    public SearchEngineResponse<Dysco> findDyscosInTimeframe(String date) {
-        SearchEngineResponse<Dysco> response = new SearchEngineResponse<Dysco>();
-
-        QueryResponse rsp;
-
-        String dateQuery = "creationDate:[" + date + " TO *]";
-        System.out.println("Query : " + dateQuery);
-
-        SolrQuery query = new SolrQuery(dateQuery);
-        query.setSort("creationDate", ORDER.asc);
-        query.setRows(200);
-        try {
-            rsp = server.query(query);
-        } catch (SolrServerException e) {
-            Logger.getRootLogger().info(e.getMessage());
-            return null;
-        }
-
-        List<SolrDysco> resultList = rsp.getBeans(SolrDysco.class);
-        if (resultList != null) {
-            // Logger.getRootLogger().info("got: " + resultList.size() + " dyscos from Solr");
-        }
-
-        List<Dysco> dyscos = new ArrayList<Dysco>();
-        for (SolrDysco dysco : resultList) {
-            dyscos.add(dysco.toDysco());
-        }
-
-        response.setResults(dyscos);
-        return response;
-    }
-
-    public SearchEngineResponse<Dysco> findDyscosInTimeframe(String startDate, String endDate) {
-    	SearchEngineResponse<Dysco> response = new SearchEngineResponse<Dysco>();
-    	
-    	QueryResponse rsp;
-    	
-    	String dateQuery = "creationDate:["+startDate+" TO " + endDate + "]";
-    	System.out.println("Query : "+dateQuery);
-    	
-    	SolrQuery query = new SolrQuery(dateQuery);
-    	query.setSort("creationDate", ORDER.asc);
-    	query.setRows(200);
-    	 try {
-             rsp = server.query(query);
-         } catch (SolrServerException e) {
-             Logger.getRootLogger().info(e.getMessage());
-             return null;
-         }
-    	
-    	 
-    	 List<SolrDysco> resultList = rsp.getBeans(SolrDysco.class);
-         if (resultList != null) {
-            // Logger.getRootLogger().info("got: " + resultList.size() + " dyscos from Solr");
-         }
-
-         List<Dysco> dyscos = new ArrayList<Dysco>();
-         for (SolrDysco dysco : resultList) {
-             dyscos.add(dysco.toDysco());
-         }
-
-         response.setResults(dyscos);
-        return response;
-    }
     
-    public SearchEngineResponse<Dysco> findDyscosLight(SolrQuery query) {
-
+    public SearchEngineResponse<Dysco> find(SolrQuery query) {
         SearchEngineResponse<Dysco> response = new SearchEngineResponse<Dysco>();
-
-        QueryResponse rsp;
-        //System.out.println("searching: " + query.toString());
         try {
-            rsp = server.query(query);
-        } catch (SolrServerException e) {
-            Logger.getRootLogger().info(e.getMessage());
-            return null;
-        }
-
-        List<SolrDysco> resultList = rsp.getBeans(SolrDysco.class);
-        if (resultList != null) {
-            // Logger.getRootLogger().info("got: " + resultList.size() + " dyscos from Solr");
-        }
-
-        List<Dysco> dyscos = new ArrayList<Dysco>();
-        for (SolrDysco dysco : resultList) {
-        	if(dysco.getDyscoType().equals("TRENDING")) {
-        		dyscos.add(dysco.toDysco());
-        	}
-        	else {
-        		dyscos.add(dysco.toCustomDysco());
-        	}
-        }
-
-        response.setResults(dyscos);
-        List<Facet> facets = new ArrayList<Facet>();
-        List<FacetField> solrFacetList = rsp.getFacetFields();
-        FacetField solrFacet;
-
-        if (solrFacetList != null) {
-
-            //populate all non-zero facets
-            for (int i = 0; i < solrFacetList.size(); i++) {
-
-                Facet facet = new Facet(); //initialize for Arcomem JSF UI
-                List<Bucket> buckets = new ArrayList<Bucket>();
-                solrFacet = solrFacetList.get(i); //get the ones returned from Solr
-                List<FacetField.Count> values = solrFacet.getValues();
-                String solrFacetName = solrFacet.getName();
-                boolean validFacet = false;
-
-                //populate Valid Facets
-                for (int j = 0; j < solrFacet.getValueCount(); j++) {
-
-                    Bucket bucket = new Bucket();
-                    long bucketCount = values.get(j).getCount();
-                    //if ((bucketCount > 0) && (bucketCount != dyscos.size())) { //bucket is neither non-zero length nor the whole set 
-                    if (bucketCount > 0) { //bucket is non-zero length 
-                        validFacet = true; //facet contains at least one non-zero length bucket
-                        bucket.setCount(bucketCount);
-                        bucket.setName(values.get(j).getName());
-                        bucket.setQuery(values.get(j).getAsFilterQuery());
-                        bucket.setFacet(solrFacetName);
-                        buckets.add(bucket);
-                    }
-                }
-                if (validFacet) { //add the facet only if it is contains at least one non-zero length - excludes the whole set result
-                    facet.setBuckets(buckets);
-                    facet.setName(solrFacetName);
-                    facets.add(facet);
-                }
+        	QueryResponse rsp = server.query(query);
+        	List<SolrDysco> resultList = rsp.getBeans(SolrDysco.class);
+         
+            List<Dysco> dyscos = new ArrayList<Dysco>();
+            for (SolrDysco dysco : resultList) {
+            	dyscos.add(dysco.toDysco());
             }
 
-            Collections.sort(facets, new Comparator<Facet>() { //anonymous inner class used for sorting
-                @Override
-                public int compare(Facet f1, Facet f2) {
+            response.setResults(dyscos);
+            
+            List<Facet> facets = new ArrayList<Facet>();
+            List<FacetField> solrFacetList = rsp.getFacetFields();
+            if (solrFacetList != null) {
+                for (int i = 0; i < solrFacetList.size(); i++) {
+                    Facet facet = new Facet();
+                    List<Bucket> buckets = new ArrayList<Bucket>();
+                    FacetField solrFacet = solrFacetList.get(i);
+                    List<FacetField.Count> values = solrFacet.getValues();
+                    String solrFacetName = solrFacet.getName();
+                    boolean validFacet = false;
 
-                    String value1 = f1.getName();
-                    String value2 = f2.getName();
-
-                    if (value1.compareTo(value2) > 0) {
-                        return 1;
-                    } else {
-                        return -1;
+                    for (int j = 0; j < solrFacet.getValueCount(); j++) {
+                        Bucket bucket = new Bucket();
+                        long bucketCount = values.get(j).getCount();
+                        if (bucketCount > 0) { 
+                            validFacet = true;
+                            bucket.setCount(bucketCount);
+                            bucket.setName(values.get(j).getName());
+                            bucket.setQuery(values.get(j).getAsFilterQuery());
+                            bucket.setFacet(solrFacetName);
+                            buckets.add(bucket);
+                        }
+                    }
+                    
+                    if (validFacet) {
+                        facet.setBuckets(buckets);
+                        facet.setName(solrFacetName);
+                        facets.add(facet);
                     }
                 }
-            });
+                
+                Collections.sort(facets, new Comparator<Facet>() {
+                    @Override
+                    public int compare(Facet f1, Facet f2) {
+                        String value1 = f1.getName();
+                        String value2 = f2.getName();
+                        if (value1.compareTo(value2) > 0) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
+                    }
+                });
+            }
+
+            response.setFacets(facets);
+            
+        } catch (SolrServerException e) {
+            logger.info(e.getMessage());
         }
-        response.setFacets(facets);
+
         return response;
     }
 
-//    public static void main(String... args) {
-//
-//        SolrDyscoHandler handler = SolrDyscoHandler.getInstance("http://socialsolr1.atc.gr:8080" + "/solr/dyscos");
-//
-//        String queryString = "NOT(normalizedDyscoScore : *) AND NOT(normalizedRankerScore : *) AND (listId:3)";
-//        SolrQuery query = new SolrQuery(queryString);
-//        query.setSortField("creationDate", ORDER.asc);
-//        TrendsRanker trendsRanker = new TrendsRanker("http://socialsensor.atc.gr/solr/NewsFeed");
-//
-//        for (int i = 0; i < 1100; i++) {
-//
-//            int start = i * 100;
-//
-//            Logger.getRootLogger().info("start: " + start);
-//            query.setStart(start);
-//            query.setRows(100);
-//
-//            List<Dysco> dyscos = handler.findDyscosLight(query).getResults();
-//
-//            List<Dysco> finalDyscoList = trendsRanker.evaluateDyscosByContent(dyscos, "3");
-//            
-//            handler.insertDyscos(finalDyscoList);
-//
-//        }
-//
-//    }
 }

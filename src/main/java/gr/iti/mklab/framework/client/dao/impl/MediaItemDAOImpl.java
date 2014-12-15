@@ -17,8 +17,8 @@ import gr.iti.mklab.framework.client.mongo.UpdateItem;
 
 public class MediaItemDAOImpl implements MediaItemDAO {
 
-    List<String> indexes = new ArrayList<String>();
-    private static String host = "";
+    private List<String> indexes = new ArrayList<String>();
+
     private static String db = "Streams";
     private static String collection = "MediaItems";
     private MongoHandler mongoHandler;
@@ -39,25 +39,6 @@ public class MediaItemDAOImpl implements MediaItemDAO {
         mongoHandler = new MongoHandler(host, db, collection, indexes);
         mongoHandler.sortBy("publicationTime", MongoHandler.DESC);
        
-    }
-
-    /**
-     * An implementation of the MediaItemDAO appropriate for a database with enabled authentication
-     *
-     * @param host
-     * @param db
-     * @param collection
-     * @param username
-     * @param password
-     * @throws Exception
-     */
-    public MediaItemDAOImpl(String host, String db, String collection, String username, String password) throws Exception{
-        indexes.add("id");
-        indexes.add("publicationTime");
-        indexes.add("url");
-
-        mongoHandler = new MongoHandler(host, db, collection, indexes, username, password.toCharArray());
-        mongoHandler.sortBy("publicationTime", MongoHandler.DESC);
     }
 
     @Override

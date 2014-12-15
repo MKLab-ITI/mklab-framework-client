@@ -1,6 +1,6 @@
 package gr.iti.mklab.framework.client.dao.impl;
 
-import gr.iti.mklab.framework.common.domain.SocialNetwork;
+import gr.iti.mklab.framework.common.domain.Source;
 import gr.iti.mklab.framework.common.domain.Account;
 import gr.iti.mklab.framework.common.factories.ObjectFactory;
 import gr.iti.mklab.framework.client.dao.AccountDAO;
@@ -49,10 +49,10 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-	public void removeAccount(Account source, SocialNetwork sourceType) {
+	public void removeAccount(Account source, Source sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
         map.put("name", source.getName());
-        if(sourceType != SocialNetwork.All) {
+        if(sourceType != Source.All) {
         	map.put("network", sourceType.name());
         }
         mongoHandler.delete(map);
@@ -61,7 +61,7 @@ public class AccountDAOImpl implements AccountDAO {
     @Override
     public void insertAccount(String name, float score) {
         Map<String, Object> map = new HashMap<String, Object>();
-        String id = SocialNetwork.All+"::"+name;
+        String id = Source.All+"::"+name;
         map.put("_id", id);
         map.put("name", name);
         map.put("score", score);
@@ -76,7 +76,7 @@ public class AccountDAOImpl implements AccountDAO {
     @Override
     public void insertAccount(Account source) {
         Map<String, Object> map = new HashMap<String, Object>();
-        String id = SocialNetwork.All+"::"+source.getName();
+        String id = Source.All+"::"+source.getName();
         map.put("_id", id);
         map.put("id", source.getId());
         map.put("name", source.getName());
@@ -91,7 +91,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
     
     @Override
-	public void insertAccount(String name, float score, SocialNetwork snSource) {
+	public void insertAccount(String name, float score, Source snSource) {
     	Map<String, Object> map = new HashMap<String, Object>();
     	String id = snSource.toString()+"::"+name;
         map.put("_id", id);
@@ -106,7 +106,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-	public void insertAccount(Account source, SocialNetwork sourceType) {
+	public void insertAccount(Account source, Source sourceType) {
     	Map<String, Object> map = new HashMap<String, Object>();
     	String id = sourceType.toString()+"::"+source.getName();
         map.put("_id", id);
@@ -143,7 +143,7 @@ public class AccountDAOImpl implements AccountDAO {
 	}
 	
 	@Override
-	public List<Account> findTopAccounts(int n, SocialNetwork sourceType) {
+	public List<Account> findTopAccounts(int n, Source sourceType) {
 		List<Account> sources = new ArrayList<Account>();
 		
 		List<String> res = mongoHandler.findMany("network", sourceType.toString(), n);

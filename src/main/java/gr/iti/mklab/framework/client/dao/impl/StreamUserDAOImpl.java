@@ -91,8 +91,6 @@ public class StreamUserDAOImpl implements StreamUserDAO {
         	}
         	
     		BasicDBObject sets = new BasicDBObject();
-    		if(user.getImageUrl() != null)
-    			sets.put("imageUrl", user.getImageUrl());
     		if(user.getProfileImage() != null)
     			sets.put("profileImage", user.getProfileImage());
     		if(user.getName() != null) 

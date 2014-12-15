@@ -33,20 +33,8 @@ public class SolrWebPage {
 	@Field(value = "reference")
 	private String reference;
 
-	@Field(value = "streamId")
-	private String streamId;	
-	
-	@Field(value = "shares")
-	private int shares;	
-	
-	@Field(value = "media")
-	private int media;	
-	
-	@Field(value = "mediaIds")
-	private String[] mediaIds;	
-	
-	@Field(value = "mediaThumbnail")
-	private String mediaThumbnail;	
+	@Field(value = "source")
+	private String source;	
 	
 	public SolrWebPage() {
 		
@@ -60,11 +48,7 @@ public class SolrWebPage {
         text = webPage.getText();
         date = webPage.getDate();
         reference = webPage.getReference();
-        streamId = webPage.getStreamId();
-        shares = webPage.getShares();
-        media = webPage.getMedia();
-        mediaIds = webPage.getMediaIds();
-        mediaThumbnail = webPage.getMediaThumbnail();
+        source = webPage.getSource();
     }
 
     public WebPage toWebPage() throws MalformedURLException {
@@ -74,13 +58,9 @@ public class SolrWebPage {
     	webPage.setExpandedUrl(expandedUrl);
     	webPage.setTitle(title);
     	webPage.setText(text);
-    	webPage.setStreamId(streamId);
+    	webPage.setSource(source);
     	webPage.setDate(date);
     	webPage.setDomain(domain);
-    	webPage.setShares(shares);
-    	webPage.setMedia(media);
-    	webPage.setMediaIds(mediaIds);
-    	webPage.setMediaThumbnail(mediaThumbnail);
     	
         return webPage;
     }
@@ -109,23 +89,8 @@ public class SolrWebPage {
     	return reference;
 	}
 
-    public String getStreamId() {
-    	return streamId;
+    public String getSource() {
+    	return source;
 	}
 	
-    public int getShares() {
-    	return shares;
-	}
-    
-    public int getNumberOfMedia() {
-    	return media;
-	}
-    
-    public String[] getMediaIds() {
-    	return mediaIds;
-	}
-    
-    public String getMediaThumbnail() {
-    	return mediaThumbnail;
-	}
 }
