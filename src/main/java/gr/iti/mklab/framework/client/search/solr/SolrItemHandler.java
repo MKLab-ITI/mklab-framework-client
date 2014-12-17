@@ -313,7 +313,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
         
         List<String> words = dysco.getWords();
         if(words != null && !words.isEmpty()) {
-        	String contentQuery = String.join(" OR ", words);
+        	String contentQuery = StringUtils.join(words, " OR ");
         	if (contentQuery != null && !contentQuery.isEmpty()) {
         		queryParts.add("(title : (" + contentQuery + ")");
         		queryParts.add("(description : (" + contentQuery + ")");
