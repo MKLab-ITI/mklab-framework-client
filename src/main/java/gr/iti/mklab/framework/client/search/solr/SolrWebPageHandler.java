@@ -2,7 +2,6 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.io.IOException;
@@ -93,7 +92,7 @@ public class SolrWebPageHandler implements SolrHandler<WebPage> {
         return status;
     }
 
-    public boolean delete(String url) {
+    public boolean deleteById(String url) {
         boolean status = false;
         try {
         	String query = "url:" + url;
@@ -111,10 +110,10 @@ public class SolrWebPageHandler implements SolrHandler<WebPage> {
         return status;
     }
 
-    public boolean delete(Query query) {
+    public boolean delete(String query) {
         boolean status = false;
         try {
-        	UpdateResponse response = server.deleteByQuery(query.getQueryString(), commitPeriod);
+        	UpdateResponse response = server.deleteByQuery(query, commitPeriod);
             int statusId = response.getStatus();
             if (statusId == 0) {
                 status = true;

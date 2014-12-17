@@ -15,7 +15,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.util.JSON;
 
 import gr.iti.mklab.framework.common.domain.MediaItem;
-import gr.iti.mklab.framework.client.dao.MediaItemDAO;
 import gr.iti.mklab.framework.client.mongo.DAOFactory;
 import gr.iti.mklab.framework.client.search.visual.JsonResultSet.JsonResult;
 

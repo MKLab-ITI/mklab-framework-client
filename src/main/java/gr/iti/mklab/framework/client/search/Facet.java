@@ -1,6 +1,7 @@
 package gr.iti.mklab.framework.client.search;
 
-import java.io.Serializable;
+import gr.iti.mklab.framework.common.domain.JSONable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +9,7 @@ import java.util.List;
  *
  * @author etzoannos - e.tzoannos@atc.gr
  */
-
-public class Facet implements Serializable {
+public class Facet extends JSONable {
 
     /**
 	 * 

@@ -3,7 +3,6 @@ package gr.iti.mklab.framework.client.search.solr;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
-import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.io.IOException;
@@ -103,7 +102,7 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
         return status;
     }
 
-    public boolean delete(String id) {
+    public boolean deleteById(String id) {
         boolean status = false;
         try {
             server.deleteById(id);
@@ -121,10 +120,10 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
         return status;
     }
 
-    public boolean delete(Query query) {
+    public boolean delete(String query) {
         boolean status = false;
         try {
-            server.deleteById(query.getQueryString());
+            server.deleteByQuery(query);
             UpdateResponse response = server.commit();
             int statusId = response.getStatus();
             if (statusId == 0) {

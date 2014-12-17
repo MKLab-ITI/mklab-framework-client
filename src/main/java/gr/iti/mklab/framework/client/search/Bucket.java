@@ -1,13 +1,12 @@
 package gr.iti.mklab.framework.client.search;
 
-import java.io.Serializable;
+import gr.iti.mklab.framework.common.domain.JSONable;
 
 /**
  *
  * @author etzoannos
  */
-
-public class Bucket implements Serializable{
+public class Bucket extends JSONable {
     /**
 	 * 
 	 */

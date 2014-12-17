@@ -5,7 +5,6 @@ import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
-import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.io.IOException;
@@ -99,7 +98,7 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
         return status;
     }
 
-    public boolean delete(String id) {
+    public boolean deleteById(String id) {
         boolean status = false;
         try {
         	String query = "id:" + id;
@@ -114,14 +113,13 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
-        
         return status;
     }
 
-    public boolean delete(Query query) {
+    public boolean delete(String query) {
         boolean status = false;
         try {
-        	UpdateResponse response = server.deleteByQuery(query.getQueryString(), commitPeriod);
+        	UpdateResponse response = server.deleteByQuery(query, commitPeriod);
             int statusId = response.getStatus();
             if (statusId == 0) {
                 status = true;

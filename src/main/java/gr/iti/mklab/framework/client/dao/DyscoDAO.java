@@ -4,7 +4,6 @@ import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 import java.util.List;
@@ -93,9 +92,9 @@ public interface DyscoDAO {
      */
     public SearchEngineResponse<Item> findLatestItems(int count);
 
-    SearchEngineResponse<Dysco> findDyscosLight(Query query);
+    SearchEngineResponse<Dysco> findDyscosLight(String query);
 
-    SearchEngineResponse<Item> findItems(Query query);
+    SearchEngineResponse<Item> findItems(String query);
 
     public boolean updateDyscoWithoutItems(Dysco dysco);
 
@@ -106,7 +105,7 @@ public interface DyscoDAO {
 
     SearchEngineResponse<Item> findNDyscoItems(String id, int size, boolean original);
 
-    public List<Item> findSortedDyscoItemsByQuery(Query query, String fieldToSort,
+    public List<Item> findSortedDyscoItemsByQuery(String query, String fieldToSort,
             ORDER order, int rows, boolean original);
 
 	List<Item> findTotalItems(String _query);

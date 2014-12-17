@@ -21,16 +21,16 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 
 import gr.iti.mklab.framework.common.domain.Account;
+import gr.iti.mklab.framework.common.domain.Collection;
 import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
-import gr.iti.mklab.framework.client.search.Query;
 import gr.iti.mklab.framework.client.search.SearchEngineResponse;
 
 /**
  *
- * @author etzoannos
+ * @author Manos Schinas
  */
 public class SolrItemHandler implements SolrHandler<Item> {
 
@@ -93,7 +93,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
         return status;
     }
 
-    public boolean delete(String itemId) {
+    public boolean deleteById(String itemId) {
         boolean status = false;
         try {
             server.deleteByQuery("id:" + itemId);
@@ -112,10 +112,10 @@ public class SolrItemHandler implements SolrHandler<Item> {
         return status;
     }
 
-    public boolean delete(Query query) {
+    public boolean delete(String query) {
         boolean status = false;
         try {
-            server.deleteByQuery(query.getQueryString());
+            server.deleteByQuery(query);
             UpdateResponse response = server.commit();
             int statusId = response.getStatus();
             if (statusId == 0) {
@@ -231,25 +231,24 @@ public class SolrItemHandler implements SolrHandler<Item> {
             rsp = server.query(query);
         } catch (SolrServerException e) {
             logger.info(e.getMessage());
-            return null;
+            return response;
         }
-
         response.setNumFound(rsp.getResults().getNumFound());
+        
+        List<Item> items = new ArrayList<Item>();
         List<SolrItem> solrItems = rsp.getBeans(SolrItem.class);
         if (solrItems != null) {
             logger.info("got: " + solrItems.size() + " items from Solr - total results: " + response.getNumFound());
-        }
-
-        List<Item> items = new ArrayList<Item>();
-        for (SolrItem solrItem : solrItems) {
-            try {
-                items.add(solrItem.toItem());
-            } catch (MalformedURLException ex) {
-                logger.error(ex.getMessage());
+            for (SolrItem solrItem : solrItems) {
+                try {
+                    items.add(solrItem.toItem());
+                } catch (MalformedURLException ex) {
+                    logger.error(ex.getMessage());
+                }
             }
+            response.setResults(items);
         }
-        response.setResults(items);
-
+        
         return response;
     }
 
@@ -392,4 +391,23 @@ public class SolrItemHandler implements SolrHandler<Item> {
     }
 
 
+    public static void main(String...args) throws Exception {
+    	String solrCollection = "http://160.40.50.207:8080/solr/PressRelationsItems";
+    	SolrItemHandler solrHandler = SolrItemHandler.getInstance(solrCollection);
+    	
+    	List<String> filters = new ArrayList<String>();
+		List<String> facets = new ArrayList<String>();
+		facets.add("author");
+    	SearchEngineResponse<Item> response = solrHandler.findItems("cisco", filters, facets, "publicationTime", 10);
+    
+    	for(Item item : response.getResults()) {
+    		System.out.println(item.toString());
+    	}
+    	
+    	Collection collection = new Collection();
+		collection.addResults(response.getResults());
+		System.out.println(collection.toString());
+		
+    }
+    
 }
