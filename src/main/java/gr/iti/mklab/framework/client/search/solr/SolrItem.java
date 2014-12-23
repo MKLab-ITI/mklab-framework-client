@@ -105,7 +105,7 @@ public class SolrItem {
         longitude = item.getLongitude();
         location = item.getLocationName();
         sentiment = item.getSentiment();
-        language = item.getLang();
+        language = item.getLanguage();
 
         //this is a map
         mediaIds = new ArrayList<String>();
@@ -161,7 +161,7 @@ public class SolrItem {
             item.setMediaIds(mediaIds);
         }
         
-        item.setLang(language);
+        item.setLanguage(language);
 
         return item;
     }
