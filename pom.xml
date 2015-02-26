@@ -3,7 +3,7 @@
 
     <groupId>gr.iti.mklab</groupId>
     <artifactId>mklab-framework-client</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
     <name>mklab-framework-client</name>
@@ -19,7 +19,8 @@
         <connection>scm:git:git@github.com:MKLab-ITI/mklab-framework-client.git</connection>
         <developerConnection>scm:git:git@github.com:MKLab-ITI/mklab-framework-client.git</developerConnection>
         <url>git@github.com:MKLab-ITI/mklab-framework-client.git</url>
-  	</scm>
+  	  <tag>mklab-framework-client-0.1</tag>
+  </scm>
     
     <developers>
         <developer>
