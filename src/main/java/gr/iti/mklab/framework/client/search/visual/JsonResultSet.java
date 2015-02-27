@@ -4,7 +4,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 
 @Entity(noClassnameStored = true)
@@ -12,7 +14,10 @@ public class JsonResultSet {
 
 	private static DecimalFormat df = new DecimalFormat("#.###");
 	
-	List<JsonResult> results = new ArrayList<JsonResult>();
+	@Id 
+	private ObjectId id;
+	
+	public List<JsonResult> results = new ArrayList<JsonResult>();
 	
 	public void addResult(String id, int rank, double distance) {
 		JsonResult result = new JsonResult(id, rank, distance);
@@ -26,6 +31,7 @@ public class JsonResultSet {
 	@Entity(noClassnameStored = true)
 	public class JsonResult {
 		
+		@Id 
 		private String id;
 		 
 		private int rank;
