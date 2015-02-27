@@ -5,19 +5,16 @@ import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
-import gr.iti.mklab.framework.client.search.SearchEngineResponse;
+import gr.iti.mklab.framework.client.search.SearchResponse;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -29,8 +26,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 
 /**
  *
@@ -132,30 +127,10 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
         
         return status;
     }
-
-    public MediaItem get(String id) {
-
-        SolrQuery solrQuery = new SolrQuery("id:" + id);
-        SearchEngineResponse<MediaItem> mi = find(solrQuery);
-
-        List<MediaItem> results = mi.getResults();
-
-        if (results == null || results.size() == 0) {
-            return null;
-        }
-
-        MediaItem mediaItem = results.get(0);
-        mediaItem.setId(id);
-        return mediaItem;
-
-    }
-
     
-    public SearchEngineResponse<MediaItem> find(SolrQuery query) {
-
-    	//query.set("qt","/socialsearch");
+    public SearchResponse<String> find(SolrQuery query) {
     	
-        SearchEngineResponse<MediaItem> response = new SearchEngineResponse<MediaItem>();
+    	SearchResponse<String> response = new SearchResponse<String>();
         QueryResponse rsp;
         try {
             rsp = server.query(query);
@@ -164,31 +139,15 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
             return null;
         }
         response.setNumFound(rsp.getResults().getNumFound());
-       
-        List<SolrMediaItem> solrItems = new ArrayList<SolrMediaItem>();
         
-        SolrDocumentList docs = rsp.getResults();
-        for(SolrDocument doc : docs) {
-        	SolrMediaItem solrMediaItem = new SolrMediaItem(doc);
-        	solrItems.add(solrMediaItem);
-        }
-      
-        if (solrItems != null) {
-            logger.info("got: " + solrItems.size() + " media items from Solr - total results: " + response.getNumFound());
+        List<SolrMediaItem> solrMediaItems = rsp.getBeans(SolrMediaItem.class);
+        if (solrMediaItems != null) {
+            logger.info("got: " + solrMediaItems.size() + " media items from Solr - total results: " + response.getNumFound());
         }
         
-        List<MediaItem> mediaItems = new ArrayList<MediaItem>();
-        for (SolrMediaItem solrMediaItem : solrItems) {
-            try {
-                MediaItem mediaItem = solrMediaItem.toMediaItem();
-                String id = mediaItem.getId();
-               
-                mediaItem.setId(id);
-
-                mediaItems.add(mediaItem);
-            } catch (MalformedURLException ex) {
-                logger.error(ex.getMessage());
-            }
+        List<String> mediaItems = new ArrayList<String>();
+        for (SolrMediaItem solrMediaItem : solrMediaItems) {
+        	mediaItems.add(solrMediaItem.getId());
         }
 
         response.setResults(mediaItems);
@@ -246,10 +205,10 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
         return response;
     }
     
-    public SearchEngineResponse<MediaItem> findMediaItems(String query, List<String> filters, List<String> facets, String orderBy, int size) {
+    public SearchResponse<String> findMediaItems(String query, List<String> filters, List<String> facets, String orderBy, int size) {
 
-        List<MediaItem> mediaItems = new LinkedList<MediaItem>();
-        SearchEngineResponse<MediaItem> response = new SearchEngineResponse<MediaItem>();
+        List<String> mediaItems = new LinkedList<String>();
+        SearchResponse<String> response = new SearchResponse<String>();
 
         if (query == null || query.equals("")) {
             return response;
@@ -279,23 +238,9 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
 
         response = find(solrQuery);
         if (response != null) {
-            List<MediaItem> results = response.getResults();
-            Set<String> urls = new HashSet<String>();
-            Set<String> clusterIds = new HashSet<String>();
-            for (MediaItem mi : results) {
-                if (!urls.contains(mi.getUrl())) {
-                	String clusterId = mi.getClusterId();
-                	if(clusterId == null) {
-                		urls.add(mi.getUrl());
-                		mediaItems.add(mi);	
-                	}
-                	else if(!clusterIds.contains(clusterId)) {
-                		clusterIds.add(clusterId);
-                		urls.add(mi.getUrl());
-                		mediaItems.add(mi);	
-                	}
-                }
-
+            List<String> results = response.getResults();
+            for (String mi : results) {
+            	mediaItems.add(mi);	
                 if ((mediaItems.size() >= size)) {
                     break;
                 }
@@ -306,10 +251,10 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
         return response;
     }
 
-    public SearchEngineResponse<MediaItem> findMediaItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
+    public SearchResponse<String> findMediaItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
 
-        List<MediaItem> mediaItems = new ArrayList<MediaItem>();
-        SearchEngineResponse<MediaItem> response = new SearchEngineResponse<MediaItem>();
+        List<String> mediaItems = new ArrayList<String>();
+        SearchResponse<String> response = new SearchResponse<String>();
 
         List<String> queryParts = new ArrayList<String>();
         
@@ -379,24 +324,9 @@ public class SolrMediaItemHandler implements SolrHandler<MediaItem> {
         response = find(solrQuery);
         
         if (response != null) {
-            List<MediaItem> results = response.getResults();
-            Set<String> urls = new HashSet<String>();
-            Set<String> clusterIds = new HashSet<String>();
-            for (MediaItem mi : results) {
-
-                if (!urls.contains(mi.getUrl())) {
-                	String clusterId = mi.getClusterId();
-                	if(clusterId == null) {
-                		urls.add(mi.getUrl());
-                		mediaItems.add(mi);	
-                	}
-                	else if(!clusterIds.contains(clusterId)) {
-                		clusterIds.add(clusterId);
-                		urls.add(mi.getUrl());
-                		mediaItems.add(mi);	
-                	}
-                }
-
+            List<String> results = response.getResults();
+            for (String mi : results) {
+            	mediaItems.add(mi);	
                 if ((mediaItems.size() >= size)) {
                     break;
                 }

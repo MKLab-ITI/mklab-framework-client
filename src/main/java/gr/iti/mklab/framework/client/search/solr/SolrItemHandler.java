@@ -24,9 +24,10 @@ import gr.iti.mklab.framework.common.domain.Account;
 import gr.iti.mklab.framework.common.domain.Collection;
 import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
-import gr.iti.mklab.framework.client.search.SearchEngineResponse;
+import gr.iti.mklab.framework.client.search.SearchResponse;
 
 /**
  *
@@ -59,7 +60,7 @@ public class SolrItemHandler implements SolrHandler<Item> {
     public boolean insert(Item item) {
         boolean status = true;
         try {
-            SolrItem solrItem = new SolrItem(item);
+        	ItemBean solrItem = new ItemBean(item);
             server.addBean(solrItem, commitPeriod);
         } 
         catch (SolrServerException ex) {
@@ -76,9 +77,9 @@ public class SolrItemHandler implements SolrHandler<Item> {
     public boolean insert(List<Item> items) {
         boolean status = true;
         try {
-            List<SolrItem> solrItems = new ArrayList<SolrItem>();
+            List<ItemBean> solrItems = new ArrayList<ItemBean>();
             for (Item item : items) {
-                SolrItem solrItem = new SolrItem(item);
+            	ItemBean solrItem = new ItemBean(item);
                 solrItems.add(solrItem);
             }
             server.addBeans(solrItems, commitPeriod);
@@ -130,23 +131,10 @@ public class SolrItemHandler implements SolrHandler<Item> {
             
         return status;
     }
-
-    public Item get(String itemId) {
-        SolrQuery solrQuery = new SolrQuery("id:" + itemId);
-        solrQuery.setRows(1);
-        SearchEngineResponse<Item> response = findWithoutFacet(solrQuery);
-        List<Item> items = response.getResults();
-        if (!items.isEmpty()) {
-            return items.get(0);
-        } else {
-            logger.info("no iyem for this id found!!");
-            return null;
-        }
-    }
     
-    public SearchEngineResponse<Item> find(SolrQuery query) {
+    public SearchResponse<String> find(SolrQuery query) {
 
-        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
+    	SearchResponse<String> response = new SearchResponse<String>();
         QueryResponse rsp;
         try {
             rsp = server.query(query);
@@ -156,18 +144,14 @@ public class SolrItemHandler implements SolrHandler<Item> {
         }
 
         response.setNumFound(rsp.getResults().getNumFound());
-        List<SolrItem> solrItems = rsp.getBeans(SolrItem.class);
+        List<ItemBean> solrItems = rsp.getBeans(ItemBean.class);
         if (solrItems != null) {
             logger.info("got: " + solrItems.size() + " items from Solr - total results: " + response.getNumFound());
         }
 
-        List<Item> items = new ArrayList<Item>();
-        for (SolrItem solrItem : solrItems) {
-            try {
-                items.add(solrItem.toItem());
-            } catch (MalformedURLException ex) {
-                logger.error(ex.getMessage());
-            }
+        List<String> items = new ArrayList<String>();
+        for (ItemBean solrItem : solrItems) {
+        	items.add(solrItem.getId());
         }
         response.setResults(items);
 
@@ -223,9 +207,9 @@ public class SolrItemHandler implements SolrHandler<Item> {
         return response;
     }
 
-    private SearchEngineResponse<Item> findWithoutFacet(SolrQuery query) {
+    private SearchResponse<String> findWithoutFacet(SolrQuery query) {
 
-        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
+    	SearchResponse<String> response = new SearchResponse<String>();
         QueryResponse rsp;
         try {
             rsp = server.query(query);
@@ -235,16 +219,12 @@ public class SolrItemHandler implements SolrHandler<Item> {
         }
         response.setNumFound(rsp.getResults().getNumFound());
         
-        List<Item> items = new ArrayList<Item>();
-        List<SolrItem> solrItems = rsp.getBeans(SolrItem.class);
+        List<String> items = new ArrayList<String>();
+        List<ItemBean> solrItems = rsp.getBeans(ItemBean.class);
         if (solrItems != null) {
             logger.info("got: " + solrItems.size() + " items from Solr - total results: " + response.getNumFound());
-            for (SolrItem solrItem : solrItems) {
-                try {
-                    items.add(solrItem.toItem());
-                } catch (MalformedURLException ex) {
-                    logger.error(ex.getMessage());
-                }
+            for (ItemBean solrItem : solrItems) {
+            	items.add(solrItem.getId());
             }
             response.setResults(items);
         }
@@ -252,10 +232,10 @@ public class SolrItemHandler implements SolrHandler<Item> {
         return response;
     }
 
-    public SearchEngineResponse<Item> findItems(String query, List<String> filters, List<String> facets, String orderBy, int size) {
+    public SearchResponse<String> findItems(String query, List<String> filters, List<String> facets, String orderBy, int size) {
 
-        List<Item> items = new ArrayList<Item>();
-        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();
+        List<String> items = new ArrayList<String>();
+        SearchResponse<String> response = new SearchResponse<String>();
 
         if (query == null || query.isEmpty() || query.equals("")) {
             return response;
@@ -287,9 +267,9 @@ public class SolrItemHandler implements SolrHandler<Item> {
         logger.info("Solr Query : " + query);
         response = find(solrQuery);
         if (response != null) {
-            List<Item> results = response.getResults();
+            List<String> results = response.getResults();
 
-            for (Item it : results) {
+            for (String it : results) {
                 items.add(it);
                 if ((items.size() >= size)) {
                     break;
@@ -302,10 +282,10 @@ public class SolrItemHandler implements SolrHandler<Item> {
         return response;
     }
 
-    public SearchEngineResponse<Item> findItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
+    public SearchResponse<String> findItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
 
-    	List<Item> items = new ArrayList<Item>();
-        SearchEngineResponse<Item> response = new SearchEngineResponse<Item>();    	 
+    	List<String> items = new ArrayList<String>();
+    	SearchResponse<String> response = new SearchResponse<String>();    	 
 
         // Create a Solr Query
 
@@ -376,9 +356,9 @@ public class SolrItemHandler implements SolrHandler<Item> {
 
         response = find(solrQuery);
         if (response != null) {
-            List<Item> results = response.getResults();
+            List<String> results = response.getResults();
 
-            for (Item it : results) {
+            for (String it : results) {
                 items.add(it);
                 if (items.size() >= size) {
                     break;
@@ -398,15 +378,15 @@ public class SolrItemHandler implements SolrHandler<Item> {
     	List<String> filters = new ArrayList<String>();
 		List<String> facets = new ArrayList<String>();
 		facets.add("author");
-    	SearchEngineResponse<Item> response = solrHandler.findItems("cisco", filters, facets, "publicationTime", 10);
+		SearchResponse<String> response = solrHandler.findItems("cisco", filters, facets, "publicationTime", 10);
     
-    	for(Item item : response.getResults()) {
+    	for(String item : response.getResults()) {
     		System.out.println(item.toString());
     	}
     	
-    	Collection collection = new Collection();
-		collection.addResults(response.getResults());
-		System.out.println(collection.toString());
+    	//Collection collection = new Collection();
+		//collection.addResults(response.getResults());
+		//System.out.println(collection.toString());
 		
     }
     

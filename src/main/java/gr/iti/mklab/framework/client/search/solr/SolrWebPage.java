@@ -32,9 +32,6 @@ public class SolrWebPage {
 
 	@Field(value = "reference")
 	private String reference;
-
-	@Field(value = "source")
-	private String source;	
 	
 	public SolrWebPage() {
 		
@@ -48,23 +45,18 @@ public class SolrWebPage {
         text = webPage.getText();
         date = webPage.getDate();
         reference = webPage.getReference();
-        source = webPage.getSource();
     }
 
     public WebPage toWebPage() throws MalformedURLException {
-
     	WebPage webPage = new WebPage(url, reference);
-
     	webPage.setExpandedUrl(expandedUrl);
     	webPage.setTitle(title);
     	webPage.setText(text);
-    	webPage.setSource(source);
     	webPage.setDate(date);
     	webPage.setDomain(domain);
-    	
         return webPage;
     }
-    
+	
     public String getUrl() {
     	return url;
 	}
@@ -87,10 +79,6 @@ public class SolrWebPage {
     
     public String getReference() {
     	return reference;
-	}
-
-    public String getSource() {
-    	return source;
 	}
 	
 }

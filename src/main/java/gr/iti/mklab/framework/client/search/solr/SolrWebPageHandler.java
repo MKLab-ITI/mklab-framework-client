@@ -2,15 +2,13 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.WebPage;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.client.search.SearchEngineResponse;
+import gr.iti.mklab.framework.client.search.SearchResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -21,7 +19,6 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
-
 
 /**
  *
@@ -127,34 +124,16 @@ public class SolrWebPageHandler implements SolrHandler<WebPage> {
         return status;
     }
 
-    public WebPage get(String url) {
-        SolrQuery solrQuery = new SolrQuery("url:" + url);
-        SearchEngineResponse<WebPage> response = find(solrQuery);
-        List<WebPage> results = response.getResults();
+    public SearchResponse<String> find(SolrQuery query) {
 
-        if (results == null || results.isEmpty()) {
-            return null;
-        }
-
-        WebPage webPage = results.get(0);
-        return webPage;
-    }
-
-    public SearchEngineResponse<WebPage> find(SolrQuery query) {
-
-        SearchEngineResponse<WebPage> response = new SearchEngineResponse<WebPage>();
+    	SearchResponse<String> response = new SearchResponse<String>();
         try {
         	QueryResponse rsp = server.query(query);
             List<SolrWebPage> solrWebPages = rsp.getBeans(SolrWebPage.class);
             
-            List<WebPage> webPages = new ArrayList<WebPage>();
+            List<String> webPages = new ArrayList<String>();
             for (SolrWebPage solrWebPage : solrWebPages) {
-                try {
-                	WebPage webPage = solrWebPage.toWebPage();            	
-                	webPages.add(webPage);
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
-                }
+            	webPages.add(solrWebPage.getUrl());
             }
             
             response.setResults(webPages);
@@ -166,14 +145,9 @@ public class SolrWebPageHandler implements SolrHandler<WebPage> {
         return response;
     }
     
-    public List<WebPage> findWebPages(Dysco dysco, List<String> filters, List<String> facets, int size) {
+    public List<String> findWebPages(Dysco dysco, List<String> filters, List<String> facets, int size) {
   
-        List<WebPage> webPages = new ArrayList<WebPage>();
-
-        // Retrieve web pages from solr index
-        Set<String> uniqueUrls = new HashSet<String>();
-        Set<String> expandedUrls = new HashSet<String>();
-        Set<String> titles = new HashSet<String>();
+        List<String> webPages = new ArrayList<String>();
 
         String query = "";
         List<String> words = dysco.getWords();
@@ -213,22 +187,11 @@ public class SolrWebPageHandler implements SolrHandler<WebPage> {
         
         logger.info("Query : " + solrQuery);
         
-        SearchEngineResponse<WebPage> response = find(solrQuery);
+        SearchResponse<String> response = find(solrQuery);
         if (response != null) {
-            List<WebPage> results = response.getResults();
-            for (WebPage webPage : results) {
-                
-            	String url = webPage.getUrl();
-                String expandedUrl = webPage.getExpandedUrl();
-                String title = webPage.getTitle();
-                
-                if (!expandedUrls.contains(expandedUrl) && !uniqueUrls.contains(url) && !titles.contains(title)) {
-                    webPages.add(webPage);
-                    
-                    uniqueUrls.add(url);
-                    expandedUrls.add(expandedUrl);
-                    titles.add(title);
-                }
+            List<String> results = response.getResults();
+            for (String webPage : results) {
+            	webPages.add(webPage);
             }
         }
         

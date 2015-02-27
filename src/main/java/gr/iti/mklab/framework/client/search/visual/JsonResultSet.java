@@ -23,6 +23,7 @@ public class JsonResultSet {
 		return results;
 	}
 	
+	@Entity(noClassnameStored = true)
 	public class JsonResult {
 		
 		private String id;
@@ -73,6 +74,6 @@ public class JsonResultSet {
 		s.addResult("X", 1, 0.2);
 		s.addResult("Y", 2, 0.4);
 		s.addResult("Z", 3, 0.8);
-		
+
 	}
 }

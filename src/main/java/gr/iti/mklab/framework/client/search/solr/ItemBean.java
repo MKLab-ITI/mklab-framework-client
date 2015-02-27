@@ -1,10 +1,8 @@
 package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.Item;
-import gr.iti.mklab.framework.common.domain.Location;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +15,7 @@ import org.apache.solr.client.solrj.beans.Field;
  * @email	manosetro@iti.gr
  * 
  */
-public class SolrItem {
+public class ItemBean {
 
 	@Field(value = "id")
     private String id;
@@ -37,9 +35,6 @@ public class SolrItem {
     @Field(value = "uid")
     private String uid;
     
-    @Field(value = "links")
-    private List<String> links;
-    
     @Field(value = "publicationTime")
     private long publicationTime;
     
@@ -55,33 +50,20 @@ public class SolrItem {
     @Field(value = "mediaIds")
     private List<String> mediaIds;
     
-    @Field(value = "sentiment")
-    private String sentiment;
-    
     @Field(value = "language")
     private String language;
     
     @Field(value = "original")
     private boolean original;
     
-    @Field(value = "lists")
-    private List<String> lists;
+    @Field(value = "labels")
+    private List<String> labels;
     
-    //popularity fields
-    @Field(value = "likes")
-    private Long likes = 0L;
-    
-    @Field(value = "shares")
-    private Long shares = 0L;
-    
-    @Field(value = "comments")
-    private Long comments = 0L;
-
-    public SolrItem() {
+    public ItemBean() {
     	
     }
 
-    public SolrItem(Item item) {
+    public ItemBean(Item item) {
 
         id = item.getId();
         source = item.getSource();
@@ -91,20 +73,12 @@ public class SolrItem {
     
         uid = item.getUserId();
 
-        links = new ArrayList<String>();
-        if (item.getLinks() != null) {
-            for (URL link : item.getLinks()) {
-                links.add(link.toString());
-            }
-        }
-
         //this is long
         publicationTime = item.getPublicationTime();
 
         latitude = item.getLatitude();
         longitude = item.getLongitude();
         location = item.getLocationName();
-        sentiment = item.getSentiment();
         language = item.getLanguage();
 
         //this is a map
@@ -115,17 +89,14 @@ public class SolrItem {
         
         original = item.isOriginal();
 
-        lists = new ArrayList<String>();
+        labels = new ArrayList<String>();
         if (item.getList() != null) {
-            lists.addAll(Arrays.asList(item.getList()));
+        	labels.addAll(Arrays.asList(item.getList()));
         }
-
-        comments = item.getComments();
-        shares = item.getShares();
-        likes = item.getLikes();
         
     }
 
+    /*
     public Item toItem() throws MalformedURLException {
 
         Item item = new Item();
@@ -165,30 +136,7 @@ public class SolrItem {
 
         return item;
     }
-    
-    public Long getLikes() {
-        return likes;
-    }
-
-    public void setLikes(Long likes) {
-        this.likes = likes;
-    }
-
-    public Long getShares() {
-        return shares;
-    }
-
-    public void setShares(Long shares) {
-        this.shares = shares;
-    }
-
-    public Long getComments() {
-        return comments;
-    }
-
-    public void setComments(Long comments) {
-        this.comments = comments;
-    }
+    */
 
     public boolean isOriginal() {
         return original;
@@ -254,14 +202,6 @@ public class SolrItem {
         this.uid = uid;
     }
 
-    public List<String> getLinks() {
-        return links;
-    }
-
-    public void setLinks(List<String> links) {
-        this.links = links;
-    }
-
     public Long getPublicationTime() {
         return publicationTime;
     }
@@ -302,20 +242,12 @@ public class SolrItem {
         this.mediaIds = mediaIds;
     }
 
-    public String getSentiment() {
-        return sentiment;
+    public List<String> getLabels() {
+        return labels;
     }
 
-    public void setSentiment(String sentiment) {
-        this.sentiment = sentiment;
-    }
-
-    public List<String> getLists() {
-        return lists;
-    }
-
-    public void setLists(List<String> lists) {
-        this.lists = lists;
+    public void getLabels(List<String> labels) {
+        this.labels = labels;
     }
 
 }

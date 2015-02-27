@@ -1,16 +1,11 @@
 package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.common.domain.Concept;
-import gr.iti.mklab.framework.common.domain.Location;
 import gr.iti.mklab.framework.common.domain.MediaItem;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.apache.solr.common.SolrDocument;
 
 /**
  *
@@ -73,47 +68,6 @@ public class SolrMediaItem {
     public SolrMediaItem() {
     	
     }
-    
-    public SolrMediaItem(SolrDocument solrDocument) {
-	  
-    	id = (String) solrDocument.getFieldValue("id");
-    	url = (String) solrDocument.getFieldValue("url");
-    	thumbnail = (String) solrDocument.getFieldValue("thumbnail");
-    	source = (String) solrDocument.getFieldValue("source");
-    	title = (String) solrDocument.getFieldValue("title");
-    	description = (String) solrDocument.getFieldValue("description");
-    	if(solrDocument.getFieldValue("tags") != null){
-    		@SuppressWarnings("unchecked")
-			List<String> listOfTags = (List<String>) solrDocument.getFieldValue("tags");
-    		tags = new String[listOfTags.size()];
-    		int index = 0;
-    		for(String tag : listOfTags){
-    			tags[index++] = tag;
-    		}
-    	}
-    	
-    	uid = (String) solrDocument.getFieldValue("uid");
-    	publicationTime = (Long) solrDocument.getFieldValue("publicationTime");
-    	popularity = (Long) solrDocument.getFieldValue("popularity");
-    	latitude = (Double) solrDocument.getFieldValue("latitude");
-    	longitude = (Double) solrDocument.getFieldValue("longitude");
-    	location = (String) solrDocument.getFieldValue("location");
-    	
-    	if(solrDocument.getFieldValue("concepts") != null){
-    		@SuppressWarnings("unchecked")
-			List<String> listOfConcepts = (List<String>) solrDocument.getFieldValue("concepts");
-    		concepts = new String[listOfConcepts.size()];
-    		int index = 0;
-    		for(String concept : listOfConcepts){
-    			concepts[index++] = concept;
-    		}
-    	}
-    	type = (String) solrDocument.getFieldValue("type");
-    	clusterId = (String) solrDocument.getFieldValue("clusterId");
-    	
-    	score = (Double) solrDocument.getFieldValue("score");
-    }
-    
 
     public SolrMediaItem(MediaItem mediaItem) {
 
@@ -158,6 +112,7 @@ public class SolrMediaItem {
         clusterId = mediaItem.getClusterId();
     }
 
+    /*
     public MediaItem toMediaItem() throws MalformedURLException {
 
         MediaItem mediaItem = new MediaItem(new URL(url));
@@ -202,6 +157,7 @@ public class SolrMediaItem {
         
         return mediaItem;
     }    
+    */
     
     public String getId() {
         return id;

@@ -5,15 +5,17 @@ import java.util.List;
 
 /**
  *
- * @author etzoannos - e.tzoannos@atc.gr
+ * @author	manosetro 
+ * @email	manosetro@iti.gr
  */
-public class SearchEngineResponse<T> {
+public class SearchResponse<T> {
     
 	private List<T> results = new ArrayList<T>();
+	
 	private List<Facet> facets = new ArrayList<Facet>();
 	private long numFound = 0;
     
-    public SearchEngineResponse() {
+    public SearchResponse() {
     	
     }
 

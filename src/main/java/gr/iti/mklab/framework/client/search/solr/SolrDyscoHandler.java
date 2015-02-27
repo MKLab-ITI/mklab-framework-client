@@ -3,7 +3,7 @@ package gr.iti.mklab.framework.client.search.solr;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
 import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
-import gr.iti.mklab.framework.client.search.SearchEngineResponse;
+import gr.iti.mklab.framework.client.search.SearchResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,29 +138,15 @@ public class SolrDyscoHandler implements SolrHandler<Dysco> {
         return status;
     }
     
-    public Dysco get(String id) {
-        SolrQuery solrQuery = new SolrQuery("id:" + id);
-        SearchEngineResponse<Dysco> response = find(solrQuery);
-
-        List<Dysco> dyscos = response.getResults();
-        Dysco dysco = null;
-        if (dyscos != null) {
-            if (dyscos.size() > 0) {
-                dysco = dyscos.get(0);
-            }
-        }
-        return dysco;
-    }
-    
-    public SearchEngineResponse<Dysco> find(SolrQuery query) {
-        SearchEngineResponse<Dysco> response = new SearchEngineResponse<Dysco>();
+    public SearchResponse<String> find(SolrQuery query) {
+    	SearchResponse<String> response = new SearchResponse<String>();
         try {
         	QueryResponse rsp = server.query(query);
         	List<SolrDysco> resultList = rsp.getBeans(SolrDysco.class);
          
-            List<Dysco> dyscos = new ArrayList<Dysco>();
+            List<String> dyscos = new ArrayList<String>();
             for (SolrDysco dysco : resultList) {
-            	dyscos.add(dysco.toDysco());
+            	dyscos.add(dysco.getId());
             }
 
             response.setResults(dyscos);

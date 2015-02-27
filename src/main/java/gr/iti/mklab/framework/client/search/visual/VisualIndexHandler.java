@@ -42,6 +42,7 @@ import org.mongodb.morphia.query.Query;
  */
 public class VisualIndexHandler {
 
+	private static Morphia morphia = new Morphia();
     private static double default_threshold = 0.75;
     
     private Logger _logger = Logger.getLogger(VisualIndexHandler.class);
@@ -61,6 +62,8 @@ public class VisualIndexHandler {
 		params.setConnectionTimeout(5000);
         cm.setParams(params);
         this.httpClient = new HttpClient(cm);
+        
+        morphia.map(JsonResultSet.class).map(JsonResult.class);
     }
 
     public JsonResultSet getSimilarImages(String imageId) {
@@ -475,8 +478,7 @@ public class VisualIndexHandler {
         return response;
     }
 
-    private static JsonResultSet parseResponse(String response) {
-    	Morphia morphia = new Morphia();
+    public static JsonResultSet parseResponse(String response) {
         try {
         	BasicDBObject object = (BasicDBObject) JSON.parse(response);
         	JsonResultSet indexResults = morphia.fromDBObject(JsonResultSet.class, object);
