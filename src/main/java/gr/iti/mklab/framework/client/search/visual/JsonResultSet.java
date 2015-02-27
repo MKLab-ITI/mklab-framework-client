@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -17,6 +18,7 @@ public class JsonResultSet {
 	@Id 
 	private ObjectId id;
 	
+	@Embedded
 	public List<JsonResult> results = new ArrayList<JsonResult>();
 	
 	public void addResult(String id, int rank, double distance) {
@@ -28,10 +30,8 @@ public class JsonResultSet {
 		return results;
 	}
 	
-	@Entity(noClassnameStored = true)
 	public static class JsonResult {
-		
-		
+
 		private String id;
 		 
 		private int rank;
