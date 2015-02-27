@@ -30,8 +30,12 @@ public class JsonResultSet {
 		return results;
 	}
 	
+	@Entity(noClassnameStored = true)
 	public static class JsonResult {
 
+		@Id 
+		private ObjectId iid;
+		
 		private String id;
 		 
 		private int rank;
