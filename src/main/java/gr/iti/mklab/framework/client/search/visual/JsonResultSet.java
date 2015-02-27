@@ -29,7 +29,7 @@ public class JsonResultSet {
 	}
 	
 	@Entity(noClassnameStored = true)
-	public class JsonResult {
+	public static class JsonResult {
 		
 		@Id 
 		private String id;
