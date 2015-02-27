@@ -31,7 +31,7 @@ public class JsonResultSet {
 	@Entity(noClassnameStored = true)
 	public static class JsonResult {
 		
-		@Id 
+		
 		private String id;
 		 
 		private int rank;
