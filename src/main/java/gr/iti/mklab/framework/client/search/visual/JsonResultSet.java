@@ -38,6 +38,10 @@ public class JsonResultSet {
 		
 		private String score;
 		
+		public JsonResult() {
+		
+		}
+		
 		public JsonResult(String id, int rank, double distance) {
 			this.id = id;
 			this.rank = rank;
