@@ -1,8 +1,9 @@
-package gr.iti.mklab.framework.client.search.solr;
+package gr.iti.mklab.framework.client.search.solr.beans;
 
 import gr.iti.mklab.framework.common.domain.Concept;
 import gr.iti.mklab.framework.common.domain.MediaItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -13,17 +14,11 @@ import org.apache.solr.client.solrj.beans.Field;
  * @email	manosetro@iti.gr
  * 
  */
-public class SolrMediaItem {
-
-	@Field(value = "id")
-    private String id;
-    
+public class MediaItemBean extends Bean {
+ 
 	@Field(value = "url")
     private String url;
-    
-	@Field(value = "thumbnail")
-    private String thumbnail;
-    
+	
 	@Field(value = "source")
     private String source;
     
@@ -36,11 +31,11 @@ public class SolrMediaItem {
 	@Field(value = "tags")
     private String[] tags;
     
+	@Field(value = "uid")
+    private String uid;
+	
 	@Field(value = "publicationTime")
     private long publicationTime;
-    
-	@Field(value = "popularity")
-    private long popularity;
     
 	@Field(value = "latitude")
     private Double latitude;
@@ -51,25 +46,20 @@ public class SolrMediaItem {
 	@Field(value = "location")
     private String location;
     
-	@Field(value = "uid")
-    private String uid;
-    
 	@Field(value = "concepts")
     private String[] concepts;
     
 	@Field(value = "type")
     private String type;
-    
-	@Field(value = "clusterId")
-    private String clusterId;
-
-	private Double score;
 	
-    public SolrMediaItem() {
+    @Field(value = "labels")
+    private List<String> labels;
+	
+    public MediaItemBean() {
     	
     }
 
-    public SolrMediaItem(MediaItem mediaItem) {
+    public MediaItemBean(MediaItem mediaItem) {
 
         id = mediaItem.getId();
         source = mediaItem.getSource();
@@ -80,21 +70,7 @@ public class SolrMediaItem {
         uid = mediaItem.getUserId();
 
         url = mediaItem.getUrl();
-        thumbnail = mediaItem.getThumbnail();
         publicationTime = mediaItem.getPublicationTime();
-
-        if (mediaItem.getLikes() != null) {
-            popularity += mediaItem.getLikes();
-        }
-        if (mediaItem.getShares() != null) {
-            popularity += mediaItem.getShares();
-        }
-        if (mediaItem.getComments() != null) {
-            popularity += mediaItem.getComments();
-        }
-        if (mediaItem.getViews() != null) {
-            popularity += mediaItem.getViews();
-        }
 
         latitude = mediaItem.getLatitude();
         longitude = mediaItem.getLongitude();
@@ -108,63 +84,12 @@ public class SolrMediaItem {
             }
         }
 
+        labels = new ArrayList<String>();
+        if (mediaItem.getLabels() != null) {
+        	labels.addAll(mediaItem.getLabels());
+        }
+        
         type = mediaItem.getType();
-        clusterId = mediaItem.getClusterId();
-    }
-
-    /*
-    public MediaItem toMediaItem() throws MalformedURLException {
-
-        MediaItem mediaItem = new MediaItem(new URL(url));
-
-        mediaItem.setId(id);
-        mediaItem.setSource(source);
-        mediaItem.setThumbnail(thumbnail);
-
-        mediaItem.setTitle(title);
-        mediaItem.setDescription(description);
-        mediaItem.setTags(tags);
-
-        //author needs to be added here
-
-        mediaItem.setPublicationTime(publicationTime);
-
-        //popularity needs to be added here
-        
-        mediaItem.setShares(popularity);
-        
-        if (latitude != null && longitude != null && location != null) {
-            mediaItem.setLocation(new Location(latitude, longitude, location));
-        }
-        mediaItem.setType(type);
-        mediaItem.setClusterId(clusterId);
-        
-        List<Concept> conceptsList = new ArrayList<Concept>();
-
-        if (concepts != null) {
-
-            for (String concept : concepts) {
-            	try {
-            		Concept cpt = new Concept(concept, 0d);
-            		conceptsList.add(cpt);
-            	}
-            	catch(Exception e) {
-            		// Undefined concept type.
-            	}
-            }
-        }
-        mediaItem.setConcepts(conceptsList);
-        
-        return mediaItem;
-    }    
-    */
-    
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getSource() {
@@ -181,14 +106,6 @@ public class SolrMediaItem {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
     }
 
     public String getTitle() {
@@ -221,14 +138,6 @@ public class SolrMediaItem {
 
     public void setPublicationTime(Long publicationTime) {
         this.publicationTime = publicationTime;
-    }
-
-    public Long getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(Long popularity) {
-        this.popularity = popularity;
     }
 
     public Double getLatitude() {
@@ -271,15 +180,11 @@ public class SolrMediaItem {
         this.type = type;
     }
     
-    public void setClusterId(String clusterId){
-    	this.clusterId = clusterId;
+    public List<String> getLabels() {
+        return labels;
     }
-    
-    public String getClusterId(){
-    	return this.clusterId;
-    }
-    
-    public Double getScore() {
-        return score;
+
+    public void getLabels(List<String> labels) {
+        this.labels = labels;
     }
 }

@@ -4,6 +4,11 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.WriteConcern;
 
+import gr.iti.mklab.framework.common.domain.feeds.AccountFeed;
+import gr.iti.mklab.framework.common.domain.feeds.Feed;
+import gr.iti.mklab.framework.common.domain.feeds.KeywordsFeed;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,4 +54,40 @@ public class DAOFactory {
         return new BasicDAO<K, String>(clazz, mongoClient, morphia, dbName);
     }
 
+	public static void main(String...args) throws Exception {
+		DAOFactory factory = new DAOFactory();
+		BasicDAO<Feed, String> dao = factory.getDAO("160.40.50.207", "SocialWalls", Feed.class);
+		
+		Date since = new Date(System.currentTimeMillis()- 5*24*3600*1000);
+		
+		Feed feed1 = new AccountFeed("1", "MWC_Barcelona", since);
+		feed1.setSource("Twitter");	
+		
+		Feed feed2 = new AccountFeed("2", "startups_bcn", since);
+		feed2.setSource("Twitter");
+
+		Feed feed3 = new AccountFeed("3", "4YFN_MWC", since);
+		feed3.setSource("Twitter");
+		
+		Feed feed4 = new KeywordsFeed("4", "MWC15", since);
+		feed4.setSource("Twitter");
+	
+		Feed feed5 = new KeywordsFeed("5", "#connectedbeings", since);
+		feed5.setSource("Twitter");
+		
+		Feed feed6 = new KeywordsFeed("6", "#4YFN", since);
+		feed6.setSource("Twitter");
+		
+		dao.save(feed1);
+		dao.save(feed2);
+		dao.save(feed3);
+		dao.save(feed4);
+		dao.save(feed5);
+		dao.save(feed6);
+		
+		//Set<Feed> feeds = new HashSet<Feed>(dao.find().asList());	
+		//Set<Feed> feeds2 = new HashSet<Feed>(dao.find().asList().subList(0, 4));		
+		//feeds.removeAll(feeds2);
+	}
+	
 }

@@ -1,8 +1,7 @@
-package gr.iti.mklab.framework.client.search.solr;
+package gr.iti.mklab.framework.client.search.solr.beans;
 
 import gr.iti.mklab.framework.common.domain.WebPage;
 
-import java.net.MalformedURLException;
 import java.util.Date;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -10,7 +9,7 @@ import org.apache.solr.client.solrj.beans.Field;
 /**
  * @author etzoannos - e.tzoannos@atc.gr
  */
-public class SolrWebPage {
+public class WebPageBean extends Bean {
 	
 	@Field(value = "url")
 	private String url;
@@ -29,32 +28,20 @@ public class SolrWebPage {
 	
 	@Field(value = "date")
 	private Date date;
-
-	@Field(value = "reference")
-	private String reference;
 	
-	public SolrWebPage() {
+	public WebPageBean() {
 		
 	}
 
-	public SolrWebPage(WebPage webPage) {
+	public WebPageBean(WebPage webPage) {
+		id = webPage.getUrl();
+		
         url = webPage.getUrl();
         expandedUrl = webPage.getExpandedUrl();
         domain = webPage.getDomain();
         title = webPage.getTitle();
         text = webPage.getText();
-        date = webPage.getDate();
-        reference = webPage.getReference();
-    }
-
-    public WebPage toWebPage() throws MalformedURLException {
-    	WebPage webPage = new WebPage(url, reference);
-    	webPage.setExpandedUrl(expandedUrl);
-    	webPage.setTitle(title);
-    	webPage.setText(text);
-    	webPage.setDate(date);
-    	webPage.setDomain(domain);
-        return webPage;
+        date = webPage.getDate();     
     }
 	
     public String getUrl() {
@@ -75,10 +62,6 @@ public class SolrWebPage {
     
     public Date getDate() {
     	return date;
-	}
-    
-    public String getReference() {
-    	return reference;
 	}
 	
 }

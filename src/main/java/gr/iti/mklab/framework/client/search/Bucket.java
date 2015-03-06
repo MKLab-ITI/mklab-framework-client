@@ -4,7 +4,8 @@ import gr.iti.mklab.framework.common.domain.JSONable;
 
 /**
  *
- * @author etzoannos
+ * @author Manos Schinas
+ * 
  */
 public class Bucket extends JSONable {
     /**
@@ -13,13 +14,9 @@ public class Bucket extends JSONable {
 	private static final long serialVersionUID = 9024691192712839896L;
 	
 	private String name;
-	
 	private long count;
-    
 	private String query;
     
-	private String facet;
-
     public Bucket() {
     	
     }
@@ -28,16 +25,8 @@ public class Bucket extends JSONable {
         this.name = name;
         this.count = count;
         this.query = query;
-        this.facet = facet;
     }
 
-    public String getFacet() {
-        return facet;
-    }
-
-    public void setFacet(String facet) {
-        this.facet = facet;
-    }
     
     public long getCount() {
         return count;

@@ -1,10 +1,8 @@
-package gr.iti.mklab.framework.client.search.solr;
+package gr.iti.mklab.framework.client.search.solr.beans;
 
 import gr.iti.mklab.framework.common.domain.Item;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -15,10 +13,7 @@ import org.apache.solr.client.solrj.beans.Field;
  * @email	manosetro@iti.gr
  * 
  */
-public class ItemBean {
-
-	@Field(value = "id")
-    private String id;
+public class ItemBean extends Bean {
     
     @Field(value = "source")
     private String source;
@@ -46,25 +41,14 @@ public class ItemBean {
     
     @Field(value = "location")
     private String location;
-    
-    @Field(value = "mediaIds")
-    private List<String> mediaIds;
-    
+      
     @Field(value = "language")
     private String language;
     
-    @Field(value = "original")
-    private boolean original;
-    
     @Field(value = "labels")
     private List<String> labels;
-    
-    public ItemBean() {
-    	
-    }
 
     public ItemBean(Item item) {
-
         id = item.getId();
         source = item.getSource();
         title = item.getTitle();
@@ -81,69 +65,10 @@ public class ItemBean {
         location = item.getLocationName();
         language = item.getLanguage();
 
-        //this is a map
-        mediaIds = new ArrayList<String>();
-        if (item.getMediaIds() != null) {
-        	mediaIds.addAll(item.getMediaIds());
-        }
-        
-        original = item.isOriginal();
-
         labels = new ArrayList<String>();
-        if (item.getList() != null) {
-        	labels.addAll(Arrays.asList(item.getList()));
+        if (item.getLabels() != null) {
+        	labels.addAll(item.getLabels());
         }
-        
-    }
-
-    /*
-    public Item toItem() throws MalformedURLException {
-
-        Item item = new Item();
-
-        item.setComments(comments);
-        item.setLikes(likes);
-        item.setShares(shares);
-
-        item.setId(id);
-        item.setSource(source);
-        item.setTitle(title);
-        item.setDescription(description);
-        item.setTags(tags);
-        item.setOriginal(original);
-
-        if (links != null) {
-            URL[] _links = new URL[links.size()];
-            for (int i = 0; i < links.size(); i++) {
-                _links[i] = new URL(links.get(i));
-            }
-            item.setLinks(_links);
-        }
-
-        item.setPublicationTime(publicationTime);
-
-        if (latitude != null && longitude != null) {
-            item.setLocation(new Location(latitude, longitude, location));
-        } else {
-            item.setLocation(new Location(location));
-        }
-        
-        if (mediaIds != null) {
-            item.setMediaIds(mediaIds);
-        }
-        
-        item.setLanguage(language);
-
-        return item;
-    }
-    */
-
-    public boolean isOriginal() {
-        return original;
-    }
-
-    public void setOriginal(boolean original) {
-        this.original = original;
     }
 
     public String getLanguage() {
@@ -152,14 +77,6 @@ public class ItemBean {
 
     public void setLanguage(String language) {
         this.language = language;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getSource() {
@@ -232,14 +149,6 @@ public class ItemBean {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public List<String> getMediaIds() {
-        return mediaIds;
-    }
-
-    public void setMediaIds(List<String> mediaIds) {
-        this.mediaIds = mediaIds;
     }
 
     public List<String> getLabels() {

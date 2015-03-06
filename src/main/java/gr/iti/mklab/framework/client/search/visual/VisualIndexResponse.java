@@ -4,21 +4,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Embedded;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-
-
-@Entity(noClassnameStored = true)
-public class JsonResultSet {
+public class VisualIndexResponse {
 
 	private static DecimalFormat df = new DecimalFormat("#.###");
 	
-	@Id 
-	private ObjectId id;
-	
-	@Embedded
 	public List<JsonResult> results = new ArrayList<JsonResult>();
 	
 	public void addResult(String id, int rank, double distance) {
@@ -30,22 +19,14 @@ public class JsonResultSet {
 		return results;
 	}
 	
-	@Entity(noClassnameStored = true)
 	public static class JsonResult {
 
-		@Id 
-		private ObjectId iid;
-		
 		private String id;
 		 
 		private int rank;
 		
 		private String score;
-		
-		public JsonResult() {
-		
-		}
-		
+	
 		public JsonResult(String id, int rank, double distance) {
 			this.id = id;
 			this.rank = rank;
@@ -83,7 +64,7 @@ public class JsonResultSet {
 	}
 	
 	public static void main(String...args) {
-		JsonResultSet s = new JsonResultSet();
+		VisualIndexResponse s = new VisualIndexResponse();
 		
 		s.addResult("X", 1, 0.2);
 		s.addResult("Y", 2, 0.4);
