@@ -4,7 +4,6 @@ import gr.iti.mklab.framework.client.search.Bucket;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.SearchResponse;
 import gr.iti.mklab.framework.client.search.solr.beans.Bean;
-import gr.iti.mklab.framework.client.search.solr.beans.ItemBean;
 
 import java.io.IOException;
 import java.util.ArrayList;

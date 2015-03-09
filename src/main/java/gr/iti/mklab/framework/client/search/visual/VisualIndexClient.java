@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.util.JSON;
-
 import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.client.mongo.DAOFactory;
 import gr.iti.mklab.framework.client.search.visual.VisualIndexResponse.JsonResult;
@@ -27,13 +24,12 @@ public class VisualIndexClient {
     
     private Logger _logger = Logger.getLogger(VisualIndexClient.class);
     
-    private String webServiceHost;
-    private String collectionName;
+    //private String webServiceHost;
+    //private String collectionName;
 
     public VisualIndexClient(String webServiceHost, String collectionName) {
-        this.webServiceHost = webServiceHost;
-        this.collectionName = collectionName;
-
+        //this.webServiceHost = webServiceHost;
+        //this.collectionName = collectionName;
     }
 
     public VisualIndexResponse getSimilarImages(String imageId) {
@@ -163,12 +159,12 @@ public class VisualIndexClient {
 
     public static VisualIndexResponse parseResponse(String response) {
         try {
-        	BasicDBObject object = (BasicDBObject) JSON.parse(response);
-        	VisualIndexResponse indexResults = null;
-        	if (indexResults == null) {
+        	//BasicDBObject object = (BasicDBObject) JSON.parse(response);
+        	//VisualIndexResponse indexResults = null;
+        	//if (indexResults == null) {
             	return new VisualIndexResponse();
-        	}
-        	return (indexResults.results==null)?(new VisualIndexResponse()):indexResults;
+        	//}
+        	//return (indexResults.results==null)?(new VisualIndexResponse()):indexResults;
         }
         catch(Exception e) {
         	e.printStackTrace();
