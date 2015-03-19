@@ -60,21 +60,23 @@ public class DAOFactory {
 		
 		Date since = new Date(System.currentTimeMillis()- 1*24*3600*1000);
 		
-		Feed feed1 = new AccountFeed("1", "MWC_Barcelona", since, "Twitter");
+		Feed feed1 = new AccountFeed("1", "MWC_Barcelona", since.getTime(), "Twitter");
+		feed1.setLabel("mwc15");
 		
-		Feed feed2 = new AccountFeed("2", "startups_bcn", since, "Twitter");
+		Feed feed2 = new AccountFeed("2", "startups_bcn", since.getTime(), "Twitter");
 
-		Feed feed3 = new AccountFeed("3", "4YFN_MWC", since, "Twitter");
+		Feed feed3 = new AccountFeed("3", "4YFN_MWC", since.getTime(), "Twitter");
 		
-		Feed feed4 = new KeywordsFeed("4", "MWC15", since, "Twitter");
-	
+		Feed feed4 = new KeywordsFeed("4", "MWC15", since.getTime(), "Twitter");
+		feed4.setLabel("mwc15");
+		
 		//Feed feed5 = new KeywordsFeed("5", "#connectedbeings", since);
 		//feed5.setSource("Twitter");
 		
 		//Feed feed6 = new KeywordsFeed("6", "#4YFN", since);
 		//feed6.setSource("Twitter");
 		
-		//dao.save(feed1);
+		dao.save(feed1);
 		//dao.save(feed2);
 		//dao.save(feed3);
 		dao.save(feed4);
