@@ -12,12 +12,17 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mongodb.morphia.dao.BasicDAO;
+import org.mongodb.morphia.query.QueryResults;
 
+import gr.iti.mklab.framework.client.mongo.DAOFactory;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.SearchResponse;
 import gr.iti.mklab.framework.client.search.solr.beans.ItemBean;
 import gr.iti.mklab.framework.common.domain.Account;
+import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.feeds.Feed;
 
 /**
  *
@@ -194,17 +199,26 @@ public class SolrItemHandler extends SolrHandler<ItemBean> {
     }
 
     public static void main(String...args) throws Exception {
-    	String solrCollection = "http://160.40.50.207:8080/solr/PressRelationsItems";
-    	SolrItemHandler solrHandler = SolrItemHandler.getInstance(solrCollection);
     	
-    	List<String> filters = new ArrayList<String>();
-		List<String> facets = new ArrayList<String>();
-		facets.add("author");
-		SearchResponse<ItemBean> response = solrHandler.findItems("cisco", filters, facets, "publicationTime", 10);
+    	//String solrCollection = "http://localhost:8983/solr/Items";
+    	//SolrItemHandler solrHandler = SolrItemHandler.getInstance(solrCollection);
+    	
+    	DAOFactory factory = new DAOFactory();
+		BasicDAO<Item, String> dao = factory.getDAO("xxx.xxx.xxx.xxx", "UKGeneralElections", Item.class);
+		
+		QueryResults<Item> cursor = dao.find();
+		for(Item item : cursor.asList()) {
+			System.out.println(item.getId());
+		}
+		
+    	//List<String> filters = new ArrayList<String>();
+		//List<String> facets = new ArrayList<String>();
+		//facets.add("author");
+		//SearchResponse<ItemBean> response = solrHandler.findItems("cisco", filters, facets, "publicationTime", 10);
     
-    	for(ItemBean item : response.getResults()) {
-    		System.out.println(item.toString());
-    	}
+    	//for(ItemBean item : response.getResults()) {
+    		//System.out.println(item.toString());
+    	//}
     	
     	//Collection collection = new Collection();
 		//collection.addResults(response.getResults());

@@ -4,11 +4,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.WriteConcern;
 
-import gr.iti.mklab.framework.common.domain.feeds.AccountFeed;
 import gr.iti.mklab.framework.common.domain.feeds.Feed;
-import gr.iti.mklab.framework.common.domain.feeds.KeywordsFeed;
+import gr.iti.mklab.framework.common.domain.feeds.RssFeed;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,36 +54,86 @@ public class DAOFactory {
 
 	public static void main(String...args) throws Exception {
 		DAOFactory factory = new DAOFactory();
-		BasicDAO<Feed, String> dao = factory.getDAO("160.40.50.207", "test", Feed.class);
+		BasicDAO<Feed, String> dao = factory.getDAO("xxx.xxx.xxx.xxx", "UKGeneralElections", Feed.class);
 		
-		Date since = new Date(System.currentTimeMillis()- 1*24*3600*1000);
+		Long since = System.currentTimeMillis()- 90*24*3600*1000L;
 		
-		Feed feed1 = new AccountFeed("1", "MWC_Barcelona", since.getTime(), "Twitter");
-		feed1.setLabel("mwc15");
-		
-		Feed feed2 = new AccountFeed("2", "startups_bcn", since.getTime(), "Twitter");
+		Feed feed1 = new RssFeed("1", "http://www.telegraph.co.uk/news/general-election-2015/rss/", since, "RSS");
+		feed1.setLabel("GE");
 
-		Feed feed3 = new AccountFeed("3", "4YFN_MWC", since.getTime(), "Twitter");
+		Feed feed2 = new RssFeed("2", "http://www.ft.com/rss/indepth/uk-general-election/", since, "RSS");
+		feed2.setLabel("GE");
 		
-		Feed feed4 = new KeywordsFeed("4", "MWC15", since.getTime(), "Twitter");
-		feed4.setLabel("mwc15");
+		Feed feed3 = new RssFeed("3", "http://www.theguardian.com/politics/general-election-2015/rss", since, "RSS");
+		feed3.setLabel("GE");
 		
-		//Feed feed5 = new KeywordsFeed("5", "#connectedbeings", since);
-		//feed5.setSource("Twitter");
+		Feed feed4 = new RssFeed("4", "http://www.thetimes.co.uk/tto/news/politics/rss", since, "RSS");
+		feed4.setLabel("NonGE");
+		 
+		Feed feed5 = new RssFeed("5", "http://www.independent.co.uk/news/uk/politics/generalelection/?service=rss", since, "RSS");
+		feed5.setLabel("GE");	
 		
-		//Feed feed6 = new KeywordsFeed("6", "#4YFN", since);
-		//feed6.setSource("Twitter");
+		Feed feed6 = new RssFeed("6", "http://www.standard.co.uk/news/politics/rss", since, "RSS");
+		feed6.setLabel("NonGE");
 		
+		Feed feed7 = new RssFeed("7", "http://metro.co.uk/tag/general-election-2015/feed/", since, "RSS");
+		feed7.setLabel("GE");
+		
+		Feed feed8 = new RssFeed("8", "http://www.scotsman.com/rss/cmlink/1.3716909", since, "RSS");
+		feed8.setLabel("GE");
+		
+		Feed feed9 = new RssFeed("9", "http://feeds.bbci.co.uk/news/election/2015/rss.xml", since, "RSS");
+		feed9.setLabel("GE");
+		
+		Feed feed10 = new RssFeed("10", "http://www.channel4.com/news/politics/rss ", since, "RSS");
+		feed10.setLabel("NonGE");
+		
+		Feed feed11 = new RssFeed("11", "http://feeds.skynews.com/feeds/rss/politics.xml", since, "RSS");
+		feed11.setLabel("NonGE");
+			
+		Feed feed12 = new RssFeed("12", "http://www.economist.com/topics/british-elections/index.xml", since, "RSS");
+		feed12.setLabel("GE");
+		
+		Feed feed13 = new RssFeed("13", "http://www.spectator.co.uk/tag/general-election-2015/feed/", since, "RSS");
+		feed13.setLabel("GE");
+		
+		Feed feed14 = new RssFeed("14", "http://may2015.com/feed/", since, "RSS");
+		feed14.setLabel("GE");
+		
+		Feed feed15 = new RssFeed("15", "http://www.buzzfeed.com/tag/ge2015.xml", since, "RSS");
+		feed15.setLabel("GE");
+		
+		Feed feed16 = new RssFeed("16", "www.huffingtonpost.co.uk/news/general-election-2015/feed/", since, "RSS");
+		feed16.setLabel("GE");
+		
+		Feed feed17 = new RssFeed("17", "http://feeds2.feedburner.com/guidofawkes", since, "RSS");
+		feed17.setLabel("GE");
+		
+		Feed feed18 = new RssFeed("18", "http://labourlist.org/category/news/feed/", since, "RSS");
+		feed18.setLabel("GE");
+		
+		Feed feed19 = new RssFeed("19", "https://www.politicshome.com/rss.xml", since, "RSS");
+		feed19.setLabel("GE");		
+				
 		dao.save(feed1);
-		//dao.save(feed2);
-		//dao.save(feed3);
+		dao.save(feed2);
+		dao.save(feed3);
 		dao.save(feed4);
-		//dao.save(feed5);
-		//dao.save(feed6);
-		
-		//Set<Feed> feeds = new HashSet<Feed>(dao.find().asList());	
-		//Set<Feed> feeds2 = new HashSet<Feed>(dao.find().asList().subList(0, 4));		
-		//feeds.removeAll(feeds2);
+		dao.save(feed5);
+		dao.save(feed6);
+		dao.save(feed7);
+		dao.save(feed8);
+		dao.save(feed9);
+		dao.save(feed10);
+		dao.save(feed11);
+		dao.save(feed12);
+		dao.save(feed13);
+		dao.save(feed14);
+		dao.save(feed15);
+		dao.save(feed16);
+		dao.save(feed17);
+		dao.save(feed18);
+		dao.save(feed19);
 	}
 	
 }
