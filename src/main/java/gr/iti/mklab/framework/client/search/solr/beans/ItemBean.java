@@ -27,6 +27,9 @@ public class ItemBean extends Bean {
     @Field(value = "tags")
     private String[] tags;
     
+    @Field(value = "text")
+    private String text;
+    
     @Field(value = "uid")
     private String uid;
     
@@ -55,6 +58,8 @@ public class ItemBean extends Bean {
         description = item.getDescription();
         tags = item.getTags();
     
+        text = item.getText();
+        
         uid = item.getUserId();
 
         //this is long
@@ -111,6 +116,14 @@ public class ItemBean extends Bean {
         this.tags = tags;
     }
 
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+    
     public String getUserId() {
         return uid;
     }
