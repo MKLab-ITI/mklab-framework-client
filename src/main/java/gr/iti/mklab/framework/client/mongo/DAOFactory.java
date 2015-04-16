@@ -4,12 +4,17 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.WriteConcern;
 
+import gr.iti.mklab.framework.common.domain.feeds.AccountFeed;
 import gr.iti.mklab.framework.common.domain.feeds.Feed;
-import gr.iti.mklab.framework.common.domain.feeds.RssFeed;
+import gr.iti.mklab.framework.common.domain.feeds.KeywordsFeed;
 
+import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.dao.BasicDAO;
@@ -54,86 +59,110 @@ public class DAOFactory {
 
 	public static void main(String...args) throws Exception {
 		DAOFactory factory = new DAOFactory();
-		BasicDAO<Feed, String> dao = factory.getDAO("xxx.xxx.xxx.xxx", "UKGeneralElections", Feed.class);
+		BasicDAO<Feed, String> dao = factory.getDAO("xxx.xxx.xxx.xxx", "BBC", Feed.class);
 		
-		Long since = System.currentTimeMillis()- 90*24*3600*1000L;
+		Long since = System.currentTimeMillis()- 30*24*3600*1000L;
 		
-		Feed feed1 = new RssFeed("1", "http://www.telegraph.co.uk/news/general-election-2015/rss/", since, "RSS");
-		feed1.setLabel("GE");
+		String[] usernames = {
+			"dailymailuk", 
+			"daily_express", 
+			"thesunnewspaper", 
+			"dailymirror", 
+			"thescotsman", 
+			"daily_record", 
+			"itvnews", 
+			"5_news", 
+			"spectator", 
+			"viceuk_news", 
+			"yahoonewsuk", 
+			"LabourList"
+		};
 
-		Feed feed2 = new RssFeed("2", "http://www.ft.com/rss/indepth/uk-general-election/", since, "RSS");
-		feed2.setLabel("GE");
-		
-		Feed feed3 = new RssFeed("3", "http://www.theguardian.com/politics/general-election-2015/rss", since, "RSS");
-		feed3.setLabel("GE");
-		
-		Feed feed4 = new RssFeed("4", "http://www.thetimes.co.uk/tto/news/politics/rss", since, "RSS");
-		feed4.setLabel("NonGE");
-		 
-		Feed feed5 = new RssFeed("5", "http://www.independent.co.uk/news/uk/politics/generalelection/?service=rss", since, "RSS");
-		feed5.setLabel("GE");	
-		
-		Feed feed6 = new RssFeed("6", "http://www.standard.co.uk/news/politics/rss", since, "RSS");
-		feed6.setLabel("NonGE");
-		
-		Feed feed7 = new RssFeed("7", "http://metro.co.uk/tag/general-election-2015/feed/", since, "RSS");
-		feed7.setLabel("GE");
-		
-		Feed feed8 = new RssFeed("8", "http://www.scotsman.com/rss/cmlink/1.3716909", since, "RSS");
-		feed8.setLabel("GE");
-		
-		Feed feed9 = new RssFeed("9", "http://feeds.bbci.co.uk/news/election/2015/rss.xml", since, "RSS");
-		feed9.setLabel("GE");
-		
-		Feed feed10 = new RssFeed("10", "http://www.channel4.com/news/politics/rss ", since, "RSS");
-		feed10.setLabel("NonGE");
-		
-		Feed feed11 = new RssFeed("11", "http://feeds.skynews.com/feeds/rss/politics.xml", since, "RSS");
-		feed11.setLabel("NonGE");
+		for(Integer i=0; i<usernames.length; i++) {
 			
-		Feed feed12 = new RssFeed("12", "http://www.economist.com/topics/british-elections/index.xml", since, "RSS");
-		feed12.setLabel("GE");
+			Feed feed = new AccountFeed("Twitter#"+usernames[i], usernames[i], since, "Twitter");
+			feed.setLabel("BBC");
+			
+			dao.save(feed);
+		}
 		
-		Feed feed13 = new RssFeed("13", "http://www.spectator.co.uk/tag/general-election-2015/feed/", since, "RSS");
-		feed13.setLabel("GE");
+		String[] tags = {
+			"#bbcbias",
+			"#bbclies",
+			"#itvbias",
+			"#itvlies",
+			"#skybias",
+			"#skylies",
+			"#channel4bias",
+			"#channel4lies"
+		};
+
+		Feed hashtagsFeed = new KeywordsFeed("Twitter#hashtags", Arrays.asList(tags), since, "Twitter");
+		hashtagsFeed.setLabel("BBC");
 		
-		Feed feed14 = new RssFeed("14", "http://may2015.com/feed/", since, "RSS");
-		feed14.setLabel("GE");
+		dao.save(hashtagsFeed);
 		
-		Feed feed15 = new RssFeed("15", "http://www.buzzfeed.com/tag/ge2015.xml", since, "RSS");
-		feed15.setLabel("GE");
+		int p = 5;
+		List<String> ngrams = IOUtils.readLines(new FileInputStream("/home/manosetro/ngrams"));
+		for(int i=0; i<(ngrams.size()/p); i++) {
+			
+			int fromIndex = i*p;
+			int toIndex = Math.min((fromIndex+p), ngrams.size());
+			
+			List<String> keywords = ngrams.subList(fromIndex, toIndex);
 		
-		Feed feed16 = new RssFeed("16", "www.huffingtonpost.co.uk/news/general-election-2015/feed/", since, "RSS");
-		feed16.setLabel("GE");
+			Feed feed = new KeywordsFeed("Twitter#"+i, keywords, since, "Twitter");
+			feed.setLabel("BBC");
+			
+			dao.save(feed);
+		}
 		
-		Feed feed17 = new RssFeed("17", "http://feeds2.feedburner.com/guidofawkes", since, "RSS");
-		feed17.setLabel("GE");
+		/*
+		String[] urls = {
+			"http://www.telegraph.co.uk/news/uknews/rss",
+			"http://www.telegraph.co.uk/culture/tvandradio/rss",
+			"http://www.telegraph.co.uk/finance/newsbysector/mediatechnologyandtelecoms/media/rss",
+			"http://www.ft.com/rss/home/uk",
+			"http://www.ft.com/rss/companies/media",
+			"http://www.ft.com/rss/life-arts/film-television",
+			"http://www.theguardian.com/uk/rss",
+			"http://www.theguardian.com/media/rss",
+			"http://www.theguardian.com/tv-and-radio/rss",
+			"http://www.thetimes.co.uk/tto/news/uk/rss",
+			"http://www.thetimes.co.uk/tto/news/medianews/rss",
+			"http://www.thetimes.co.uk/tto/arts/tv-radio/rss",
+			"http://www.independent.co.uk/news/uk/?service=rss",
+			"http://www.independent.co.uk/news/media/?service=rss",
+			"http://www.independent.co.uk/arts-entertainment/tv/?service=rss",
+			"http://www.standard.co.uk/news/uk/rss",
+			"http://www.standard.co.uk/business/media/rss",
+			"http://www.standard.co.uk/showbiz/tv/rss",
+			"http://metro.co.uk/news/uk/feed/",
+			"http://metro.co.uk/entertainment/tv/feed/",
+			"http://feeds.bbci.co.uk/news/uk/rss.xml",
+			"http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+			"http://www.channel4.com/news/uk/rss",
+			"http://www.channel4.com/news/culture/rss",
+			"http://feeds.skynews.com/feeds/rss/uk.xml",
+			"http://feeds.skynews.com/feeds/rss/entertainment.xml",
+			"http://www.economist.com/topics/united-kingdom/index.xml",
+			"http://www.economist.com/topics/media/index.xml",
+			"http://www.newstatesman.com/feeds/topics/media.rss",
+			"http://www.huffingtonpost.co.uk/news/news/feed/",
+			"http://www.huffingtonpost.co.uk/news/media/feed/",
+			"http://www.huffingtonpost.co.uk/news/uktv/feed/",
+			"http://feeds2.feedburner.com/guidofawkes"
+		};
 		
-		Feed feed18 = new RssFeed("18", "http://labourlist.org/category/news/feed/", since, "RSS");
-		feed18.setLabel("GE");
+		for(Integer i=0; i<urls.length; i++) {
 		
-		Feed feed19 = new RssFeed("19", "https://www.politicshome.com/rss.xml", since, "RSS");
-		feed19.setLabel("GE");		
-				
-		dao.save(feed1);
-		dao.save(feed2);
-		dao.save(feed3);
-		dao.save(feed4);
-		dao.save(feed5);
-		dao.save(feed6);
-		dao.save(feed7);
-		dao.save(feed8);
-		dao.save(feed9);
-		dao.save(feed10);
-		dao.save(feed11);
-		dao.save(feed12);
-		dao.save(feed13);
-		dao.save(feed14);
-		dao.save(feed15);
-		dao.save(feed16);
-		dao.save(feed17);
-		dao.save(feed18);
-		dao.save(feed19);
+			Feed feed = new RssFeed(i.toString(), urls[i], since, "RSS");
+			feed.setLabel("BBC");
+			
+			dao.save(feed);
+		}
+		*/
+		
 	}
 	
 }

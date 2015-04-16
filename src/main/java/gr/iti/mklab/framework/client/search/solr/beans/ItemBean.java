@@ -1,6 +1,7 @@
 package gr.iti.mklab.framework.client.search.solr.beans;
 
 import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.NamedEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,15 @@ public class ItemBean extends Bean {
     @Field(value = "labels")
     private List<String> labels;
 
+    @Field(value = "persons")
+    private List<String> persons = new ArrayList<String>();
+    
+    @Field(value = "locations")
+    private List<String> locations = new ArrayList<String>();
+    
+    @Field(value = "organizations")
+    private List<String> organizations = new ArrayList<String>();
+    
     public ItemBean(Item item) {
         id = item.getId();
         source = item.getSource();
@@ -62,18 +72,33 @@ public class ItemBean extends Bean {
         
         uid = item.getUserId();
 
-        //this is long
         publicationTime = item.getPublicationTime();
 
         latitude = item.getLatitude();
         longitude = item.getLongitude();
         location = item.getLocationName();
+        
         language = item.getLanguage();
 
         labels = new ArrayList<String>();
         if (item.getLabels() != null) {
         	labels.addAll(item.getLabels());
         }
+        
+        if(item.getEntities() != null) {
+        	for(NamedEntity entity : item.getEntities()) {
+        		if(entity.getType().equals(NamedEntity.Type.PERSON)) {
+        			persons.add(entity.getName());
+        		}
+        		if(entity.getType().equals(NamedEntity.Type.LOCATION)) {
+        			locations.add(entity.getName());
+        		}
+        		if(entity.getType().equals(NamedEntity.Type.ORGANIZATION)) {
+        			organizations.add(entity.getName());
+        		}
+        	}
+        }
+        
     }
 
     public String getLanguage() {
