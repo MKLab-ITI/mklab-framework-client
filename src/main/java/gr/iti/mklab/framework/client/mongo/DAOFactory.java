@@ -2,19 +2,17 @@ package gr.iti.mklab.framework.client.mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 
 import gr.iti.mklab.framework.common.domain.feeds.AccountFeed;
 import gr.iti.mklab.framework.common.domain.feeds.Feed;
-import gr.iti.mklab.framework.common.domain.feeds.KeywordsFeed;
 
-import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.dao.BasicDAO;
@@ -37,6 +35,11 @@ public class DAOFactory {
     private static Map<String, Datastore> datastores = new HashMap<String, Datastore>();
 
     public <K> BasicDAO<K, String> getDAO(String hostname, String dbName, Class<K> clazz) throws Exception {
+    	return getDAO(hostname, dbName, clazz, null, null);
+    }
+
+    public <K> BasicDAO<K, String> getDAO(String hostname, String dbName, Class<K> clazz,
+    		String username, String password) throws Exception {
     	
         String connectionKey = hostname + "#" + dbName;
         Datastore ds = datastores.get(connectionKey);
@@ -45,7 +48,15 @@ public class DAOFactory {
         MongoClient mongoClient = connections.get(hostname);
 
         if (mongoClient == null) {
-        	mongoClient = new MongoClient(hostname, options);
+        	ServerAddress srvAdr = new ServerAddress(hostname);
+        	if(username != null && password != null) {
+        		MongoCredential credential = MongoCredential.createScramSha1Credential(username, dbName, password.toCharArray());
+        		mongoClient = new MongoClient(srvAdr, Arrays.asList(credential), options);
+        	}
+        	else {
+        		mongoClient = new MongoClient(srvAdr, options);
+        	}
+        	
             connections.put(hostname, mongoClient);
         }
         
@@ -59,51 +70,202 @@ public class DAOFactory {
 
 	public static void main(String...args) throws Exception {
 		DAOFactory factory = new DAOFactory();
-		BasicDAO<Feed, String> dao = factory.getDAO("xxx.xxx.xxx.xxx", "BBC", Feed.class);
+		BasicDAO<Feed, String> dao = factory.getDAO("xxx.xxx.xxx.xxx:27017", "db_name", Feed.class,
+				"username", "passwd");
 		
-		Long since = System.currentTimeMillis()- 30*24*3600*1000L;
-		
+		Long since = System.currentTimeMillis()- 15l * 24l * 3600l * 1000l;
 		String[] usernames = {
-			"dailymailuk", 
-			"daily_express", 
-			"thesunnewspaper", 
-			"dailymirror", 
-			"thescotsman", 
-			"daily_record", 
-			"itvnews", 
-			"5_news", 
-			"spectator", 
-			"viceuk_news", 
-			"yahoonewsuk", 
-			"LabourList"
+				"IPCCNews",
+				"Environmental-issues-249918293252", 
+				"EnvironmentalIssuesCommittee", 
+				"EnvironmentalIssuesImpact",
+				"creationcare",
+				"greendig",
+				"environmentalinvestigationagency",
+				"earthworksaction",
+				"greenforall",
+				"ienearth",
+				"green",
+				"IDEASforUs",
+				"WWF",
+				"wildcatsanctuary",
+				"greenpeace.international",
+				"bigcatrescue",
+				"seashepherdglobal",
+				"thenatureconservancy",
+				"NationalWildlife",
+				"DefendersofWildlife",
+				"ewg.org",
+				"oceanconservancy",
+				"AfricanWildlifeFoundation",
+				"SierraClub",
+				"350.org",
+				"NationalAudubonSociety",
+				"TheWildernessSociety",
+				"RainforestAlliance",
+				"nrdc.org",
+				"NationalParks",
+				"Earthjustice",
+				"rainforestactionnetwork",
+				"surfrider",
+				"thedswt",
+				"foe.us",
+				"oceana",
+				"EnvDefenseFund",
+				"conservation.intl",
+				"EPA",
+				"www.santion.org",
+				"HuffPostGreen",
+				"SierraClub",
+				"ClientEarth",
+				"caneurope",
+				"Coastwatch-8955392153",
+				"EAERE",
+				"The-European-Biomass-Association-164889743559184",
+				"INFORSE",
+				"EuropeanWildlife",
+				"WorldNatureOrg",
+				"unep.org",
+				"iucn.org",
+				"earthsystemgovernance",
+				"TheGEF1"
 		};
-
+		
 		for(Integer i=0; i<usernames.length; i++) {
-			
-			Feed feed = new AccountFeed("Twitter#"+usernames[i], usernames[i], since, "Twitter");
-			feed.setLabel("BBC");
-			
+			Feed feed = new AccountFeed("Facebook#"+usernames[i], usernames[i], since, "Facebook");
+			feed.setLabel("environment");
 			dao.save(feed);
 		}
+	
 		
+		/*
 		String[] tags = {
-			"#bbcbias",
-			"#bbclies",
-			"#itvbias",
-			"#itvlies",
-			"#skybias",
-			"#skylies",
-			"#channel4bias",
-			"#channel4lies"
+			"#climate",
+			"#environment",
+			"#climatechange",
+			"#globalwarming",
+			"#renewablenergy",
+			"#econews",
+			"#greenjobs"
 		};
 
 		Feed hashtagsFeed = new KeywordsFeed("Twitter#hashtags", Arrays.asList(tags), since, "Twitter");
-		hashtagsFeed.setLabel("BBC");
+		hashtagsFeed.setLabel("environment");
 		
 		dao.save(hashtagsFeed);
 		
-		int p = 5;
-		List<String> ngrams = IOUtils.readLines(new FileInputStream("/home/manosetro/ngrams"));
+		
+		String[] keywordsToTrack = {
+			"climate AND change",
+			"global AND warming",
+			"sea AND level AND rise",
+			"greenhouse AND gas",
+			
+			"flooding",
+			"ocean AND acidification",
+			"environmental AND degradation",
+			"air AND quality",
+			
+			"invasive AND species",
+			"lead AND poisoning",
+			"environmental AND health",
+			"environmental AND issues AND energy",
+			
+			"toxicants",
+			"air AND pollution",
+			"soil AND pollution",
+			"water AND pollution",
+			
+			"genetic AND pollution",
+			"genetically AND modified AND food",
+			"smog",
+			"tropospheric AND ozone",
+			
+			"ozone AND depletion",
+			"soil AND erosion",
+			"soil AND contamination",
+			"algal AND bloom",
+			
+			"eutrophication",
+			"wastewater",
+			"soil AND salination",
+			"soil AND conservation",
+			
+			"deforestation",
+			"volatile AND organic AND compounds",
+			"electronic AND waste",
+			"illegal AND dumping",
+			
+			"waste AND disposal AND incidents",
+			"hazardous AND waste",
+			"ocean AND acidification",
+			"oil AND spills", 
+			
+			"overfishing",
+			"nutrient AND pollution",
+			"resource AND depletion",
+			"toxic AND waste",
+			
+			"environmental AND law",
+			"dichlorodiphenyltrichloroethane",
+			"coal AND industry",
+			"residual AND sodium AND carbonate",
+			
+			"ocean AND dumping",
+			"persistent AND organic AND pollutant",
+			"source AND pollution",
+			"species AND extinction",
+			
+			"global AND dimming",
+			"fossil AND fuels",
+			"desertification",
+			"climatechange",
+			
+			"renewable AND energy",
+			"environmental AND crime",
+			"environmental AND issues",
+			"dioxin",
+			
+			"garbage AND patch",
+			"wastewater",
+			"toxic AND heavy AND metals",
+			"thermohaline AND circulation",
+			
+			"marine AND debris",
+			"acid AND mine AND drainage",
+			"anoxic AND waters",
+			"environmental AND crime",
+	
+			"illegal AND logging",
+			"efficient AND energy AND use",
+			"renewable AND energy",
+			"electromagnetic AND radiation AND health",
+			
+			"preventing AND pollution",
+			"clean AND energy",
+			"particulate AND matter",
+			"carbon AND pollution",
+			
+			"implications AND nanotechnology",
+			"land AND pollution",
+			"environmental AND concerns",
+			"nuclear AND weapons",
+			
+			"waste AND management",
+			"incineration",
+			"recycling AND facilities", 
+			"natural AND resource AND depletion",
+			
+			"recycling",
+			"ozone AND layer",
+			"acid AND rain",
+			"urban AND sprawl"
+			
+			
+		};
+		
+		int p = 4;
+		List<String> ngrams = Arrays.asList(keywordsToTrack);
 		for(int i=0; i<(ngrams.size()/p); i++) {
 			
 			int fromIndex = i*p;
@@ -112,10 +274,11 @@ public class DAOFactory {
 			List<String> keywords = ngrams.subList(fromIndex, toIndex);
 		
 			Feed feed = new KeywordsFeed("Twitter#"+i, keywords, since, "Twitter");
-			feed.setLabel("BBC");
+			feed.setLabel("environment");
 			
 			dao.save(feed);
 		}
+			*/
 		
 		/*
 		String[] urls = {
