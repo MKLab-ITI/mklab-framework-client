@@ -63,6 +63,7 @@ public class MediaItemBean extends Bean {
 
         id = mediaItem.getId();
         source = mediaItem.getSource();
+        
         title = mediaItem.getTitle();
         description = mediaItem.getDescription();
         tags = mediaItem.getTags();
@@ -90,6 +91,7 @@ public class MediaItemBean extends Bean {
         }
         
         type = mediaItem.getType();
+
     }
 
     public String getSource() {

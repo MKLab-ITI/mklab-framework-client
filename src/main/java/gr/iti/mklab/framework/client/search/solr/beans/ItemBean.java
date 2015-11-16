@@ -4,6 +4,7 @@ import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.NamedEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -34,6 +35,9 @@ public class ItemBean extends Bean {
     @Field(value = "uid")
     private String uid;
     
+    @Field(value = "reference")
+    private String reference;
+    
     @Field(value = "publicationTime")
     private long publicationTime;
     
@@ -43,6 +47,9 @@ public class ItemBean extends Bean {
     @Field(value = "longitude")
     private Double longitude;
     
+    @Field(value = "latlon")
+	private String latlon;
+	
     @Field(value = "location")
     private String location;
       
@@ -61,9 +68,18 @@ public class ItemBean extends Bean {
     @Field(value = "organizations")
     private List<String> organizations = new ArrayList<String>();
     
+    @Field(value = "mediaIds")
+    private List<String> mediaIds;
+
+    @Field(value = "mentions")
+	private List<String> mentions;
+
+	private String referenceUserId;
+    
     public ItemBean(Item item) {
         id = item.getId();
         source = item.getSource();
+        
         title = item.getTitle();
         description = item.getDescription();
         tags = item.getTags();
@@ -71,11 +87,18 @@ public class ItemBean extends Bean {
         text = item.getText();
         
         uid = item.getUserId();
-
+        reference = item.getReference();
+        setReferenceUserId(item.getReferencedUserId());
+        
         publicationTime = item.getPublicationTime();
 
         latitude = item.getLatitude();
         longitude = item.getLongitude();
+        
+        if(latitude != null && longitude != null) {
+        	latlon = latitude + "," + longitude;
+        }
+        
         location = item.getLocationName();
         
         language = item.getLanguage();
@@ -99,6 +122,15 @@ public class ItemBean extends Bean {
         	}
         }
         
+        // list of media ids, used as facet to find most shared media items
+        mediaIds = item.getMediaIds();
+        
+        // list of mentions, used as facet to find most mentioned users
+        mentions = new ArrayList<String>();
+        if(item.getMentions() != null) {
+        	mentions.addAll(Arrays.asList(item.getMentions()));
+        }
+       
     }
 
     public String getLanguage() {
@@ -181,6 +213,21 @@ public class ItemBean extends Bean {
         this.longitude = longitude;
     }
 
+    public void setLatLon(Double latitude, Double longitude) {
+    	this.latitude = latitude;
+        this.longitude = longitude;
+        
+        this.latlon = latitude + "," + longitude;
+    }
+    
+    public String getLatLon() {
+        return latlon;
+    }
+
+    public void setLatLon(String latlon) {
+        this.latlon = latlon;
+    }
+    
     public String getLocation() {
         return location;
     }
@@ -196,5 +243,13 @@ public class ItemBean extends Bean {
     public void getLabels(List<String> labels) {
         this.labels = labels;
     }
+
+	public String getReferenceUserId() {
+		return referenceUserId;
+	}
+
+	public void setReferenceUserId(String referenceUserId) {
+		this.referenceUserId = referenceUserId;
+	}
 
 }
