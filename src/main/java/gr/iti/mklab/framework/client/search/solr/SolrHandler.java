@@ -93,19 +93,32 @@ public abstract class SolrHandler<K extends Bean> {
         return status;
     }
 	
+    public long count(String query) {
+    	long numFound = 0;
+        try {
+        	SolrQuery solrQuery = new SolrQuery(query);
+        	QueryResponse rsp = server.query(solrQuery);
+           
+        	numFound = rsp.getResults().getNumFound();
+        } catch (SolrServerException ex) {
+            logger.error(ex.getMessage());
+        }    
+        return numFound;
+    }
+    
 	public abstract SearchResponse<K> find(SolrQuery query);
     
 	public List<Facet> getFacets(QueryResponse rsp) {
 		
 		List<Facet> facets = new ArrayList<Facet>();
-        
 		List<FacetField> facetFields = rsp.getFacetFields();
         if (facetFields != null) {
             for (FacetField solrFacet : facetFields) {
             	
                 Facet facet = new Facet(); 
-                List<Bucket> buckets = new ArrayList<Bucket>();
+                facet.setName(solrFacet.getName());
                 
+                List<Bucket> buckets = new ArrayList<Bucket>();
                 List<FacetField.Count> values = solrFacet.getValues();
                 if(!values.isEmpty()) {
                 	//populate Valid Facets
@@ -119,10 +132,8 @@ public abstract class SolrHandler<K extends Bean> {
                     	buckets.add(bucket);
                 	}
                 	facet.setBuckets(buckets);
-                	facet.setName(solrFacet.getName());
                 	facets.add(facet);
                 }
-
             }
 
             // Sort

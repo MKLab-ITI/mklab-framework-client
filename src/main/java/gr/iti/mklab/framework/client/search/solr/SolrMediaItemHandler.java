@@ -84,19 +84,22 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
         }
 
         StringBuffer query = new StringBuffer();
-        query.append("(title : " + query + ") OR (description:" + query + ")");
+        query.append("(title : (" + query + ")) OR (description:(" + query + "))");
         
-        //Set filters in case they exist exist
-        for (String filter : filters) {
-            query.append(" AND " + filter);
-        }
-
         SolrQuery solrQuery = new SolrQuery(query.toString());
         solrQuery.setRows(size);
 
-        for (String facetField : facetFields) {
-            solrQuery.addFacetField(facetField);
-            solrQuery.setFacetLimit(10);
+      //Set filters in case they exist exist
+        if(filters != null && !filters.isEmpty()) {
+        	String[] fq = filters.toArray(new String[filters.size()]);
+        	solrQuery.setFilterQueries(fq);
+        }
+        
+        if(facetFields != null && !facetFields.isEmpty()) {
+        	for (String facetField : facetFields) {
+            	solrQuery.addFacetField(facetField);
+        	}
+        	solrQuery.setFacetLimit(10);
         }
 
         if (orderBy != null) {
@@ -186,4 +189,12 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
         return response;
     }
     
+   public static void main(String...args) throws Exception {
+    	
+    	String solrCollection = "http://xxx.xxx.xxx.xxx:8983/solr/MediaItems";
+    	SolrMediaItemHandler solrHandler = SolrMediaItemHandler.getInstance(solrCollection);
+    	
+    	System.out.println("Count: " + solrHandler.count("*:*"));		
+    }
+   
 }

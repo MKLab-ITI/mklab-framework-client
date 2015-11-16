@@ -21,7 +21,7 @@ public class Bucket extends JSONable {
     	
     }
         
-    public Bucket(String name, long count, String query, String facet) {
+    public Bucket(String name, long count, String query) {
         this.name = name;
         this.count = count;
         this.query = query;

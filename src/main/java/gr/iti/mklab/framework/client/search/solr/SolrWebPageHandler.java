@@ -82,28 +82,25 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
         StringBuffer query = new StringBuffer();
         query.append("title : (" + textQuery + ") OR text:(" + textQuery + ")");
         
-        //Set source filters in case they exist exist
-        if(!filters.isEmpty()) {
-        	String filterQuery = StringUtils.join(filters, " AND ");
-        	if(query.length() == 0) {
-        		query.append(filterQuery);
-        	}
-        	else {
-        		query.append(" AND " + filterQuery);
-        	}
-        }
         
         SolrQuery solrQuery = new SolrQuery(query.toString());
         solrQuery.setRows(size);
         
+        //Set source filters in case they exist exist
+        if(filters != null && !filters.isEmpty()) {
+        	String[] fq = filters.toArray(new String[filters.size()]);
+        	solrQuery.addFilterQuery(fq);
+        }
+        
         solrQuery.addSort("score", ORDER.desc);
         solrQuery.addSort("date", ORDER.desc);
 
-        
-      //Set facets if necessary
-        for (String facetField : facetsFields) {
-            solrQuery.addFacetField(facetField);
-            solrQuery.setFacetLimit(10);
+        //Set facets if necessary
+        if(facetsFields != null && !facetsFields.isEmpty()) {
+        	for (String facetField : facetsFields) {
+            	solrQuery.addFacetField(facetField);
+        	}
+        	solrQuery.setFacetLimit(10);
         }
         
         logger.info("Query : " + solrQuery);
@@ -169,4 +166,12 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
         return new ArrayList<String>(urls);
     }
       
+   public static void main(String...args) throws Exception {
+    	
+    	String solrCollection = "http://xxx.xxx.xxx.xxx:8983/solr/WebPages";
+    	SolrWebPageHandler solrHandler = SolrWebPageHandler.getInstance(solrCollection);
+    	
+    	System.out.println("Count: " + solrHandler.count("*:*"));
+		
+    }
 }

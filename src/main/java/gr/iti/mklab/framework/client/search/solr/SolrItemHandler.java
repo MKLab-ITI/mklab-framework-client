@@ -12,17 +12,12 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mongodb.morphia.dao.BasicDAO;
-import org.mongodb.morphia.query.QueryResults;
 
-import gr.iti.mklab.framework.client.mongo.DAOFactory;
 import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.SearchResponse;
 import gr.iti.mklab.framework.client.search.solr.beans.ItemBean;
 import gr.iti.mklab.framework.common.domain.Account;
-import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.dysco.Dysco;
-import gr.iti.mklab.framework.common.domain.feeds.Feed;
 
 /**
  *
@@ -95,21 +90,23 @@ public class SolrItemHandler extends SolrHandler<ItemBean> {
         StringBuffer queryBuffer = new StringBuffer();
         queryBuffer.append("title:(" + textQuery + ") OR description:(" + textQuery + ")");
 
-        //Set source filters in case they exist exist
-        for (String filter : filters) {
-        	queryBuffer.append(" AND " + filter);
-        }
-
         SolrQuery solrQuery = new SolrQuery(queryBuffer.toString());
         solrQuery.setRows(size);
 
-        //Set facets if necessary
-        for (String facetField : facetFields) {
-            solrQuery.addFacetField(facetField);
-            solrQuery.setFacetLimit(10);
-
+    	//Set source filters in case they exist exist
+        if(filters != null && !filters.isEmpty()) {
+        	String[] fq = filters.toArray(new String[filters.size()]);
+        	solrQuery.setFilterQueries(fq);
         }
-
+        
+        //Set facets if necessary
+        if(facetFields != null && !facetFields.isEmpty()) {
+        	for (String facetField : facetFields) {
+            	solrQuery.addFacetField(facetField);
+        	}
+        	solrQuery.setFacetLimit(10);
+        }
+        
         if (orderBy != null) {
             solrQuery.setSort(orderBy, ORDER.desc);
         } else {
@@ -200,30 +197,11 @@ public class SolrItemHandler extends SolrHandler<ItemBean> {
 
     public static void main(String...args) throws Exception {
     	
-    	//String solrCollection = "http://localhost:8983/solr/Items";
-    	//SolrItemHandler solrHandler = SolrItemHandler.getInstance(solrCollection);
+    	String solrCollection = "http://xxx.xxx.xxx.xxx:8983/solr/Items";
+    	SolrItemHandler solrHandler = SolrItemHandler.getInstance(solrCollection);
     	
-    	DAOFactory factory = new DAOFactory();
-		BasicDAO<Item, String> dao = factory.getDAO("xxx.xxx.xxx.xxx", "UKGeneralElections", Item.class);
-		
-		QueryResults<Item> cursor = dao.find();
-		for(Item item : cursor.asList()) {
-			System.out.println(item.getId());
-		}
-		
-    	//List<String> filters = new ArrayList<String>();
-		//List<String> facets = new ArrayList<String>();
-		//facets.add("author");
-		//SearchResponse<ItemBean> response = solrHandler.findItems("cisco", filters, facets, "publicationTime", 10);
+    	System.out.println("Count: " + solrHandler.count("*:*"));
     
-    	//for(ItemBean item : response.getResults()) {
-    		//System.out.println(item.toString());
-    	//}
-    	
-    	//Collection collection = new Collection();
-		//collection.addResults(response.getResults());
-		//System.out.println(collection.toString());
-		
     }
     
 }
