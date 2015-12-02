@@ -4,19 +4,21 @@ import gr.iti.mklab.framework.client.search.Facet;
 import gr.iti.mklab.framework.client.search.SearchResponse;
 import gr.iti.mklab.framework.client.search.solr.beans.MediaItemBean;
 import gr.iti.mklab.framework.common.domain.Account;
-import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.collections.Collection;
+import gr.iti.mklab.framework.common.domain.collections.Collection.Keyword;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
 /**
@@ -32,8 +34,8 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
     // Private constructor prevents instantiation from other classes
     private SolrMediaItemHandler(String collection) throws Exception {
     	try {
-    		logger = Logger.getLogger(SolrMediaItemHandler.class);
-    		server = new HttpSolrServer(collection);
+    		logger = LogManager.getLogger(SolrMediaItemHandler.class);
+    		client = new HttpSolrClient(collection);
     	} catch (Exception e) {
     		logger.info(e.getMessage());
     	}
@@ -56,11 +58,14 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
     	SearchResponse<MediaItemBean> response = new SearchResponse<MediaItemBean>();
         QueryResponse rsp;
         try {
-            rsp = server.query(query);
+            rsp = client.query(query);
         } catch (SolrServerException e) {
             logger.info(e.getMessage());
             return null;
-        }
+        } catch (IOException e) {
+        	 logger.info(e.getMessage());
+             return null;
+		}
         response.setNumFound(rsp.getResults().getNumFound());
         
         List<MediaItemBean> solrMediaItems = rsp.getBeans(MediaItemBean.class);
@@ -114,16 +119,16 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
         return response;
     }
 
-    public SearchResponse<MediaItemBean> findMediaItems(Dysco dysco, List<String> filters, List<String> facets, String orderBy, int size) {
+    public SearchResponse<MediaItemBean> findMediaItems(Collection collection, List<String> filters, List<String> facets, String orderBy, int size) {
 
         SearchResponse<MediaItemBean> response = new SearchResponse<MediaItemBean>();
 
         // Create Query
         List<String> queryParts = new ArrayList<String>();
         
-        Map<String, String> keywords = dysco.getKeywords();
+        List<Keyword> keywords = collection.getKeywords();
         if(keywords != null && !keywords.isEmpty()) {
-        String contentQuery = StringUtils.join(keywords.keySet(), " OR ");
+        String contentQuery = StringUtils.join(keywords, " OR ");
         	if (contentQuery != null && !contentQuery.isEmpty()) {
         		queryParts.add("(title : (" + contentQuery + ")");
         		queryParts.add("(description : (" + contentQuery + ")");
@@ -131,7 +136,7 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
         }
         
         //set Users Query
-        List<Account> accounts = dysco.getAccounts();
+        List<Account> accounts = collection.getAccounts();
         if (accounts != null && !accounts.isEmpty()) {
         	List<String> uids = new ArrayList<String>();
         	for(Account account : accounts) {
@@ -151,7 +156,7 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
         String query = StringUtils.join(queryParts, " OR ");
 
         //add words to exclude in query
-        List<String> keywordsToExclude = dysco.getKeywordsToExclude();
+        List<String> keywordsToExclude = collection.getKeywordsToExclude();
         if (keywordsToExclude != null && !keywordsToExclude.isEmpty()) {
         	String exclude = StringUtils.join(keywordsToExclude, " OR ");
         	query += " NOT (title : (" + exclude + ") OR description:(" + exclude + "))";
@@ -168,7 +173,7 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
         }
 
         SolrQuery solrQuery = new SolrQuery(query);
-        Logger.getRootLogger().info("Solr Query: " + query);
+        logger.info("Solr Query: " + query);
 
         solrQuery.setRows(size);
 
@@ -191,9 +196,9 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
     
    public static void main(String...args) throws Exception {
     	
-    	String solrCollection = "http://xxx.xxx.xxx.xxx:8983/solr/MediaItems";
+    	String solrCollection = "http://160.40.50.207:8983/solr/StepMediaItems";
     	SolrMediaItemHandler solrHandler = SolrMediaItemHandler.getInstance(solrCollection);
-    	
+    	//solrHandler.delete("*:*");
     	System.out.println("Count: " + solrHandler.count("*:*"));		
     }
    

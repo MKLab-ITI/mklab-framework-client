@@ -49,6 +49,10 @@ public class WebPageBean extends Bean {
     @Field(value = "organizations")
     private List<String> organizations = new ArrayList<String>();
 
+    @Field(value = "links")
+    private List<String> links = new ArrayList<String>();
+    
+    @Field(value = "hash")
 	private String hash;
     
 	public WebPageBean() {
@@ -82,6 +86,12 @@ public class WebPageBean extends Bean {
         		if(entity.getType().equals(NamedEntity.Type.ORGANIZATION)) {
         			organizations.add(entity.getName());
         		}
+        	}
+        }
+        
+        if(webPage.getLinks() != null) {
+        	for(String link : webPage.getLinks()) {
+        		links.add(link);
         	}
         }
         

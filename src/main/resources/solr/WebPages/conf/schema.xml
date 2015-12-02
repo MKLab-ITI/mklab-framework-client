@@ -21,6 +21,8 @@
 		<field name="text1" type="text_ws" indexed="true" stored="true" multiValued="false" />
 		<field name="text2" type="text_general" indexed="true" stored="true" multiValued="false" />
 
+		<field name="links" type="string" indexed="true" stored="true" multiValued="true" />
+
 		<dynamicField name="*_s"  type="string" indexed="true"  stored="true" />
 
         <field name="_version_" type="long" indexed="true" stored="true" />

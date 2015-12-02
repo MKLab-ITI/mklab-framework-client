@@ -1,7 +1,9 @@
 package gr.iti.mklab.framework.client.search.solr.beans;
 
 import gr.iti.mklab.framework.common.domain.Item;
+import gr.iti.mklab.framework.common.domain.Location;
 import gr.iti.mklab.framework.common.domain.NamedEntity;
+import gr.iti.mklab.framework.common.domain.StreamUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,9 @@ public class ItemBean extends Bean {
     @Field(value = "uid")
     private String uid;
     
+    @Field(value = "username")
+    private String username;
+    
     @Field(value = "reference")
     private String reference;
     
@@ -50,9 +55,18 @@ public class ItemBean extends Bean {
     @Field(value = "latlon")
 	private String latlon;
 	
+    @Field(value = "latlonRPT")
+	private String latlonRPT;
+    
     @Field(value = "location")
     private String location;
-      
+    
+    @Field(value = "city")
+    private String city;
+    
+    @Field(value = "country")
+    private String country;
+    
     @Field(value = "language")
     private String language;
     
@@ -74,21 +88,40 @@ public class ItemBean extends Bean {
     @Field(value = "mentions")
 	private List<String> mentions;
 
+	@Field(value = "referenceUserId")
 	private String referenceUserId;
     
-    public ItemBean(Item item) {
+	@Field(value = "likes")
+    protected Long likes = 0L;
+    
+	@Field(value = "shares")
+    protected Long shares = 0L;
+    
+	@Field(value = "comments")
+    protected Long comments = 0L;
+    
+	@Field(value = "followers")
+    protected Long followers = 0L;
+	
+	@Field(value = "friends")
+    protected Long friends = 0L;
+	
+	@Field(value = "original")
+    protected Boolean original = true;
+
+	public ItemBean(Item item) {
         id = item.getId();
         source = item.getSource();
         
         title = item.getTitle();
         description = item.getDescription();
         tags = item.getTags();
-    
+        
         text = item.getText();
         
         uid = item.getUserId();
         reference = item.getReference();
-        setReferenceUserId(item.getReferencedUserId());
+        referenceUserId = item.getReferencedUserId();
         
         publicationTime = item.getPublicationTime();
 
@@ -97,15 +130,29 @@ public class ItemBean extends Bean {
         
         if(latitude != null && longitude != null) {
         	latlon = latitude + "," + longitude;
+        	latlonRPT = longitude + " " + latitude;
         }
         
-        location = item.getLocationName();
+        
+        Location itemLocation = item.getLocation();
+        if(itemLocation != null) {
+        	location = itemLocation.getName();
+        	city = itemLocation.getCityName();
+        	country = itemLocation.getCountryName();
+        }
         
         language = item.getLanguage();
 
         labels = new ArrayList<String>();
         if (item.getLabels() != null) {
         	labels.addAll(item.getLabels());
+        }
+        
+        StreamUser user = item.getStreamUser();
+        if(user != null) {
+        	username = user.getUsername();
+        	followers = user.getFollowers();
+        	friends = user.getFriends();
         }
         
         if(item.getEntities() != null) {
@@ -130,7 +177,12 @@ public class ItemBean extends Bean {
         if(item.getMentions() != null) {
         	mentions.addAll(Arrays.asList(item.getMentions()));
         }
-       
+        
+        likes = item.getLikes();
+        comments = item.getComments();
+        shares = item.getShares();
+        
+        original = item.isOriginal();
     }
 
     public String getLanguage() {
@@ -171,14 +223,6 @@ public class ItemBean extends Bean {
 
     public void setTags(String[] tags) {
         this.tags = tags;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
     
     public String getUserId() {
@@ -252,4 +296,11 @@ public class ItemBean extends Bean {
 		this.referenceUserId = referenceUserId;
 	}
 
+    public Boolean isOriginal() {
+		return original;
+	}
+
+	public void setOriginal(Boolean original) {
+		this.original = original;
+	}
 }

@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -21,21 +21,22 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 
 public abstract class SolrHandler<K extends Bean> {
 	
-    private static int commitPeriod = 10000;
+    private static int commitPeriod = 5000;
     
 	protected Logger logger;
-	protected SolrServer server;
+	
+	protected SolrClient client;
     
     public boolean insert(K bean) {
         boolean status = true;
         try {
-            server.addBean(bean, commitPeriod);
+        	client.addBean(bean, commitPeriod);
         } 
         catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex);
             status = false;
         } catch (Exception ex) {
-        	logger.error(ex.getMessage());
+        	logger.error(ex);
             status = false;
         } 
        
@@ -45,31 +46,31 @@ public abstract class SolrHandler<K extends Bean> {
     public boolean insert(List<K> beans) {
         boolean status = true;
         try {
-            server.addBeans(beans, commitPeriod);
+        	client.addBeans(beans);
+        	client.commit();
         } catch (SolrServerException ex) {
             logger.error(ex.getMessage());
             status = false;
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex);
             status = false;
         }
-        
         return status;
     }
 	
     public boolean deleteById(String itemId) {
         boolean status = false;
         try {
-            server.deleteByQuery("id:" + itemId);
-            UpdateResponse response = server.commit();
+        	client.deleteByQuery("id:" + itemId);
+            UpdateResponse response = client.commit();
             int statusId = response.getStatus();
             if (statusId == 0) {
                 status = true;
             }
         } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex);
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex);
         }
         
         return status;
@@ -78,18 +79,17 @@ public abstract class SolrHandler<K extends Bean> {
     public boolean delete(String query) {
         boolean status = false;
         try {
-            server.deleteByQuery(query);
-            UpdateResponse response = server.commit();
+        	client.deleteByQuery(query);
+            UpdateResponse response = client.commit();
             int statusId = response.getStatus();
             if (statusId == 0) {
                 status = true;
             }
         } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex);
         } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex);
         }
-            
         return status;
     }
 	
@@ -97,12 +97,14 @@ public abstract class SolrHandler<K extends Bean> {
     	long numFound = 0;
         try {
         	SolrQuery solrQuery = new SolrQuery(query);
-        	QueryResponse rsp = server.query(solrQuery);
+        	QueryResponse rsp = client.query(solrQuery);
            
         	numFound = rsp.getResults().getNumFound();
-        } catch (SolrServerException ex) {
-            logger.error(ex.getMessage());
-        }    
+        } catch (SolrServerException e) {
+            logger.error(e);
+        } catch (IOException e) {
+        	logger.error(e);
+		}    
         return numFound;
     }
     
@@ -156,4 +158,28 @@ public abstract class SolrHandler<K extends Bean> {
         return facets;
 	}
 	
+	public void close() throws IOException {
+		try {
+			client.commit();
+			client.optimize();
+			client.close();
+		} catch (SolrServerException e) {
+			logger.error(e.getMessage());
+			
+			throw new IOException(e);
+			
+		}
+	}
+	
+	public void commit() {
+		try {
+			client.commit();
+			client.optimize();
+		} catch (SolrServerException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+		
+	}
 }

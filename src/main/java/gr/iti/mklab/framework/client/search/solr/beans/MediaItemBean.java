@@ -49,7 +49,7 @@ public class MediaItemBean extends Bean {
 	@Field(value = "concepts")
     private String[] concepts;
     
-	@Field(value = "type")
+	@Field(value = "type")	// image/video
     private String type;
 	
     @Field(value = "labels")

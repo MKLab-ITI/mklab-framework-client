@@ -6,16 +6,18 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 
-import gr.iti.mklab.framework.common.domain.feeds.AccountFeed;
+import gr.iti.mklab.framework.common.domain.collections.Collection;
 import gr.iti.mklab.framework.common.domain.feeds.Feed;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.dao.BasicDAO;
+import org.mongodb.morphia.query.QueryResults;
 
 /**
  *
@@ -70,6 +72,22 @@ public class DAOFactory {
 
 	public static void main(String...args) throws Exception {
 		DAOFactory factory = new DAOFactory();
+		BasicDAO<Collection, String> dao = factory.getDAO("160.40.50.207:27017", "StepV2", Collection.class);
+		
+		QueryResults<Collection> r = dao.find();
+		List<Collection> collections = r.asList();
+		
+		for(Collection c : collections) {
+			System.out.println(c);
+			
+			List<Feed> feeds = c.getFeeds();
+			for(Feed feed : feeds) {
+				System.out.println(feed.hashCode() + " => " + feed);
+			}
+			System.out.println("==============================================================");
+		}
+		
+		/*
 		BasicDAO<Feed, String> dao = factory.getDAO("xxx.xxx.xxx.xxx:27017", "db_name", Feed.class,
 				"username", "passwd");
 		
@@ -136,7 +154,7 @@ public class DAOFactory {
 			feed.setLabel("environment");
 			dao.save(feed);
 		}
-	
+		 */
 		
 		/*
 		String[] tags = {

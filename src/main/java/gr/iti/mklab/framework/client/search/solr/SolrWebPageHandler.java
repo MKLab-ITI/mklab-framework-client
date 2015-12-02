@@ -2,8 +2,10 @@ package gr.iti.mklab.framework.client.search.solr;
 
 import gr.iti.mklab.framework.client.search.SearchResponse;
 import gr.iti.mklab.framework.client.search.solr.beans.WebPageBean;
-import gr.iti.mklab.framework.common.domain.dysco.Dysco;
+import gr.iti.mklab.framework.common.domain.collections.Collection;
+import gr.iti.mklab.framework.common.domain.collections.Collection.Keyword;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,11 +14,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
 /**
@@ -32,10 +34,10 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
     // Private constructor prevents instantiation from other classes
     private SolrWebPageHandler(String collection) {
         try {
-        	logger = Logger.getRootLogger();
-            server = new HttpSolrServer(collection);
+        	logger = LogManager.getLogger(SolrWebPageHandler.class);
+            client = new HttpSolrClient(collection);
         } catch (Exception e) {
-            Logger.getRootLogger().info(e.getMessage());
+            
         }
     }
 
@@ -63,14 +65,16 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
 
     	SearchResponse<WebPageBean> response = new SearchResponse<WebPageBean>();
         try {
-        	QueryResponse rsp = server.query(query);
+        	QueryResponse rsp = client.query(query);
         	
             List<WebPageBean> wpBeans = rsp.getBeans(WebPageBean.class);
             response.setResults(wpBeans);
             
         } catch (SolrServerException e) {
         	logger.info(e.getMessage());
-        }
+        } catch (IOException e) {
+        	logger.info(e.getMessage());
+		}
 
         return response;
     }
@@ -116,14 +120,14 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
         return webPages.subList(0, Math.min(webPages.size(), size));
     }
     
-    public List<String> findWebPages(Dysco dysco, List<String> filters, List<String> facets, int size) {
+    public List<String> findWebPages(Collection collection, List<String> filters, List<String> facets, int size) {
   
         Set<String> urls = new HashSet<String>();
 
         String query = "";
-        Map<String, String> keywords = dysco.getKeywords();
+        List<Keyword> keywords = collection.getKeywords();
         if(keywords != null && !keywords.isEmpty()) {
-        	query = StringUtils.join(keywords.keySet(), "OR");
+        	query = StringUtils.join(keywords, "OR");
         	query = "((title : (" + query + ")) OR (text:(" + query + "))";
         }
         
@@ -137,7 +141,7 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
         }
         
         //add words to exclude in query
-        List<String> keywordsToExclude = dysco.getKeywordsToExclude();
+        List<String> keywordsToExclude = collection.getKeywordsToExclude();
         if (keywordsToExclude != null && !keywordsToExclude.isEmpty()) {
         	String excludeQuery = StringUtils.join(keywordsToExclude, " OR ");
         	query += " NOT (title : (" + excludeQuery + ") OR description:(" + excludeQuery + "))";
@@ -168,9 +172,9 @@ public class SolrWebPageHandler extends SolrHandler<WebPageBean> {
       
    public static void main(String...args) throws Exception {
     	
-    	String solrCollection = "http://xxx.xxx.xxx.xxx:8983/solr/WebPages";
+    	String solrCollection = "http://160.40.50.207:8983/solr/StepWebPages";
     	SolrWebPageHandler solrHandler = SolrWebPageHandler.getInstance(solrCollection);
-    	
+    	solrHandler.delete("*:*");
     	System.out.println("Count: " + solrHandler.count("*:*"));
 		
     }

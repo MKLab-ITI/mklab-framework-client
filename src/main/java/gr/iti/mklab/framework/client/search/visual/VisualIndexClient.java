@@ -8,7 +8,8 @@ import gr.iti.mklab.framework.common.domain.MediaItem;
 import gr.iti.mklab.framework.client.mongo.DAOFactory;
 import gr.iti.mklab.framework.client.search.visual.VisualIndexResponse.JsonResult;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mongodb.morphia.dao.BasicDAO;
 import org.mongodb.morphia.query.Query;
 
@@ -22,7 +23,7 @@ public class VisualIndexClient {
 
     private static double default_threshold = 0.75;
     
-    private Logger _logger = Logger.getLogger(VisualIndexClient.class);
+    private Logger _logger = LogManager.getLogger(VisualIndexClient.class);
     
     //private String webServiceHost;
     //private String collectionName;
