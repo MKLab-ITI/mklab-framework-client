@@ -1393,7 +1393,7 @@
        http://carrot2.github.io/solr-integration-strategies/
     -->
   <searchComponent name="clustering"
-                   enable="${solr.clustering.enabled:false}"
+                   enable="true"
                    class="solr.clustering.ClusteringComponent" >
     <lst name="engine">
       <str name="name">lingo</str>
@@ -1449,7 +1449,7 @@
     -->
   <requestHandler name="/clustering"
                   startup="lazy"
-                  enable="${solr.clustering.enabled:false}"
+                  enable="true"
                   class="solr.SearchHandler">
     <lst name="defaults">
       <bool name="clustering">true</bool>

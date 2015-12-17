@@ -21,7 +21,8 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 
 public abstract class SolrHandler<K extends Bean> {
 	
-    private static int commitPeriod = 5000;
+	// commit every 10 seconds to avoid high load on solr
+    private static int commitPeriod = 10000;
     
 	protected Logger logger;
 	
@@ -174,7 +175,7 @@ public abstract class SolrHandler<K extends Bean> {
 	public void commit() {
 		try {
 			client.commit();
-			client.optimize();
+			//client.optimize(); // is optimization a good practice?
 		} catch (SolrServerException e) {
 			logger.error(e);
 		} catch (IOException e) {

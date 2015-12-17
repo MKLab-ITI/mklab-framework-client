@@ -39,6 +39,8 @@
 
 		<field name="text" type="text_ws" indexed="true" stored="false" multiValued="false" />
 		
+		<field name="allText" type="text_general" indexed="true" stored="false" multiValued="true" />
+		
 	  	<field name="text1" type="text_general" indexed="true" stored="false" multiValued="false" />
 	  	<field name="text2" type="text_en_splitting" indexed="true" stored="false" multiValued="false" />
 	  	<field name="text3" type="text_en_splitting_tight" indexed="true" stored="false" multiValued="false" />
@@ -64,6 +66,12 @@
    	<copyField source="title" dest="text1" />
    	<copyField source="title" dest="text2" />
    	<copyField source="title" dest="text3" />
+
+	<copyField source="title" dest="allText" />
+	<copyField source="description" dest="allText" />
+	<copyField source="tags" dest="allText" />
+	<copyField source="persons" dest="allText" />
+	<copyField source="organizations" dest="allText" />
 
    	<types>
     	<fieldType name="string" class="solr.StrField" sortMissingLast="true" />

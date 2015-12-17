@@ -205,7 +205,7 @@ public class SolrItemHandler extends SolrHandler<ItemBean> {
     	
     	String solrCollection = "http://160.40.50.207:8983/solr/StepItems";
     	SolrItemHandler solrHandler = SolrItemHandler.getInstance(solrCollection);
-    	//solrHandler.delete("*:*");
+    	solrHandler.delete("*:*");
     	System.out.println("Count: " + solrHandler.count("*:*"));
     
     }

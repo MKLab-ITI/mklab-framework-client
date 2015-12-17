@@ -196,8 +196,8 @@ public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {
     
    public static void main(String...args) throws Exception {
     	
-    	String solrCollection = "http://160.40.50.207:8983/solr/StepMediaItems";
-    	SolrMediaItemHandler solrHandler = SolrMediaItemHandler.getInstance(solrCollection);
+    	String solrCollection = "http://xxx.xxx.xxx.xxx:8983/solr/StepMediaItems";
+    	SolrHandler<MediaItemBean> solrHandler = SolrMediaItemHandler.getInstance(solrCollection);
     	//solrHandler.delete("*:*");
     	System.out.println("Count: " + solrHandler.count("*:*"));		
     }
