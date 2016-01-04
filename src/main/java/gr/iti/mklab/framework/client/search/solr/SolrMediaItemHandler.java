@@ -23,8 +23,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 
 /**
  *
- * @author	Manos Schinas
- * @email	manosetro@iti.gr
+ * @author	Manos Schinas - manosetro@iti.gr
  * 
  */
 public class SolrMediaItemHandler extends SolrHandler<MediaItemBean> {

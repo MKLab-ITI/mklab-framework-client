@@ -16,8 +16,7 @@ import org.mongodb.morphia.query.Query;
 /**
  * Client for Visual Indexer.
  *
- * @author Schinas Manos
- * @email manosetro@iti.gr
+ * @author Schinas Manos - manosetro@iti.gr
  */
 public class VisualIndexClient {
 
@@ -37,13 +36,6 @@ public class VisualIndexClient {
         return getSimilarImages(imageId, default_threshold);
     }
 
-    /**
-     * Get similar images for a specific media item
-     *
-     * @param imageId
-     * @param threshold
-     * @return
-     */
     public VisualIndexResponse getSimilarImages(String imageId, double threshold) {
     	VisualIndexResponse response = new VisualIndexResponse();
     	try {
@@ -54,13 +46,6 @@ public class VisualIndexClient {
         return response;
     }
 
-    /**
-     * Get similar images for a specific media item
-     *
-     * @param imageId
-     * @param threshold
-     * @return
-     */
     public VisualIndexResponse getSimilarImages(String imageId, int page, int numResults) {
     	VisualIndexResponse response = new VisualIndexResponse();
         try {
@@ -100,13 +85,6 @@ public class VisualIndexClient {
         return similar;
     }
     
-    /**
-     * Get similar images by vector
-     *
-     * @param vector
-     * @param threshold
-     * @return
-     */
     public VisualIndexResponse getSimilarImagesAndIndex(String id, double[] vector, double threshold) {
     	VisualIndexResponse similar = new VisualIndexResponse();
         try {
@@ -118,13 +96,6 @@ public class VisualIndexClient {
         return similar;
     }
     
-    /**
-     * Get similar images by vector
-     *
-     * @param vector
-     * @param threshold
-     * @return
-     */
     public VisualIndexResponse getSimilarImages(double[] vector, double threshold) {
     	VisualIndexResponse similar = new VisualIndexResponse();
         try {

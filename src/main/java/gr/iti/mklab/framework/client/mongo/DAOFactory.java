@@ -21,8 +21,7 @@ import org.mongodb.morphia.query.QueryResults;
 
 /**
  *
- * @author Manos Schinas
- * @email  manosetro@iti.gr
+ * @author Manos Schinas - manosetro@iti.gr
  *
  */
 public class DAOFactory {

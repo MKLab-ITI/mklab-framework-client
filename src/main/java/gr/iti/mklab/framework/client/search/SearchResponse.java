@@ -5,8 +5,7 @@ import java.util.List;
 
 /**
  *
- * @author	manosetro 
- * @email	manosetro@iti.gr
+ * @author	manosetro - manosetro@iti.gr
  */
 public class SearchResponse<T> {
     

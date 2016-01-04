@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  *
- * @author etzoannos - e.tzoannos@atc.gr
+ * @author Manos Schinas - manosetro@iti.gr
  */
 public class Facet extends JSONable {
 

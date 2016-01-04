@@ -10,8 +10,7 @@ import org.apache.solr.client.solrj.beans.Field;
 
 /**
  *
- * @author 	Manos Schinas
- * @email	manosetro@iti.gr
+ * @author 	Manos Schinas - manosetro@iti.gr
  * 
  */
 public class MediaItemBean extends Bean {

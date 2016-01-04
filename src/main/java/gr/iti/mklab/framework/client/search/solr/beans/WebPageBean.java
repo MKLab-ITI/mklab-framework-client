@@ -10,8 +10,7 @@ import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 
 /**
- * @author 	Manos Schinas
- * @email	manosetro@iti.gr
+ * @author 	Manos Schinas - manosetro@iti.gr
  * 
  */
 public class WebPageBean extends Bean {
