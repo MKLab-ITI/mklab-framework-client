@@ -13,35 +13,38 @@ use MetzWeb\Instagram\Instagram;
 
 class SocialMediaWrapper {
     function __construct() {
+
+        $ini = parse_ini_file('credentials.ini', true);
+
         $this->googleClient = new Google_Client();
-        $this->googleClient->setApplicationName("STEP");
-        $this->googleClient->setDeveloperKey("");
+        $this->googleClient->setApplicationName($ini['Google']['applicationName']);
+        $this->googleClient->setDeveloperKey($ini['Google']['developerKey']);
 
         $this->plus = new Google_Service_Plus($this->googleClient);
         $this->youtube = new Google_Service_YouTube($this->googleClient);
 
         $this->fb = new Facebook\Facebook(
             [
-                'app_id' => '',
-                'app_secret' => '',
-                'access_token' => '',
+                'app_id' => $ini['Facebook']['app_id'],
+                'app_secret' => $ini['Facebook']['app_secret'],
+                'access_token' => $ini['Facebook']['access_token'],
                 'default_graph_version' => 'v2.5'
             ]
         );
 
         $this->instagram = new Instagram(
             [
-                'apiKey'      => '',
-                'apiSecret'   => '',
+                'apiKey'      => $ini['Instagram']['apiKey'],
+                'apiSecret'   => $ini['Instagram']['apiSecret'],
                 'apiCallback' => 'YOUR_APP_CALLBACK'
             ]
         );
 
         $this->twitter = new TwitterOAuth(
-            "",
-            "",
-            "",
-            "");
+            $ini['Twitter']['apikey'],
+            $ini['Twitter']['apiSecret'],
+            $ini['Twitter']['accessToken'],
+            $ini['Twitter']['accessTokenSecret']);
 
     }
 
@@ -120,7 +123,7 @@ class SocialMediaWrapper {
     private function searchFacebook($username) {
         try {
             $fields = 'id,name,username,cover,link,picture,description,engagement';
-            $response = $this->fb->get("/search?q=$username&fields=$fields&type=page&limit=20", '');
+            $response = $this->fb->get("/search?q=$username&fields=$fields&type=page&limit=20", '260504214011769|964663756aa84795ad1b37c2c3d86bf9');
             $body = $response->getDecodedBody();
             $data = $body['data'];
 
