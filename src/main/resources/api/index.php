@@ -24,7 +24,7 @@ $response['Content-Type'] = 'application/json';
 $response['X-Powered-By'] = 'Slim';
 
 //Initialization Parameters
-$mongoHost = "127.0.0.1";
+$mongoHost = "localhost";
 $mongoDatabase = "Demo";
 
 $textIndexService = "127.0.0.1";
