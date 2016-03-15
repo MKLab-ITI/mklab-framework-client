@@ -16,35 +16,43 @@ class SocialMediaWrapper {
 
         $ini = parse_ini_file('credentials.ini', true);
 
-        $this->googleClient = new Google_Client();
-        $this->googleClient->setApplicationName($ini['Google']['applicationName']);
-        $this->googleClient->setDeveloperKey($ini['Google']['developerKey']);
+        if(isset($ini['Google'])) {
+            $this->googleClient = new Google_Client();
+            $this->googleClient->setApplicationName($ini['Google']['applicationName']);
+            $this->googleClient->setDeveloperKey($ini['Google']['developerKey']);
 
-        $this->plus = new Google_Service_Plus($this->googleClient);
-        $this->youtube = new Google_Service_YouTube($this->googleClient);
+            $this->plus = new Google_Service_Plus($this->googleClient);
+            $this->youtube = new Google_Service_YouTube($this->googleClient);
+        }
 
-        $this->fb = new Facebook\Facebook(
-            [
-                'app_id' => $ini['Facebook']['app_id'],
-                'app_secret' => $ini['Facebook']['app_secret'],
-                'access_token' => $ini['Facebook']['access_token'],
-                'default_graph_version' => 'v2.5'
-            ]
-        );
+        if(isset($ini['Facebook'])) {
+            $this->fb = new Facebook\Facebook(
+                [
+                    'app_id' => $ini['Facebook']['app_id'],
+                    'app_secret' => $ini['Facebook']['app_secret'],
+                    'access_token' => $ini['Facebook']['access_token'],
+                    'default_graph_version' => 'v2.5'
+                ]
+            );
+        }
 
-        $this->instagram = new Instagram(
-            [
-                'apiKey'      => $ini['Instagram']['apiKey'],
-                'apiSecret'   => $ini['Instagram']['apiSecret'],
-                'apiCallback' => 'YOUR_APP_CALLBACK'
-            ]
-        );
+        if(isset($ini['Instagram'])) {
+            $this->instagram = new Instagram(
+                [
+                    'apiKey' => $ini['Instagram']['apiKey'],
+                    'apiSecret' => $ini['Instagram']['apiSecret'],
+                    'apiCallback' => 'YOUR_APP_CALLBACK'
+                ]
+            );
+        }
 
-        $this->twitter = new TwitterOAuth(
-            $ini['Twitter']['apikey'],
-            $ini['Twitter']['apiSecret'],
-            $ini['Twitter']['accessToken'],
-            $ini['Twitter']['accessTokenSecret']);
+        if(isset($ini['Twitter'])) {
+            $this->twitter = new TwitterOAuth(
+                $ini['Twitter']['apikey'],
+                $ini['Twitter']['apiSecret'],
+                $ini['Twitter']['accessToken'],
+                $ini['Twitter']['accessTokenSecret']);
+        }
 
     }
 
@@ -74,15 +82,19 @@ class SocialMediaWrapper {
     }
 
     private function searchTwitter($username) {
-        $params =
-            array("q"=>$username);
+        $users = array();
+
+        if($this->twitter == null) {
+            return $users;
+        }
+
+        $params = array("q"=>$username);
         $response = $this->twitter->get("users/search", $params);
 
         if(isset($response->errors)) {
             return $response;
         }
 
-        $users = array();
         foreach($response as $userFound) {
             $users[] = array(
                 "id" => $userFound->id_str,
@@ -103,8 +115,12 @@ class SocialMediaWrapper {
     }
 
     private function searchInstagram($username) {
-        $response = $this->instagram->searchUser($username, 20);
 
+        if($this->instagram == null) {
+            return array();
+        }
+
+        $response = $this->instagram->searchUser($username, 20);
         $data = array_map(
             function($entry) {
                 return array(
@@ -122,6 +138,10 @@ class SocialMediaWrapper {
 
     private function searchFacebook($username) {
         try {
+            if($this->fb == null) {
+                return array();
+            }
+
             $fields = 'id,name,username,cover,link,picture,description,engagement';
             $response = $this->fb->get("/search?q=$username&fields=$fields&type=page&limit=20", '260504214011769|964663756aa84795ad1b37c2c3d86bf9');
             $body = $response->getDecodedBody();
@@ -161,6 +181,10 @@ class SocialMediaWrapper {
     }
 
     private function searchYoutube($username) {
+        if($this->youtube == null) {
+            return array();
+        }
+
         $searchResponse = $this->youtube->search->listSearch('id,snippet',
             array(
                 'type' => 'channel',
@@ -184,6 +208,10 @@ class SocialMediaWrapper {
     }
 
     private function searchGooglePlus($username) {
+        if($this->plus == null) {
+            return array();
+        }
+
         $optParams = array('maxResults' => 20);
         $results = $this->plus->people->search($username, $optParams);
 
