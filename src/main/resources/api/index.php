@@ -578,7 +578,7 @@ $app->get(
                             'label' => $cluster['labels'][0],
                             'query' => implode(',',$cluster['labels']),
                             'score' => $cluster['score'],
-                            'items' => (count($cluster['docs'])/1000) * $count
+                            'items' => round((count($cluster['docs'])/1000) * $count)
                         );
                         $topics[] = $topic;
                     }
@@ -629,8 +629,15 @@ $app->get(
 
 $app->get(
     '/collection/:uid',
-    function ($uid) use($mongoDAO, $textIndex, $utils) {
-        $userCollections = $mongoDAO->getUserCollections($uid);
+    function ($uid) use($mongoDAO, $textIndex, $utils, $app) {
+        
+		$request = $app->request();
+
+		$pageNumber = $request->get("pageNumber")==null ? 1 : $request->get("pageNumber");
+        $nPerPage = $request->get("nPerPage")==null ? 6 : $request->get("nPerPage");
+
+		$all = $mongoDAO->getUserCollections($uid);
+		$userCollections = $mongoDAO->getUserCollections($uid, $pageNumber, $nPerPage);
         foreach($userCollections as &$collection) {
 
             if($collection['status'] != 'stopped') {
@@ -647,13 +654,16 @@ $app->get(
 
             $collection['filters'] = $filters;
 
-            $items = $textIndex->countItems($q, $filters);
-            $collection['items'] = $items;
+            //$items = $textIndex->countItems($q, $filters);
+            //$collection['items'] = $items;
+            //$facet = $textIndex->getFacet('mediaIds', $q, array(), 1, false);
+			//$collection['facet'] = $facet;
 
-            $facet = $textIndex->getFacet('mediaIds', $q, array(), 1, false);
-            $collection['facet'] = $facet;
-            if(count($facet) > 0) {
-                $mId = $facet[0]['field'];
+			$facet = $textIndex->getFacetAndCount('mediaIds', $q, $filters, 1, false);
+            $collection['items'] = $facet['count'];
+            $collection['facet'] = $facet['facet'];
+            if(count($facet['facet']) > 0) {
+                $mId = $facet['facet'][0]['field'];
                 $mItem = $mongoDAO->getMediaItem($mId);
                 if($mItem != null) {
                     $collection['mediaUrl'] = $mItem['url'];
@@ -661,9 +671,27 @@ $app->get(
             }
 
         }
-        echo json_encode(array('ownerId' => $uid, 'collections'=>$userCollections));
+        echo json_encode(array('ownerId' => $uid, 'collections'=>$userCollections, 'count'=>count($all)));
     }
-)->name("get_collections");
+)->name("get_user_collections");
+
+$app->get(
+    '/collection/:uid/:cid',
+    function ($uid, $cid) use($mongoDAO, $textIndex, $utils) {
+
+        $collection = $mongoDAO->getCollection($cid);
+        if($collection == null) {
+            echo json_encode(array());
+            return;
+        }
+
+        if($collection['status'] != 'stopped') {
+            $collection['stopDate'] = 1000 * time();
+        }
+
+        echo json_encode($collection);
+    }
+)->name("get_collection");
 
 $app->post(
     '/collection',

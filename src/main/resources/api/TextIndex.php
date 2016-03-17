@@ -192,13 +192,24 @@ class TextIndex {
         $statistics = array();
         try {
             $resultSet = $this->client->execute($query);
-            $statsResult = $resultSet->getStats();
+			
+			$data = $resultSet->getData();
+            $stats = $data['stats']['stats_fields'];
+            foreach ($stats as $field=>$fieldStats) {
+                $statistics[$field] = array(
+                    'cardinality' => $fieldStats['cardinality'],
+                );
+            }
 
+			/*
+            $statsResult = $resultSet->getStats();
             foreach ($statsResult as $fieldStats) {
                 $statistics[$fieldStats->getName()] = array(
                     'cardinality' => $fieldStats->getCardinality()
                 );
             }
+			*/
+
         }
         catch(Exception $e) { return $e; }
 
@@ -244,6 +255,47 @@ class TextIndex {
         }
 
         return $facets;
+    }
+
+    public function getFacetAndCount($facetField, $q, $filters = array(), $n = 10, $includeAll=true, $prefix=null) {
+
+        // get a select query instance
+        $query = $this->client->createSelect();
+        $query->setQuery($q);
+
+        // set filter queries
+        if($filters != null) {
+            foreach($filters as $filterKey => $filterValue) {
+                $fq = $filterKey . ':(' . $filterValue . ')';
+                $query->createFilterQuery($filterKey)->setQuery($fq);
+            }
+        }
+
+        // get the facet set component
+        $facetSet = $query->getFacetSet();
+        $facetSet->setMinCount(1);
+        $facetSet->setLimit($n);
+
+        // create a facet field instance and set options
+        $ff = $facetSet->createFacetField($facetField);
+        $ff->setField($facetField)->setMissing(false);
+        if($prefix != null) {
+            $ff->setPrefix($prefix);
+        }
+
+        // this executes the query and returns the result
+        $resultSet = $this->client->execute($query);
+        $facet = $resultSet->getFacetSet()->getFacet($facetField);
+
+        $facets = array();
+        if($includeAll) {
+            $facets[] = array('field' => 'all', 'count' => $resultSet->getNumFound());
+        }
+        foreach ($facet as $value => $count) {
+            $facets[] = array('field' => $value, 'count'=>$count);
+        }
+
+        return array('facet'=>$facets, 'count'=>$resultSet->getNumFound());
     }
 
     public function get2DFacet($facetField, $q, $filters = array(), $minLat=-90, $maxLat=90, $minLong=-180, $maxLong=180) {
