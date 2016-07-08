@@ -33,6 +33,12 @@ public class ItemBean extends Bean {
     @Field(value = "text")
     private String text;
     
+    @Field(value = "minhash")
+    private String minhash;
+    
+    @Field(value = "signature")
+    private String signature;
+    
     @Field(value = "uid")
     private String uid;
     
@@ -117,6 +123,9 @@ public class ItemBean extends Bean {
         tags = item.getTags();
         
         text = item.getText();
+        
+        minhash = item.getMinhash();
+        signature = item.getSignature();
         
         uid = item.getUserId();
         reference = item.getReference();
@@ -301,5 +310,21 @@ public class ItemBean extends Bean {
 
 	public void setOriginal(Boolean original) {
 		this.original = original;
+	}
+
+	public String getMinhash() {
+		return minhash;
+	}
+
+	public void setMinhash(String minhash) {
+		this.minhash = minhash;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
 	}
 }
