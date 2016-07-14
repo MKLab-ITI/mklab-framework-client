@@ -24,6 +24,9 @@ public class ItemBean extends Bean {
     @Field(value = "title")
     private String title;
     
+    @Field(value = "cleanTitle")
+    private String cleanTitle;
+    
     @Field(value = "description")
     private String description;
     
@@ -122,6 +125,8 @@ public class ItemBean extends Bean {
         description = item.getDescription();
         tags = item.getTags();
         
+        cleanTitle = item.getCleanTitle();
+        
         text = item.getText();
         
         minhash = item.getMinhash();
@@ -217,6 +222,14 @@ public class ItemBean extends Bean {
         this.title = title;
     }
 
+    public String getCleanTitle() {
+        return cleanTitle;
+    }
+
+    public void setCleanTitle(String cleanTitle) {
+        this.cleanTitle = cleanTitle;
+    }
+    
     public String getDescription() {
         return description;
     }
