@@ -20,9 +20,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 
 public abstract class SolrHandler<K extends Bean> {
-	
-	// commit every 10 seconds to avoid high load on solr
-    private static int commitPeriod = 10000;
     
 	protected Logger logger;
 	
@@ -31,7 +28,7 @@ public abstract class SolrHandler<K extends Bean> {
     public boolean insert(K bean) {
         boolean status = true;
         try {
-        	client.addBean(bean, commitPeriod);
+        	client.addBean(bean);
         } 
         catch (SolrServerException ex) {
             logger.error(ex);
