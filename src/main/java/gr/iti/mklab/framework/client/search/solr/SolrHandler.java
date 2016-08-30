@@ -15,9 +15,12 @@ import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrInputDocument;
 
 public abstract class SolrHandler<K extends Bean> {
     
@@ -41,6 +44,28 @@ public abstract class SolrHandler<K extends Bean> {
         return status;
     }
 
+    public boolean insertWithUpdateChain(K bean) {
+        boolean status = true;
+        try {
+        	DocumentObjectBinder binder = client.getBinder();
+        	UpdateRequest request = new UpdateRequest();
+        	
+        	SolrInputDocument doc = binder.toSolrInputDocument(bean);
+        	request.add(doc);
+        	request.setParam("update.chain", "langid");
+        	
+        	request.process(client);
+        } 
+        catch (SolrServerException ex) {
+            logger.error(ex);
+            status = false;
+        } catch (Exception ex) {
+        	logger.error(ex);
+            status = false;
+        } 
+        return status;
+    }
+    
     public boolean insert(List<K> beans) {
         boolean status = true;
         try {
@@ -56,6 +81,33 @@ public abstract class SolrHandler<K extends Bean> {
         return status;
     }
 	
+    public boolean insertWithUpdateChain(List<K> beans) {
+        boolean status = true;
+        try {
+        	DocumentObjectBinder binder = client.getBinder();
+        	UpdateRequest request = new UpdateRequest();
+        	
+        	List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+        	for(Bean bean : beans) {
+        		SolrInputDocument doc = binder.toSolrInputDocument(bean);	
+        		docs.add(doc);
+        	}
+        	
+        	request.add(docs);
+        	request.setParam("update.chain", "langid");
+        	
+        	request.process(client);
+        } 
+        catch (SolrServerException ex) {
+            logger.error(ex);
+            status = false;
+        } catch (Exception ex) {
+        	logger.error(ex);
+            status = false;
+        } 
+        return status;
+    }
+    
     public boolean deleteById(String itemId) {
         boolean status = false;
         try {
