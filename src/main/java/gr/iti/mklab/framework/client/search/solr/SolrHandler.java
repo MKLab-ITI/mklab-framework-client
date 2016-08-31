@@ -28,10 +28,17 @@ public abstract class SolrHandler<K extends Bean> {
 	
 	protected SolrClient client;
     
+	protected int commitWithinMs = 0;
+	
     public boolean insert(K bean) {
         boolean status = true;
         try {
-        	client.addBean(bean);
+        	if(commitWithinMs > 0) {
+        		client.addBean(bean, commitWithinMs);
+        	}
+        	else {
+        		client.addBean(bean);
+        	}
         } 
         catch (SolrServerException ex) {
             logger.error(ex);
@@ -52,6 +59,9 @@ public abstract class SolrHandler<K extends Bean> {
         	
         	SolrInputDocument doc = binder.toSolrInputDocument(bean);
         	request.add(doc);
+        	if(commitWithinMs > 0) {
+        		request.setCommitWithin(commitWithinMs);
+        	}
         	request.setParam("update.chain", "langid");
         	
         	request.process(client);
@@ -231,5 +241,13 @@ public abstract class SolrHandler<K extends Bean> {
 			logger.error(e);
 		}
 		
+	}
+
+	public int getCommitWithinMs() {
+		return commitWithinMs;
+	}
+
+	public void setCommitWithinMs(int commitWithinMs) {
+		this.commitWithinMs = commitWithinMs;
 	}
 }
