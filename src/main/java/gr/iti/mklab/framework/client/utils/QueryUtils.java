@@ -26,6 +26,13 @@ import com.bpodgursky.jbool_expressions.rules.RuleSet;
 
 public class QueryUtils {
 
+	public static boolean isBooleanExpression(String q) {
+		if(q.matches(".* OR .*") || q.matches(".* AND .*")) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static Set<Set<String>> parse(String q) {
 
 		Node ast = toAST(q);
@@ -135,6 +142,8 @@ public class QueryUtils {
 	
 		Set<Set<String>> queries = QueryUtils.parse(q);
 		System.out.println(queries);
+		
+		System.out.println(QueryUtils.isBooleanExpression(q));
 	}
 	
 }
