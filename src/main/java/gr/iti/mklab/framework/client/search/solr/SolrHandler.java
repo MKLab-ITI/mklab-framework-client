@@ -121,12 +121,9 @@ public abstract class SolrHandler<K extends Bean> {
     public boolean deleteById(String itemId) {
         boolean status = false;
         try {
-        	client.deleteByQuery("id:" + itemId);
-            UpdateResponse response = client.commit();
-            int statusId = response.getStatus();
-            if (statusId == 0) {
-                status = true;
-            }
+        	UpdateResponse response = client.deleteByQuery("id:" + itemId);
+            response.getStatus();
+            status = true; 
         } catch (SolrServerException ex) {
             logger.error(ex);
         } catch (IOException ex) {
@@ -139,12 +136,9 @@ public abstract class SolrHandler<K extends Bean> {
     public boolean delete(String query) {
         boolean status = false;
         try {
-        	client.deleteByQuery(query);
-            UpdateResponse response = client.commit();
-            int statusId = response.getStatus();
-            if (statusId == 0) {
-                status = true;
-            }
+        	UpdateResponse response = client.deleteByQuery(query);
+            response.getStatus();
+            status = true;
         } catch (SolrServerException ex) {
             logger.error(ex);
         } catch (IOException ex) {
