@@ -117,6 +117,9 @@ public class ItemBean extends Bean {
 	@Field(value = "original")
     protected Boolean original = true;
 
+	public ItemBean() {
+	}
+	
 	public ItemBean(Item item) {
         id = item.getId();
         source = item.getSource();
