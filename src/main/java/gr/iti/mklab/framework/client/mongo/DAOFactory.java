@@ -51,7 +51,7 @@ public class DAOFactory {
         if (mongoClient == null) {
         	ServerAddress srvAdr = new ServerAddress(hostname);
         	if(username != null && password != null) {
-        		MongoCredential credential = MongoCredential.createScramSha1Credential(username, dbName, password.toCharArray());
+        		MongoCredential credential = MongoCredential.createScramSha1Credential(username, "admin", password.toCharArray());
         		mongoClient = new MongoClient(srvAdr, Arrays.asList(credential), options);
         	}
         	else {
