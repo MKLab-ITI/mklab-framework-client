@@ -4,6 +4,7 @@ import gr.iti.mklab.framework.common.domain.Item;
 import gr.iti.mklab.framework.common.domain.Location;
 import gr.iti.mklab.framework.common.domain.NamedEntity;
 import gr.iti.mklab.framework.common.domain.StreamUser;
+import gr.iti.mklab.framework.common.domain.Topic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,6 +118,9 @@ public class ItemBean extends Bean {
 	@Field(value = "original")
     protected Boolean original = true;
 
+    @Field(value = "topics", child = true)
+    private List<TopicBean> topics = new ArrayList<TopicBean>();
+    
 	public ItemBean() {
 	}
 	
@@ -199,6 +203,13 @@ public class ItemBean extends Bean {
         shares = item.getShares();
         
         original = item.isOriginal();
+        
+        if(item.getTopics() != null) {
+        	for(Topic topic : item.getTopics()) {
+        		TopicBean tb = new TopicBean(topic);
+        		topics.add(tb);
+        	}
+        }
     }
 
     public String getLanguage() {
