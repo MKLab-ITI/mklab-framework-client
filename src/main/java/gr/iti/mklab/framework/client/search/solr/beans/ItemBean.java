@@ -119,7 +119,7 @@ public class ItemBean extends Bean {
     protected Boolean original = true;
 
     @Field(value = "topics", child = true)
-    private List<TopicBean> topics = new ArrayList<TopicBean>();
+    private List<String> topics = new ArrayList<String>();
     
 	public ItemBean() {
 	}
@@ -206,8 +206,7 @@ public class ItemBean extends Bean {
         
         if(item.getTopics() != null) {
         	for(Topic topic : item.getTopics()) {
-        		TopicBean tb = new TopicBean(topic);
-        		topics.add(tb);
+        		topics.add(topic.getTopic());
         	}
         }
     }
