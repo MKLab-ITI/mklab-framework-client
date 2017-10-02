@@ -118,7 +118,7 @@ public class ItemBean extends Bean {
 	@Field(value = "original")
     protected Boolean original = true;
 
-    @Field(value = "topics", child = true)
+    @Field(value = "topics")
     private List<String> topics = new ArrayList<String>();
     
 	public ItemBean() {
